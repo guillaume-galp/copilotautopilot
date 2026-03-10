@@ -83,9 +83,21 @@ docs/
 
 ## Using as a Template
 
-1. Create a new repo from this template
-2. Start with `/kickstart-vision` to design your product
-3. The conventions, agents, and prompts are ready to use immediately
+### From GitHub (recommended)
+
+```bash
+gh repo create my-product --template guillaume-galp/copilotautopilot --public --clone && cd my-product
+```
+
+### Without GitHub CLI
+
+```bash
+git clone --depth 1 https://github.com/guillaume-galp/copilotautopilot.git my-product \
+  && cd my-product && rm -rf .git && git init && git add . \
+  && git commit -m "Initial commit from copilotautopilot template"
+```
+
+Then open the folder in VS Code and run `/kickstart-vision` in Copilot Chat to start designing your product.
 
 ## License
 
