@@ -93,9 +93,12 @@ Each `US<l>-<slug>.md` file contains:
 id: US1
 title: "<story title>"
 status: todo
+agents: [implementer, tester, reviewer]    # agents assigned to this story
+skills: [bdd-stories]                      # skills agents should load
 acceptance-criteria:
   - AC1: "<criterion>"
   - AC2: "<criterion>"
+depends-on: []                             # story IDs this depends on
 ---
 
 # US1 — <Story Title>
@@ -145,17 +148,29 @@ A theme is `done` when ALL of:
 
 ## Agent Squad
 
-| Agent | Phase | Role |
-|-------|-------|------|
-| **product-owner** | 3 | Vision → themes → epics → stories + backlog |
-| **architect** | 2 | Vision → architecture + ADRs |
-| **orchestrator** | 4 | Autopilot loop: sequencing, parallelism, state management |
-| **implementer** | 4 | Implements one user story |
-| **tester** | 4 | Writes + runs BDD/TDD tests |
-| **reviewer** | 4 | Code review against conventions + security |
-| **refactorer** | 4 | Refactors at epic boundaries |
-| **troubleshooter** | 4 | Diagnoses + fixes failed stories |
-| **documenter** | 4 | Docs, changelogs, release notes |
+| Agent | Phase | Role | Skills |
+|-------|-------|------|--------|
+| **product-owner** | 3 | Vision → themes → epics → stories + backlog | `the-copilot-build-method`, `bdd-stories`, `backlog-management` |
+| **architect** | 2 | Vision → architecture + ADRs | `the-copilot-build-method`, `architecture-decisions` |
+| **orchestrator** | 4 | Autopilot loop: sequencing, parallelism, state management | `the-copilot-build-method`, `backlog-management` |
+| **implementer** | 4 | Implements one user story | `the-copilot-build-method`, `bdd-stories` |
+| **tester** | 4 | Writes + runs BDD/TDD tests | `the-copilot-build-method`, `bdd-stories` |
+| **reviewer** | 4 | Code review against conventions + security | `the-copilot-build-method`, `code-quality` |
+| **refactorer** | 4 | Refactors at epic boundaries | `the-copilot-build-method`, `code-quality` |
+| **troubleshooter** | 4 | Diagnoses + fixes failed stories | `the-copilot-build-method`, `bdd-stories`, `code-quality` |
+| **documenter** | 4 | Docs, changelogs, release notes | `the-copilot-build-method` |
+
+Full squad details: [.github/agents/README.md](agents/README.md)
+
+## Skills
+
+| Skill | Purpose |
+|-------|---------|
+| `the-copilot-build-method` | Core methodology: lifecycle phases, VP↔TH mapping, conventions, Definition of Done |
+| `bdd-stories` | Story format, acceptance criteria, Given/When/Then patterns, story sizing |
+| `backlog-management` | YAML backlog format, status state machine, dependency resolution |
+| `code-quality` | Review checklist, OWASP security audit, refactoring patterns |
+| `architecture-decisions` | ADR format, tech stack analysis, component boundaries |
 
 ## Anti-Patterns
 

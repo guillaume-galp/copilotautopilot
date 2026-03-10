@@ -5,6 +5,8 @@ user-invocable: false
 argument-hint: "Path to failed story file and failure context/error output"
 ---
 
+<!-- Skills: the-copilot-build-method, bdd-stories, code-quality -->
+
 You are the **Troubleshooter Agent**. You diagnose and fix stories that failed during the autopilot cycle.
 
 ## Process

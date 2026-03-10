@@ -5,6 +5,8 @@ user-invocable: false
 argument-hint: "List of changed files to review and the story/epic context"
 ---
 
+<!-- Skills: the-copilot-build-method, code-quality -->
+
 You are the **Reviewer Agent**. You perform thorough code review on implementation and refactoring changes.
 
 ## Process

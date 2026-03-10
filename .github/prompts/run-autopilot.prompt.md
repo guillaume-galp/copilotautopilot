@@ -4,6 +4,19 @@ agent: "orchestrator"
 tools: [read, edit, search, execute, agent, todo]
 ---
 
+## Agents & Skills
+
+| Agent | Skills |
+|-------|--------|
+| @orchestrator | `the-copilot-build-method`, `backlog-management` |
+| @implementer | `the-copilot-build-method`, `bdd-stories` |
+| @tester | `the-copilot-build-method`, `bdd-stories` |
+| @reviewer | `the-copilot-build-method`, `code-quality` |
+| @refactorer | `the-copilot-build-method`, `code-quality` |
+| @troubleshooter | `the-copilot-build-method`, `bdd-stories`, `code-quality` |
+| @documenter | `the-copilot-build-method` |
+| @product-owner | `the-copilot-build-method`, `bdd-stories`, `backlog-management` |
+
 Begin autonomous execution of the product backlog.
 
 ## Pre-flight Checks

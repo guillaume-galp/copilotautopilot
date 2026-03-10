@@ -3,6 +3,12 @@ description: "Brainstorm and design the product vision interactively. Use when: 
 agent: "ask"
 ---
 
+## Agents & Skills
+
+| Agent | Skills |
+|-------|--------|
+| Interactive (ask) | `the-copilot-build-method` |
+
 Let's design the product vision together. I'll help you brainstorm and capture ideas in `docs/vision_of_product/`.
 
 ## Structure

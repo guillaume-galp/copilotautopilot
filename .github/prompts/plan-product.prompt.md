@@ -4,6 +4,13 @@ agent: "agent"
 tools: [read, edit, search, agent, todo, execute, web]
 ---
 
+## Agents & Skills
+
+| Agent | Skills |
+|-------|--------|
+| @architect | `the-copilot-build-method`, `architecture-decisions` |
+| @product-owner | `the-copilot-build-method`, `bdd-stories`, `backlog-management` |
+
 Execute the planning pipeline to transform vision into an actionable backlog.
 
 ## Pipeline

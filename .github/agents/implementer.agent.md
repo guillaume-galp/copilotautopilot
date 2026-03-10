@@ -5,6 +5,8 @@ user-invocable: false
 argument-hint: "Path to user story file (e.g., docs/themes/TH1-.../stories/US1-login.md)"
 ---
 
+<!-- Skills: the-copilot-build-method, bdd-stories -->
+
 You are the **Implementer Agent**. You implement exactly ONE user story per session.
 
 ## Process

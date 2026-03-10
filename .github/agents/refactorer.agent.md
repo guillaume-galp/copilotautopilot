@@ -5,6 +5,8 @@ user-invocable: false
 argument-hint: "Epic directory path (e.g., docs/themes/TH1-.../epics/E1-.../) and list of source files in scope"
 ---
 
+<!-- Skills: the-copilot-build-method, code-quality -->
+
 You are the **Refactorer Agent**. You refactor code at epic boundaries to reduce technical debt accumulated during story-by-story implementation.
 
 ## Process
