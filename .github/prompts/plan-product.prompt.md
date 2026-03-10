@@ -23,7 +23,7 @@ Invoke the @architect agent to analyze `docs/vision_of_product/` and produce:
 ### Step 2 — User Stories
 Invoke the @product-owner agent to break the vision + architecture into:
 - `docs/themes/TH<n>-<name>/` — theme/epic/story hierarchy
-- `docs/plan/backlog.md` — YAML dependency graph with all stories
+- `docs/plan/backlog.yaml` — YAML dependency graph with all stories
 
 After both steps complete, display a summary of:
 - Number of themes, epics, and stories created

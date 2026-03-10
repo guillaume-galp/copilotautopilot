@@ -12,9 +12,9 @@ An autonomous product development methodology powered by a squad of specialized 
 - **Vision-first**: Products start as free-form ideas, not code
 - **Architecture before implementation**: Design decisions are documented before a single line of code
 - **BDD-driven**: Every feature is specified as testable scenarios before implementation
-- **Incremental delivery**: Products are built in vision phases (VP<n>) that map to implementation themes (TH<n>)
+- **Incremental delivery**: Products are built in vision phases (VP<n>) that map to implementation themes (TH<n>), with 1:N mapping for large VPs
 - **Autonomous execution**: The orchestrator agent loops the squad through implement → test → review cycles
-- **Persistent state**: All progress is tracked in `docs/plan/backlog.md` for resumability
+- **Persistent state**: All progress is tracked in `docs/plan/backlog.yaml` for resumability
 - **Ceremony at boundaries**: Epic and theme completions trigger quality gates (integration tests, refactor, release notes)
 
 ## The 4 Phases
@@ -33,7 +33,7 @@ An autonomous product development methodology powered by a squad of specialized 
 
 ### Phase 3 — Planning (Product Owner Agent)
 - Prompt: `/plan-product` (step 2)
-- Output: `docs/themes/TH<n>/` + `docs/plan/backlog.md`
+- Output: `docs/themes/TH<n>/` + `docs/plan/backlog.yaml`
 - Vision decomposed into themes → epics → user stories
 - Stories are hybrid BDD (acceptance criteria + Given/When/Then)
 - Backlog YAML is the dependency graph + status state machine
@@ -47,33 +47,50 @@ An autonomous product development methodology powered by a squad of specialized 
 
 ## VP ↔ TH Mapping Convention
 
-| Vision Phase | Theme | Relationship |
+One vision phase can produce **one or more** themes (1:N). Theme numbering is sequential and independent of VP numbering.
+
+| Vision Phase | Theme(s) | Relationship |
 |:---|:---|:---|
-| `docs/vision_of_product/VP1-mvp/` | `docs/themes/TH1-<name>/` | 1:1 by convention |
-| `docs/vision_of_product/VP2-<feat>/` | `docs/themes/TH2-<name>/` | 1:1 by convention |
+| `VP1-mvp/` | `TH1-<name>/` | 1:1 (simple case) |
+| `VP1-mvp/` | `TH1-<name>/`, `TH2-<name>/` | 1:N (large vision phase) |
+| `VP2-<feat>/` | `TH3-<name>/` | Sequential numbering continues |
 
 ## Definition of Done
 
 ### Story Done
 1. Code compiles / lints clean
-2. All BDD scenario tests pass
+2. All BDD scenario tests pass (if applicable — trivial/spike stories may have fewer or no BDD tests)
 3. All acceptance criteria verified
 4. Build artifacts produce successfully
-5. Code review agent approves
+5. Code review agent approves (trivial stories: lightweight self-review only, skip full reviewer)
 6. Relevant documentation updated
 
 ### Epic Done (Story DoD + ceremony)
+
+Ceremony scales with epic size:
+
+**Small epic (≤3 stories)**:
+1. All stories `done`
+2. Run full test suite across epic stories
+3. Brief changelog entry
+
+**Large epic (4+ stories)**:
 1. All stories `done`
 2. Integration test suite passes across all epic stories
-3. Refactor pass completed + reviewer approves
-4. Documenter produces epic changelog entry
+3. Reviewer performs lightweight code quality check
+4. Orchestrator generates full epic changelog entry
 
 ### Theme Done (Epic DoD + ceremony)
 1. All epics `done`
-2. Regression test suite passes across all theme epics
+2. Full test suite passes (all tests across all epics)
 3. Release readiness: artifacts build, docs complete, no `failed` stories
-4. Documenter produces theme release notes
-5. Product-owner revalidates theme against `docs/vision_of_product/VP<n>/`
+4. If `docs/architecture/deployment.md` exists, verify deployment readiness (CI/CD, health checks, rollback)
+5. If vision includes NFRs (performance, scalability targets), verify they are covered by test results
+6. Orchestrator produces theme release notes
+7. Product-owner revalidates theme against `docs/vision_of_product/VP<n>/`
+8. **User checkpoint**: orchestrator pauses and presents a demo summary to the user:
+   - User can **accept** (proceed to next theme), **reject** (rework), or **amend** vision for next VP
+   - Vision is frozen only for the theme currently in execution — future VPs can be updated at checkpoints
 
 ## Naming Conventions
 
@@ -92,17 +109,14 @@ An autonomous product development methodology powered by a squad of specialized 
 | orchestrator | 4 | Autopilot loop, sequencing, state management |
 | product-owner | 3 | Vision → themes/epics/stories + backlog |
 | architect | 2 | Vision → architecture + ADRs |
-| implementer | 4 | Codes one user story per session |
-| tester | 4 | BDD tests, integration tests, regression tests |
+| developer | 4 | Implements + tests one user story per session |
 | reviewer | 4 | Code review: correctness, security, conventions |
-| refactorer | 4 | Epic-boundary technical debt cleanup |
 | troubleshooter | 4 | Diagnoses + fixes failed stories |
-| documenter | 4 | Changelogs, release notes, docs updates |
 
 ## Anti-Patterns
 
-- Never hardcode state in agent memory — read/write `docs/plan/backlog.md`
+- Never hardcode state in agent memory — read/write `docs/plan/backlog.yaml`
 - Never skip the troubleshooter — failed stories must be fixed before epic completion
-- Never modify vision docs during Phase 4
+- Never modify vision docs during Phase 4 for the **theme currently in execution** — future VPs can be amended at user checkpoints
 - Never implement multiple stories in one agent session
-- Never skip the refactor at epic end
+- Never skip the code quality review at epic end

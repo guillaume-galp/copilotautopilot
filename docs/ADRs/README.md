@@ -25,10 +25,22 @@ Proposed | Accepted | Deprecated | Superseded by ADR-<NNN>
 <What is the change that we're proposing and/or doing?>
 
 ## Consequences
-<What becomes easier or harder as a result?>
+
+### Positive
+- <benefit>
+
+### Negative
+- <trade-off>
+
+### Risks
+- <risk and mitigation>
 
 ## Alternatives Considered
-<What other options were evaluated and why they were rejected?>
+
+### <Alternative 1>
+- Pros: <advantages>
+- Cons: <disadvantages>
+- Rejected because: <reason>
 ```
 
 ## Index

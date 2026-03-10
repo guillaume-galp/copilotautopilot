@@ -1,21 +1,32 @@
 ---
-description: "Manually trigger troubleshooting for a failed story, broken build, or test failures. Use when: debugging, fixing errors, story failed, test failures, build broken."
+description: "Diagnose and fix a failing build, test, or story. Use when: tests are broken, build fails, a story is stuck, or you need root-cause analysis outside the autopilot loop."
 agent: "troubleshooter"
 tools: [read, edit, search, execute]
 ---
 
-Diagnose and fix the specified issue.
+## Agents & Skills
 
-## Skills
+| Agent | Skills |
+|-------|--------|
+| @troubleshooter | `the-copilot-build-method`, `bdd-stories`, `code-quality` |
 
-Load: `the-copilot-build-method`, `bdd-stories`, `code-quality`
+Diagnose and fix the current failure.
 
-## Process
+## Context Gathering
 
-1. Read the failure context (story file, error output, test results, reviewer feedback)
-2. Diagnose the root cause — categorize as: `LOGIC_ERROR`, `TEST_ERROR`, `BUILD_ERROR`, `INTEGRATION_ERROR`, or `REQUIREMENT_AMBIGUITY`
-3. Apply the minimal fix needed
-4. Verify the fix by running tests
-5. Report diagnosis, fix details, and confidence level
+1. If a story path is provided as argument, read the story file for acceptance criteria and expected behavior
+2. Check `docs/plan/backlog.yaml` for any stories with `status: failed` — start with those
+3. Run the project's test suite to reproduce the failure
+4. Read error output carefully before proposing any fix
 
-If the issue can't be resolved after thorough investigation, report `CONFIDENCE: LOW` and recommend specific areas for user intervention.
+## Diagnosis Process
+
+1. **Reproduce** — run the failing test or build command
+2. **Categorize** — logic error, test bug, build/dependency issue, integration error, or requirement ambiguity
+3. **Root cause** — trace the failure to its source (don't fix symptoms)
+4. **Fix** — apply the minimal change needed
+5. **Verify** — re-run tests to confirm the fix works and doesn't break other tests
+
+## Output
+
+Return a structured troubleshooting report with root cause, category, fix applied, and verification results.

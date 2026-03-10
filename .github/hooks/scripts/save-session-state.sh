@@ -8,12 +8,12 @@ LOG_FILE="docs/plan/session-log.md"
 # Ensure the log file directory exists
 mkdir -p "$(dirname "$LOG_FILE")"
 
-# Count remaining stories
-if [ -f docs/plan/backlog.md ]; then
-    TODO=$(grep -c 'status: todo' docs/plan/backlog.md 2>/dev/null || echo "0")
-    IN_PROGRESS=$(grep -c 'status: in-progress' docs/plan/backlog.md 2>/dev/null || echo "0")
-    DONE=$(grep -c 'status: done' docs/plan/backlog.md 2>/dev/null || echo "0")
-    FAILED=$(grep -c 'status: failed' docs/plan/backlog.md 2>/dev/null || echo "0")
+# Count story-level statuses only (lines indented with 14+ spaces are story-level)
+if [ -f docs/plan/backlog.yaml ]; then
+    TODO=$(grep -E '^\s{14,}status: todo' docs/plan/backlog.yaml 2>/dev/null | wc -l)
+    IN_PROGRESS=$(grep -E '^\s{14,}status: in-progress' docs/plan/backlog.yaml 2>/dev/null | wc -l)
+    DONE=$(grep -E '^\s{14,}status: done' docs/plan/backlog.yaml 2>/dev/null | wc -l)
+    FAILED=$(grep -E '^\s{14,}status: failed' docs/plan/backlog.yaml 2>/dev/null | wc -l)
     echo "### Session ended: ${TIMESTAMP}" >> "$LOG_FILE"
     echo "- Todo: ${TODO} | In-progress: ${IN_PROGRESS} | Done: ${DONE} | Failed: ${FAILED}" >> "$LOG_FILE"
     echo "" >> "$LOG_FILE"

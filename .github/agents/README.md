@@ -1,6 +1,6 @@
 # The Autopilot Squad
 
-The Copilot Build Method is powered by a squad of 9 specialized agents, each with a focused role in the product development lifecycle.
+The Copilot Build Method is powered by a squad of 6 specialized agents, each with a focused role in the product development lifecycle.
 
 ## Squad Overview
 
@@ -12,18 +12,10 @@ The Copilot Build Method is powered by a squad of 9 specialized agents, each wit
                              │ delegates to
         ┌────────────────────┼────────────────────┐
         │                    │                    │
-   ┌────▼─────┐       ┌─────▼─────┐       ┌─────▼──────┐
-   │IMPLEMENTER│──────►│  TESTER   │──────►│  REVIEWER   │  Per-story cycle
-   └───────────┘       └───────────┘       └─────────────┘
-        │                                        │
-        │ on failure                             │ at epic end
-   ┌────▼──────────┐                      ┌─────▼──────┐
-   │ TROUBLESHOOTER │                      │ REFACTORER  │  Epic ceremony
-   └───────────────┘                      └─────────────┘
-                                                │
-                                          ┌─────▼──────┐
-                                          │ DOCUMENTER  │  Changelogs & notes
-                                          └────────────┘
+   ┌────▼──────┐       ┌─────▼─────┐       ┌─────▼──────┐
+   │ DEVELOPER  │◄─────│  REVIEWER  │       │TROUBLESHOOT│
+   │(impl+test) │      │            │       │            │  Per-story cycle
+   └────────────┘      └────────────┘       └────────────┘
 
    ┌──────────┐     ┌───────────────┐
    │ ARCHITECT │────►│ PRODUCT OWNER │  Phases 2-3: Design & Plan
@@ -34,7 +26,7 @@ The Copilot Build Method is powered by a squad of 9 specialized agents, each wit
 
 ### Orchestrator
 - **Phase**: 4 (Autopilot Execution)
-- **Role**: Squad leader. Reads the backlog, sequences work, delegates to subagents, manages the full lifecycle loop.
+- **Role**: Squad leader. Reads the backlog, sequences work, delegates to subagents, manages the full lifecycle loop. Generates changelogs at epic boundaries and release notes at theme boundaries.
 - **Skills**: `the-copilot-build-method`, `backlog-management`
 - **Delegates to**: All other agents
 - **Invocable**: By user (via `/run-autopilot`)
@@ -51,15 +43,9 @@ The Copilot Build Method is powered by a squad of 9 specialized agents, each wit
 - **Skills**: `the-copilot-build-method`, `architecture-decisions`
 - **Invocable**: By user (via `/plan-product`)
 
-### Implementer
+### Developer
 - **Phase**: 4 (Autopilot Execution)
-- **Role**: Implements exactly one user story per session. Writes production code, runs builds.
-- **Skills**: `the-copilot-build-method`, `bdd-stories`
-- **Invocable**: Subagent only (orchestrator delegates)
-
-### Tester
-- **Phase**: 4 (Autopilot Execution)
-- **Role**: Writes and runs BDD/TDD tests. Operates in three modes: story testing, epic integration testing, theme regression testing.
+- **Role**: Implements AND tests exactly one user story per session. Writes production code, test files, runs builds and tests.
 - **Skills**: `the-copilot-build-method`, `bdd-stories`
 - **Invocable**: Subagent only (orchestrator delegates)
 
@@ -67,25 +53,15 @@ The Copilot Build Method is powered by a squad of 9 specialized agents, each wit
 - **Phase**: 4 (Autopilot Execution)
 - **Role**: Code review for correctness, security (OWASP Top 10), architecture compliance, and conventions.
 - **Skills**: `the-copilot-build-method`, `code-quality`
-- **Invocable**: Subagent only (orchestrator delegates), or manually via `/review`
-
-### Refactorer
-- **Phase**: 4 (Epic Completion)
-- **Role**: Refactors code at epic boundaries to reduce technical debt. Behavior-preserving changes only.
-- **Skills**: `the-copilot-build-method`, `code-quality`
-- **Invocable**: Subagent only (orchestrator delegates), or manually via `/refactor`
+- **Invocable**: Subagent only (orchestrator delegates)
 
 ### Troubleshooter
 - **Phase**: 4 (Failure Recovery)
 - **Role**: Diagnoses and fixes failed stories. Root-cause analysis, minimal fix, verification.
 - **Skills**: `the-copilot-build-method`, `bdd-stories`, `code-quality`
-- **Invocable**: Subagent only (orchestrator delegates), or manually via `/troubleshoot`
-
-### Documenter
-- **Phase**: 4 (Epic/Theme Completion)
-- **Role**: Produces changelogs at epic boundaries and release notes at theme boundaries. Updates project documentation.
-- **Skills**: `the-copilot-build-method`
 - **Invocable**: Subagent only (orchestrator delegates)
+
+> **Archived agents**: `implementer`, `tester`, `refactorer`, and `documenter` have been retired. See `.github/agents/archive/` for historical reference. The developer agent replaces implementer+tester; refactoring is handled by the reviewer at epic boundaries; changelog/release notes are generated by the orchestrator.
 
 ## Agent ↔ Skill Matrix
 
@@ -94,12 +70,9 @@ The Copilot Build Method is powered by a squad of 9 specialized agents, each wit
 | orchestrator | ✓ | | ✓ | | |
 | product-owner | ✓ | ✓ | ✓ | | |
 | architect | ✓ | | | | ✓ |
-| implementer | ✓ | ✓ | | | |
-| tester | ✓ | ✓ | | | |
+| developer | ✓ | ✓ | | | |
 | reviewer | ✓ | | | ✓ | |
-| refactorer | ✓ | | | ✓ | |
 | troubleshooter | ✓ | ✓ | | ✓ | |
-| documenter | ✓ | | | | |
 
 ## Lifecycle Prompts
 
@@ -108,7 +81,5 @@ The Copilot Build Method is powered by a squad of 9 specialized agents, each wit
 | `/kickstart-vision` | ask (interactive) | 1 |
 | `/plan-product` | architect → product-owner | 2-3 |
 | `/run-autopilot` | orchestrator → all | 4 |
-| `/refactor` | refactorer → reviewer | 4 (manual) |
-| `/review` | reviewer | 4 (manual) |
-| `/review-docs` | reviewer | 4 (manual) |
-| `/troubleshoot` | troubleshooter | 4 (manual) |
+| `/review` | reviewer | 4 (ad-hoc) |
+| `/troubleshoot` | troubleshooter | 4 (ad-hoc) |

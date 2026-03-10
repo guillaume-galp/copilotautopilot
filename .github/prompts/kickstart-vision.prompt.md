@@ -13,10 +13,10 @@ Let's design the product vision together. I'll help you brainstorm and capture i
 
 ## Structure
 
-Each vision phase maps to an implementation theme:
+Each vision phase maps to one or more implementation themes (1:N):
 - `VP1-mvp/` → `TH1` — your minimum viable product
-- `VP2-<feature>/` → `TH2` — first incremental feature set
-- `VP3-<feature>/` → `TH3` — and so on...
+- `VP2-<feature>/` → `TH2`, `TH3` — larger phases can produce multiple themes
+- Theme numbering is sequential and independent of VP numbering
 
 ## What to capture in each VP<n> directory
 

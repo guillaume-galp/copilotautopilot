@@ -82,3 +82,26 @@ When reviewing documentation quality:
 - ADRs are not contradicted by implementation
 - CHANGELOG entries are accurate and complete
 - User story acceptance criteria match what was actually built
+
+## UX / Accessibility Checklist (UI Projects Only)
+
+> **Applies only when the project includes user-facing UI components.** Skip this section for backend-only, CLI-only, or infrastructure projects.
+
+### WCAG Compliance
+- Semantic HTML elements used (headings, landmarks, lists, buttons)
+- All images have meaningful `alt` text (or `alt=""` for decorative)
+- Form inputs have associated `<label>` elements
+- ARIA attributes used correctly where native semantics are insufficient
+- Page has a logical heading hierarchy (h1 → h2 → h3, no skipped levels)
+
+### Keyboard Navigation
+- All interactive elements reachable via Tab key in logical order
+- Focus indicator is visible on all focusable elements
+- Modal dialogs trap focus and return focus on close
+- Custom controls handle Enter/Space for activation, Escape for dismiss
+- No keyboard traps — user can always Tab away
+
+### Color & Contrast
+- Text meets WCAG AA contrast ratio (4.5:1 normal text, 3:1 large text)
+- Information is not conveyed by color alone (use icons, patterns, or labels too)
+- UI is usable in high-contrast mode and with color-blindness simulation

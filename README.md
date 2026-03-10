@@ -17,12 +17,12 @@ A squad of specialized Copilot agents that collaborate through a structured life
 │  /plan-product            → docs/architecture/ + docs/ADRs/     │
 ├─────────────────────────────────────────────────────────────────┤
 │  Phase 3: PLANNING        Product Owner agent                   │
-│  /plan-product            → docs/themes/TH<n>/ + backlog.md     │
+│  /plan-product            → docs/themes/TH<n>/ + backlog.yaml   │
 ├─────────────────────────────────────────────────────────────────┤
 │  Phase 4: AUTOPILOT       Orchestrator loops the squad          │
 │  /run-autopilot           implement → test → review → repeat    │
-│                           epic end: integration + refactor       │
-│                           theme end: regression + release notes  │
+│                           epic end: integration + review          │
+│                           theme end: full test suite + release    │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -36,12 +36,12 @@ A squad of specialized Copilot agents that collaborate through a structured life
 2. **Generate architecture and plan**
    - Run `/plan-product` in Copilot Chat
    - Architect agent produces `docs/architecture/` and `docs/ADRs/`
-   - Product Owner agent breaks vision into themes/epics/stories and builds `docs/plan/backlog.md`
+   - Product Owner agent breaks vision into themes/epics/stories and builds `docs/plan/backlog.yaml`
 
 3. **Launch autopilot**
-   - Run `/run-autopilot` in Copilot Chat
+   - Run `/run-autopilot` in Copilot Chat in "Autopilot" mode
    - Orchestrator executes stories autonomously: implement → test → review
-   - Session state persists in `docs/plan/backlog.md` — resume anytime
+   - Session state persists in `docs/plan/backlog.yaml` — resume anytime
 
 ## Agent Squad
 
@@ -50,12 +50,9 @@ A squad of specialized Copilot agents that collaborate through a structured life
 | **orchestrator** | Autopilot loop: sequencing, parallelism, state management | 4 |
 | **product-owner** | Vision → themes → epics → BDD stories | 3 |
 | **architect** | Vision → architecture, tech stack, ADRs | 2 |
-| **implementer** | Implements one user story per session | 4 |
-| **tester** | Writes + runs BDD/TDD tests (story, integration, regression) | 4 |
+| **developer** | Implements + tests one user story per session | 4 |
 | **reviewer** | Code review: correctness, security, conventions | 4 |
-| **refactorer** | Cleans up tech debt at epic boundaries | 4 |
 | **troubleshooter** | Diagnoses and fixes failed stories | 4 |
-| **documenter** | Changelogs, release notes, docs updates | 4 |
 
 ## Directory Structure
 
@@ -66,11 +63,11 @@ docs/
 ├── ADRs/                 # Architecture Decision Records
 ├── themes/               # TH<n>/epics/E<m>/stories/US<l>.md
 └── plan/
-    ├── backlog.md        # Core state file (YAML dependency graph)
+    ├── backlog.yaml      # Core state file (pure YAML dependency graph)
     └── session-log.md    # Autopilot session history
 
 .github/
-├── agents/               # 9 specialized agents
+├── agents/               # 6 specialized agents
 ├── prompts/              # 3 lifecycle prompts
 ├── hooks/                # Session lifecycle automation
 └── copilot-instructions.md
@@ -78,9 +75,9 @@ docs/
 
 ## Key Conventions
 
-- **VP<n> ↔ TH<n>**: Vision phases map 1:1 to implementation themes
-- **1 story = 1 implementer session**: Stories are sized for single-agent execution
-- **Backlog is truth**: `docs/plan/backlog.md` is the only state file the orchestrator trusts
+- **VP<n> ↔ TH<n>**: Vision phases map 1:N to implementation themes
+- **1 story = 1 developer session**: Stories are sized for single-agent execution
+- **Backlog is truth**: `docs/plan/backlog.yaml` is the only state file the orchestrator trusts
 - **Hybrid BDD**: Stories contain acceptance criteria + Given/When/Then scenarios
 - **Language-agnostic**: Architect agent chooses tech stack based on your vision
 

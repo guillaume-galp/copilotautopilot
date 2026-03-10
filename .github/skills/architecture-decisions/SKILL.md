@@ -99,7 +99,56 @@ docs/architecture/
 ├── tech-stack.md        # Chosen technologies with rationale
 ├── components.md        # Component breakdown and boundaries
 ├── data-model.md        # Data entities, storage, relationships
-└── project-setup.md     # Repo structure, build system, dev environment
+├── project-setup.md     # Repo structure, build system, dev environment
+└── deployment.md        # (optional) CI/CD, infra, health checks, rollback
 ```
 
+### deployment.md (Optional)
+
+Include when the product has a deployment target beyond local development. Covers:
+- CI/CD pipeline design (build → test → stage → prod)
+- Infrastructure requirements (compute, storage, networking)
+- Health check endpoints and monitoring
+- Rollback strategy and blue/green or canary deployment
+- Environment configuration management
+
 Each significant decision is cross-referenced with its ADR in `docs/ADRs/`.
+
+## Git Workflow
+
+### Commit Convention
+
+One commit per story using conventional commit format with the qualified story ID:
+
+```
+feat(TH1.E1.US1): implement user login form
+fix(TH1.E2.US3): correct session timeout handling
+docs(TH1.E3.US1): slim copilot-instructions.md
+```
+
+### Branching Strategy (Optional)
+
+For teams that prefer branch isolation:
+- **Branch per epic**: `epic/TH1-E1-core-schema` — merge to main when epic is done
+- **Main-only**: All commits go directly to the default branch — simpler for solo or small teams
+- Choose the model that fits the team size and risk tolerance
+
+### Orchestrator Integration
+
+The orchestrator should create a commit after each story transitions to `done`, following the commit convention above.
+
+## Dependency Management
+
+### Lockfiles
+- Always commit lockfiles (`package-lock.json`, `yarn.lock`, `Pipfile.lock`, `go.sum`, etc.)
+- Lockfiles ensure reproducible builds across environments
+
+### Version Pinning
+- Pin direct dependencies to exact versions or narrow ranges
+- Let lockfiles handle transitive dependency resolution
+- Document version constraints in `docs/architecture/tech-stack.md`
+
+### Update Strategy
+- Review dependency updates at epic boundaries (not per-story)
+- Use automated tools (Dependabot, Renovate) for security patches
+- Major version bumps require an ADR documenting the upgrade rationale
