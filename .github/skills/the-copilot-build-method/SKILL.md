@@ -33,10 +33,11 @@ An autonomous product development methodology powered by a squad of specialized 
 
 ### Phase 3 — Planning (Product Owner Agent)
 - Prompt: `/plan-product` (step 2)
-- Output: `docs/themes/TH<n>/` + `docs/plan/backlog.yaml`
+- Output: `docs/themes/TH<n>/` + `docs/plan/backlog.yaml` + `.github/ISSUE_TEMPLATE/TH<n>-E<m>-<slug>.md`
 - Vision decomposed into themes → epics → user stories
 - Stories are hybrid BDD (acceptance criteria + Given/When/Then)
 - Backlog YAML is the dependency graph + status state machine
+- One GitHub issue template generated per epic (required for Phase 4B Loom weaving)
 
 ### Phase 4A — Local Autopilot Execution (Orchestrator Agent)
 - Prompt: `/run-autopilot`

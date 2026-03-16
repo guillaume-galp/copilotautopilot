@@ -10,7 +10,7 @@ This is a **template repository** for AI-driven autonomous product development. 
 |-------|--------|--------|
 | 1. Vision | `/kickstart-vision` | `docs/vision_of_product/VP<n>/` |
 | 2. Architecture | `/plan-product` | `docs/architecture/` + `docs/ADRs/` |
-| 3. Planning | `/plan-product` | `docs/themes/TH<n>/` + `docs/plan/backlog.yaml` |
+| 3. Planning | `/plan-product` | `docs/themes/TH<n>/` + `docs/plan/backlog.yaml` + `.github/ISSUE_TEMPLATE/` |
 | 4A. Autopilot | `/run-autopilot` | Autonomous implement → test → review loop (local) |
 | 4B. Loom Weaving | `/run-loom` | Server-side PR weaving via Loom MCP (requires loom binary) |
 
