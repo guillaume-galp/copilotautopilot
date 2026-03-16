@@ -19,10 +19,15 @@ A squad of specialized Copilot agents that collaborate through a structured life
 │  Phase 3: PLANNING        Product Owner agent                   │
 │  /plan-product            → docs/themes/TH<n>/ + backlog.yaml   │
 ├─────────────────────────────────────────────────────────────────┤
-│  Phase 4: AUTOPILOT       Orchestrator loops the squad          │
+│  Phase 4A: LOCAL AUTOPILOT Orchestrator loops the squad          │
 │  /run-autopilot           implement → test → review → repeat    │
 │                           epic end: integration + review          │
 │                           theme end: full test suite + release    │
+├─────────────────────────────────────────────────────────────────┤
+│  Phase 4B: LOOM WEAVING   Loom MCP drives GitHub server-side    │
+│  /run-loom                create issue → assign @copilot →      │
+│                           poll PR → gate → merge → repeat        │
+│                           (requires loom binary as MCP server)   │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -38,21 +43,34 @@ A squad of specialized Copilot agents that collaborate through a structured life
    - Architect agent produces `docs/architecture/` and `docs/ADRs/`
    - Product Owner agent breaks vision into themes/epics/stories and builds `docs/plan/backlog.yaml`
 
-3. **Launch autopilot**
+3. **Launch autopilot** *(choose one)*
+
+   **Option A — Local Autopilot** (no extra tools required):
    - Run `/run-autopilot` in Copilot Chat in "Autopilot" mode
-   - Orchestrator executes stories autonomously: implement → test → review
+   - Orchestrator executes stories locally: implement → test → review
    - Session state persists in `docs/plan/backlog.yaml` — resume anytime
+
+   **Option B — Loom Weaving** (requires [Loom](https://github.com/guillaume7/loom)):
+   - Install `loom` and register it as an MCP server in VS Code
+   - Run `/run-loom` in Copilot Chat
+   - Loom drives GitHub server-side: issues → `@copilot` → PRs → CI → merge
+   - All state persists in a local SQLite database — survives restarts
 
 ## Agent Squad
 
 | Agent | Role | Phase |
 |-------|------|-------|
-| **orchestrator** | Autopilot loop: sequencing, parallelism, state management | 4 |
+| **orchestrator** | Local autopilot loop: sequencing, parallelism, state management | 4A |
 | **product-owner** | Vision → themes → epics → BDD stories | 3 |
 | **architect** | Vision → architecture, tech stack, ADRs | 2 |
-| **developer** | Implements + tests one user story per session | 4 |
-| **reviewer** | Code review: correctness, security, conventions | 4 |
-| **troubleshooter** | Diagnoses and fixes failed stories | 4 |
+| **developer** | Implements + tests one user story per session | 4A |
+| **reviewer** | Code review: correctness, security, conventions | 4A |
+| **troubleshooter** | Diagnoses and fixes failed stories | 4A |
+| **loom-mcp-operator** | Drives Loom MCP tools to weave PRs server-side | 4B |
+| **loom-orchestrator** | End-to-end FSM driver with gate/debug/merge handoffs | 4B |
+| **loom-gate** | Read-only pre-merge checks (CI, review, draft, conflicts) | 4B |
+| **loom-debug** | CI failure diagnosis; posts structured debug comment | 4B |
+| **loom-merge** | Merge-only agent; calls `merge_pull_request` and returns JSON | 4B |
 
 ## Directory Structure
 
@@ -67,8 +85,12 @@ docs/
     └── session-log.md    # Autopilot session history
 
 .github/
-├── agents/               # 6 specialized agents
-├── prompts/              # 3 lifecycle prompts
+├── agents/               # 11 specialized agents (6 core + 5 loom)
+├── prompts/              # Lifecycle prompts (/kickstart-vision, /plan-product,
+│                         #   /run-autopilot, /run-loom, /review, /troubleshoot)
+├── skills/               # 6 reusable skills (the-copilot-build-method,
+│                         #   bdd-stories, backlog-management, code-quality,
+│                         #   architecture-decisions, loom-mcp-loop)
 ├── hooks/                # Session lifecycle automation
 └── copilot-instructions.md
 ```
@@ -80,6 +102,7 @@ docs/
 - **Backlog is truth**: `docs/plan/backlog.yaml` is the only state file the orchestrator trusts
 - **Hybrid BDD**: Stories contain acceptance criteria + Given/When/Then scenarios
 - **Language-agnostic**: Architect agent chooses tech stack based on your vision
+- **Two execution modes**: `/run-autopilot` runs locally; `/run-loom` offloads to GitHub server-side via the Loom binary
 
 ## Using as a Template
 

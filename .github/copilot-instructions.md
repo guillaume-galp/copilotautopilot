@@ -11,7 +11,8 @@ This is a **template repository** for AI-driven autonomous product development. 
 | 1. Vision | `/kickstart-vision` | `docs/vision_of_product/VP<n>/` |
 | 2. Architecture | `/plan-product` | `docs/architecture/` + `docs/ADRs/` |
 | 3. Planning | `/plan-product` | `docs/themes/TH<n>/` + `docs/plan/backlog.yaml` |
-| 4. Autopilot | `/run-autopilot` | Autonomous implement → test → review loop |
+| 4A. Autopilot | `/run-autopilot` | Autonomous implement → test → review loop (local) |
+| 4B. Loom Weaving | `/run-loom` | Server-side PR weaving via Loom MCP (requires loom binary) |
 
 ## Core State
 
@@ -24,10 +25,15 @@ This is a **template repository** for AI-driven autonomous product development. 
 |-------|-------|------|
 | **product-owner** | 3 | Vision → themes/epics/stories + backlog |
 | **architect** | 2 | Vision → architecture + ADRs |
-| **orchestrator** | 4 | Autopilot loop: sequencing, state management |
-| **developer** | 4 | Implements + tests one user story |
-| **reviewer** | 4 | Code review: correctness, security, conventions |
-| **troubleshooter** | 4 | Diagnoses + fixes failed stories |
+| **orchestrator** | 4A | Local autopilot loop: sequencing, state management |
+| **developer** | 4A | Implements + tests one user story |
+| **reviewer** | 4A | Code review: correctness, security, conventions |
+| **troubleshooter** | 4A | Diagnoses + fixes failed stories |
+| **loom-mcp-operator** | 4B | Drives Loom MCP tools in the master session |
+| **loom-orchestrator** | 4B | Orchestrates the Loom FSM end-to-end |
+| **loom-gate** | 4B | Evaluates whether a PR is safe to merge |
+| **loom-debug** | 4B | Diagnoses CI failures on a pull request |
+| **loom-merge** | 4B | Merges a pull request by number |
 
 ## Skills Reference
 
@@ -40,6 +46,7 @@ Each topic below is owned by exactly one skill. See the skill for canonical deta
 | Backlog format | `backlog-management` | YAML schema, status state machine, dependency resolution, sequencing rules |
 | Code review | `code-quality` | Review checklist, OWASP security audit |
 | Architecture | `architecture-decisions` | ADR format, tech stack analysis, component boundaries |
+| Loom MCP | `loom-mcp-loop` | Canonical `loom_next_step` → GitHub action → `loom_checkpoint` loop |
 
 ## Anti-Patterns
 

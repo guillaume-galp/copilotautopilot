@@ -38,12 +38,20 @@ An autonomous product development methodology powered by a squad of specialized 
 - Stories are hybrid BDD (acceptance criteria + Given/When/Then)
 - Backlog YAML is the dependency graph + status state machine
 
-### Phase 4 — Autopilot Execution (Orchestrator Agent)
+### Phase 4A — Local Autopilot Execution (Orchestrator Agent)
 - Prompt: `/run-autopilot`
 - Loop: implement → test → review per story
 - Epic end ceremony: integration tests + refactor + review + changelog
 - Theme end ceremony: regression tests + release readiness + release notes + vision revalidation
 - Failed stories: troubleshooter loop (max 3 attempts, then escalate)
+
+### Phase 4B — Loom Weaving (Loom MCP Operator)
+- Prompt: `/run-loom`
+- Alternative to Phase 4A; requires the [Loom](https://github.com/guillaume7/loom) binary installed and configured as an MCP server
+- The Loom Go binary drives a deterministic FSM: creates GitHub issues → assigns `@copilot` → polls for PRs → gates merges → merges approved PRs
+- The `loom-mcp-operator` agent drives Loom MCP tools (`loom_next_step`, `loom_checkpoint`, `loom_heartbeat`, `loom_get_state`, `loom_abort`) and executes one GitHub action per checkpoint
+- Sub-agents `loom-gate`, `loom-debug`, and `loom-merge` handle specialized merge gating, CI failure diagnosis, and PR merging respectively
+- State persists in a local SQLite database (managed by Loom) — survives VS Code restarts and machine reboots
 
 ## VP ↔ TH Mapping Convention
 
@@ -106,12 +114,17 @@ Ceremony scales with epic size:
 
 | Agent | Phase | Responsibility |
 |:---|:---|:---|
-| orchestrator | 4 | Autopilot loop, sequencing, state management |
+| orchestrator | 4A | Local autopilot loop, sequencing, state management |
 | product-owner | 3 | Vision → themes/epics/stories + backlog |
 | architect | 2 | Vision → architecture + ADRs |
-| developer | 4 | Implements + tests one user story per session |
-| reviewer | 4 | Code review: correctness, security, conventions |
-| troubleshooter | 4 | Diagnoses + fixes failed stories |
+| developer | 4A | Implements + tests one user story per session |
+| reviewer | 4A | Code review: correctness, security, conventions |
+| troubleshooter | 4A | Diagnoses + fixes failed stories |
+| loom-mcp-operator | 4B | Drives Loom MCP tools in the master session |
+| loom-orchestrator | 4B | End-to-end FSM driver with gate/debug/merge handoffs |
+| loom-gate | 4B | Read-only pre-merge checks (CI, review, draft, conflicts) |
+| loom-debug | 4B | CI failure diagnosis; posts structured debug comment |
+| loom-merge | 4B | Merge-only agent: calls `merge_pull_request` and returns JSON |
 
 ## Anti-Patterns
 
