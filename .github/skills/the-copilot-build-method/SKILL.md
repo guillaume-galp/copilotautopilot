@@ -33,17 +33,26 @@ An autonomous product development methodology powered by a squad of specialized 
 
 ### Phase 3 — Planning (Product Owner Agent)
 - Prompt: `/plan-product` (step 2)
-- Output: `docs/themes/TH<n>/` + `docs/plan/backlog.yaml`
+- Output: `docs/themes/TH<n>/` + `docs/plan/backlog.yaml` + `.github/ISSUE_TEMPLATE/TH<n>-E<m>-<slug>.md`
 - Vision decomposed into themes → epics → user stories
 - Stories are hybrid BDD (acceptance criteria + Given/When/Then)
 - Backlog YAML is the dependency graph + status state machine
+- One GitHub issue template generated per epic (required for Phase 4B Loom weaving)
 
-### Phase 4 — Autopilot Execution (Orchestrator Agent)
+### Phase 4A — Local Autopilot Execution (Orchestrator Agent)
 - Prompt: `/run-autopilot`
 - Loop: implement → test → review per story
 - Epic end ceremony: integration tests + refactor + review + changelog
 - Theme end ceremony: regression tests + release readiness + release notes + vision revalidation
 - Failed stories: troubleshooter loop (max 3 attempts, then escalate)
+
+### Phase 4B — Loom Weaving (Loom MCP Operator)
+- Prompt: `/run-loom`
+- Alternative to Phase 4A; requires the [Loom](https://github.com/guillaume7/loom) binary installed and configured as an MCP server
+- The Loom Go binary drives a deterministic FSM: creates GitHub issues → assigns `@copilot` → polls for PRs → gates merges → merges approved PRs
+- The `loom-mcp-operator` agent drives Loom MCP tools (`loom_next_step`, `loom_checkpoint`, `loom_heartbeat`, `loom_get_state`, `loom_abort`) and executes one GitHub action per checkpoint
+- Sub-agents `loom-gate`, `loom-debug`, and `loom-merge` handle specialized merge gating, CI failure diagnosis, and PR merging respectively
+- State persists in a local SQLite database (managed by Loom) — survives VS Code restarts and machine reboots
 
 ## VP ↔ TH Mapping Convention
 
@@ -88,7 +97,8 @@ Ceremony scales with epic size:
 5. If vision includes NFRs (performance, scalability targets), verify they are covered by test results
 6. Orchestrator produces theme release notes
 7. Product-owner revalidates theme against `docs/vision_of_product/VP<n>/`
-8. **User checkpoint**: orchestrator pauses and presents a demo summary to the user:
+8. **Archive issue templates**: move completed theme's epic templates from `.github/ISSUE_TEMPLATE/TH<n>-*.md` → `.github/ISSUE_TEMPLATE/archive/` to keep the active template set clean for the next theme
+9. **User checkpoint**: orchestrator pauses and presents a demo summary to the user:
    - User can **accept** (proceed to next theme), **reject** (rework), or **amend** vision for next VP
    - Vision is frozen only for the theme currently in execution — future VPs can be updated at checkpoints
 
@@ -106,12 +116,17 @@ Ceremony scales with epic size:
 
 | Agent | Phase | Responsibility |
 |:---|:---|:---|
-| orchestrator | 4 | Autopilot loop, sequencing, state management |
+| orchestrator | 4A | Local autopilot loop, sequencing, state management |
 | product-owner | 3 | Vision → themes/epics/stories + backlog |
 | architect | 2 | Vision → architecture + ADRs |
-| developer | 4 | Implements + tests one user story per session |
-| reviewer | 4 | Code review: correctness, security, conventions |
-| troubleshooter | 4 | Diagnoses + fixes failed stories |
+| developer | 4A | Implements + tests one user story per session |
+| reviewer | 4A | Code review: correctness, security, conventions |
+| troubleshooter | 4A | Diagnoses + fixes failed stories |
+| loom-mcp-operator | 4B | Drives Loom MCP tools in the master session |
+| loom-orchestrator | 4B | End-to-end FSM driver with gate/debug/merge handoffs |
+| loom-gate | 4B | Read-only pre-merge checks (CI, review, draft, conflicts) |
+| loom-debug | 4B | CI failure diagnosis; posts structured debug comment |
+| loom-merge | 4B | Merge-only agent: calls `merge_pull_request` and returns JSON |
 
 ## Anti-Patterns
 
@@ -120,3 +135,4 @@ Ceremony scales with epic size:
 - Never modify vision docs during Phase 4 for the **theme currently in execution** — future VPs can be amended at user checkpoints
 - Never implement multiple stories in one agent session
 - Never skip the code quality review at epic end
+- Never leave a completed theme's issue templates in `.github/ISSUE_TEMPLATE/` — archive them to `ISSUE_TEMPLATE/archive/` at theme boundary so Loom only sees the current theme's epics
