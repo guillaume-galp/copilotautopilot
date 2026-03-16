@@ -50,11 +50,32 @@ A squad of specialized Copilot agents that collaborate through a structured life
    - Orchestrator executes stories locally: implement → test → review
    - Session state persists in `docs/plan/backlog.yaml` — resume anytime
 
-   **Option B — Loom Weaving** (requires [Loom](https://github.com/guillaume7/loom)):
-   - Install `loom` and register it as an MCP server in VS Code
-   - Run `/run-loom` in Copilot Chat
-   - Loom drives GitHub server-side: issues → `@copilot` → PRs → CI → merge
-   - All state persists in a local SQLite database — survives restarts
+   **Option B — Loom Weaving** (server-side, human-out-of-loop):
+
+   Install the [Loom](https://github.com/guillaume7/loom) binary and register it as an MCP server:
+
+   ```bash
+   # Download and install (Linux/macOS — adjust OS/ARCH as needed)
+   VERSION=v1.0.0 OS=linux ARCH=amd64
+   curl -L -o loom "https://github.com/guillaume7/loom/releases/download/${VERSION}/loom-${OS}-${ARCH}"
+   install -m 0755 loom /usr/local/bin/loom
+   ```
+
+   Add to your VS Code MCP config (`.vscode/mcp.json` or user settings):
+
+   ```json
+   { "mcpServers": { "loom": { "type": "stdio", "command": "loom", "args": ["mcp"] } } }
+   ```
+
+   Set credentials and run:
+
+   ```bash
+   export LOOM_OWNER=your-github-org
+   export LOOM_REPO=your-repo
+   export LOOM_TOKEN=ghp_xxxxxxxxxxxx
+   ```
+
+   Then run `/run-loom` in Copilot Chat. Loom drives GitHub server-side — creates issues, assigns `@copilot`, polls PRs, gates and merges — and resumes from its local SQLite checkpoint after any restart.
 
 ## Agent Squad
 
@@ -67,10 +88,8 @@ A squad of specialized Copilot agents that collaborate through a structured life
 | **reviewer** | Code review: correctness, security, conventions | 4A |
 | **troubleshooter** | Diagnoses and fixes failed stories | 4A |
 | **loom-mcp-operator** | Drives Loom MCP tools to weave PRs server-side | 4B |
-| **loom-orchestrator** | End-to-end FSM driver with gate/debug/merge handoffs | 4B |
-| **loom-gate** | Read-only pre-merge checks (CI, review, draft, conflicts) | 4B |
-| **loom-debug** | CI failure diagnosis; posts structured debug comment | 4B |
-| **loom-merge** | Merge-only agent; calls `merge_pull_request` and returns JSON | 4B |
+
+> Phase 4B also includes `loom-orchestrator`, `loom-gate`, `loom-debug`, and `loom-merge` sub-agents. See [`.github/agents/README.md`](.github/agents/README.md) for the full squad.
 
 ## Directory Structure
 
