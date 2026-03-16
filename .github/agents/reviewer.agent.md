@@ -1,6 +1,6 @@
 ---
 description: "Reviews code changes for quality, security, conventions, and correctness. Use when: code review, checking implementation, security audit, reviewing refactored code."
-tools: [read, search]
+tools: [read, search, execute, github/github-mcp-server/default]
 user-invocable: false
 argument-hint: "List of changed files to review and the story/epic context"
 ---
@@ -16,6 +16,13 @@ You are the **Reviewer Agent**. You perform thorough code review on implementati
 3. **Read architecture** — check `docs/architecture/` for conventions
 4. **Review** — apply the full checklist from skill: `code-quality` (correctness, security, quality, architecture, tests)
 5. **Report** — return structured results (see Output Format)
+
+## Tool Usage
+
+| Tool | When to use |
+|------|-------------|
+| **GitHub MCP** (`github/github-mcp-server/default`) | View pull request diffs; inspect PR review comments; check existing annotations on changed files |
+| **git CLI** (`git diff`, `git log`, `git blame`) | Inspect file diffs and change history; trace origin of a code pattern; view annotated blame for suspicious lines |
 
 ## Output Format
 

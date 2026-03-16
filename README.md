@@ -79,6 +79,32 @@ A squad of specialized Copilot agents that collaborate through a structured life
 
    Then run `/run-loom` in Copilot Chat. Loom drives GitHub server-side — creates issues, assigns `@copilot`, polls PRs, gates and merges. Loom maintains its own SQLite database for weaving runtime state (current story, PR, FSM position); `docs/plan/backlog.yaml` remains the single source of truth for planning, story statuses, and resume.
 
+## Recommended MCP & CLI Tools
+
+The agent squad uses a set of MCP servers and CLI tools. Configure them once for all agents to work optimally.
+
+### Required for all modes
+
+| Tool | Purpose | Setup |
+|------|---------|-------|
+| **GitHub MCP** | PRs, CI checks, code search, issue management | Built-in with VS Code Copilot; or add to `.vscode/mcp.json`: `{"mcpServers":{"github":{"type":"http","url":"https://api.githubcopilot.com/mcp/"}}}` |
+| **git CLI** | Commits, diffs, file history | Pre-installed on most systems — `git --version` to verify |
+| **gh CLI** | CI log retrieval, issue/PR management | [cli.github.com](https://cli.github.com) — run `gh auth login` after install |
+
+### Required for UI projects (developer agent)
+
+| Tool | Purpose | Setup |
+|------|---------|-------|
+| **Playwright MCP** | Browser automation for end-to-end UI tests | Add to `.vscode/mcp.json`: `{"mcpServers":{"playwright":{"type":"stdio","command":"npx","args":["@playwright/mcp@latest"]}}}` |
+
+### Required for Loom weaving (Phase 4B only)
+
+| Tool | Purpose | Setup |
+|------|---------|-------|
+| **Loom MCP** | Drives the server-side PR weaving FSM | See Option B above and [github.com/guillaume7/loom](https://github.com/guillaume7/loom) |
+
+> See [`.github/agents/README.md`](.github/agents/README.md) for the full per-agent tool matrix, and the `the-copilot-build-method` skill for MCP server configuration snippets.
+
 ## Agent Squad
 
 | Agent | Role | Phase |

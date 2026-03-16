@@ -1,18 +1,18 @@
 ---
 description: "Launch the autopilot orchestrator to execute the product backlog autonomously. Use when: running autopilot, starting autonomous development, executing backlog."
 agent: "orchestrator"
-tools: [read, edit, search, execute, agent, todo]
+tools: [read, edit, search, execute, agent, todo, github/github-mcp-server/default]
 ---
 
 ## Agents & Skills
 
-| Agent | Skills |
-|-------|--------|
-| @orchestrator | `the-copilot-build-method`, `backlog-management` |
-| @developer | `the-copilot-build-method`, `bdd-stories` |
-| @reviewer | `the-copilot-build-method`, `code-quality` |
-| @troubleshooter | `the-copilot-build-method`, `bdd-stories`, `code-quality` |
-| @product-owner | `the-copilot-build-method`, `bdd-stories`, `backlog-management` |
+| Agent | Skills | Key Tools |
+|-------|--------|-----------|
+| @orchestrator | `the-copilot-build-method`, `backlog-management` | GitHub MCP, git CLI, gh CLI |
+| @developer | `the-copilot-build-method`, `bdd-stories` | GitHub MCP, Playwright MCP, git CLI, gh CLI |
+| @reviewer | `the-copilot-build-method`, `code-quality` | GitHub MCP, git CLI |
+| @troubleshooter | `the-copilot-build-method`, `bdd-stories`, `code-quality` | GitHub MCP, gh CLI, git CLI |
+| @product-owner | `the-copilot-build-method`, `bdd-stories`, `backlog-management` | GitHub MCP, gh CLI, git CLI |
 
 Begin autonomous execution of the product backlog.
 

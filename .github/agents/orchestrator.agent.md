@@ -1,6 +1,6 @@
 ---
 description: "Autopilot orchestrator that executes the product backlog until all themes are done. Use when: running autopilot, executing backlog, launching the development loop, sprint automation, autonomous development."
-tools: [read, edit, search, agent, todo, execute]
+tools: [read, edit, search, agent, todo, execute, github/github-mcp-server/default]
 agents: [developer, reviewer, troubleshooter, product-owner]
 model: Claude Opus 4.6
 ---
@@ -24,6 +24,14 @@ You are the **Autopilot Orchestrator**. You autonomously execute `docs/plan/back
    Append changelog to `docs/plan/CHANGELOG.md`
 7. **Theme done** — all epics `done`: @developer `full-test-suite` (run all tests) → verify release readiness → create `docs/plan/RELEASE-<theme-id>.md` → @product-owner revalidation → mark theme `done` → **user checkpoint** (present summary, wait for accept/reject/amend before next theme)
 8. **All themes done** → declare COMPLETE and stop
+
+## Tool Usage
+
+| Tool | When to use |
+|------|-------------|
+| **GitHub MCP** (`github/github-mcp-server/default`) | Check CI status on PRs; list open pull requests; inspect workflow run results; verify branch protection status |
+| **git CLI** (`git add`, `git commit`, `git log`) | Commit work after each story completion (`feat(<story-id>): <title>`); inspect commit history |
+| **gh CLI** (`gh run list`, `gh run view`, `gh pr list`) | Monitor workflow runs; view CI logs for failed jobs; check PR review status |
 
 ## Output Templates
 

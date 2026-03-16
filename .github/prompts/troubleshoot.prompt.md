@@ -1,14 +1,14 @@
 ---
 description: "Diagnose and fix a failing build, test, or story. Use when: tests are broken, build fails, a story is stuck, or you need root-cause analysis outside the autopilot loop."
 agent: "troubleshooter"
-tools: [read, edit, search, execute]
+tools: [read, edit, search, execute, github/github-mcp-server/default]
 ---
 
 ## Agents & Skills
 
-| Agent | Skills |
-|-------|--------|
-| @troubleshooter | `the-copilot-build-method`, `bdd-stories`, `code-quality` |
+| Agent | Skills | Key Tools |
+|-------|--------|-----------|
+| @troubleshooter | `the-copilot-build-method`, `bdd-stories`, `code-quality` | GitHub MCP, gh CLI, git CLI |
 
 Diagnose and fix the current failure.
 

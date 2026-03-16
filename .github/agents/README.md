@@ -123,6 +123,28 @@ These agents work exclusively in **Loom weaving mode** (`/run-loom`). They drive
 | loom-debug | | | | | | |
 | loom-merge | | | | | | |
 
+## Agent ↔ MCP & CLI Tools Matrix
+
+| Agent | GitHub MCP | Loom MCP | Playwright MCP | git CLI | gh CLI |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| orchestrator | ✓ | | | ✓ | ✓ |
+| product-owner | ✓ | | | ✓ | ✓ |
+| architect | ✓ | | | ✓ | |
+| developer | ✓ | | ✓ | ✓ | ✓ |
+| reviewer | ✓ | | | ✓ | |
+| troubleshooter | ✓ | | | ✓ | ✓ |
+| loom-mcp-operator | ✓ | ✓ | | | |
+| loom-orchestrator | ✓ | ✓ | | | |
+| loom-gate | ✓ | | | | |
+| loom-debug | ✓ | | | | |
+| loom-merge | ✓ | | | | |
+
+**GitHub MCP** — `github/github-mcp-server/default`: search repos/code, manage PRs, read CI check runs, post comments  
+**Loom MCP** — `loom/loom_*`: drive the Loom FSM (`loom_next_step`, `loom_checkpoint`, `loom_heartbeat`, `loom_get_state`, `loom_abort`)  
+**Playwright MCP** — `playwright`: browser automation for end-to-end UI tests  
+**git CLI** — `git status/diff/log/blame/commit`: file diffs, commit history, making commits  
+**gh CLI** — `gh run view/list`, `gh pr list`: CI log retrieval, PR status, issue management
+
 ## Lifecycle Prompts
 
 | Prompt | Agent(s) | Phase |
