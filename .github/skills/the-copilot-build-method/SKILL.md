@@ -97,7 +97,8 @@ Ceremony scales with epic size:
 5. If vision includes NFRs (performance, scalability targets), verify they are covered by test results
 6. Orchestrator produces theme release notes
 7. Product-owner revalidates theme against `docs/vision_of_product/VP<n>/`
-8. **User checkpoint**: orchestrator pauses and presents a demo summary to the user:
+8. **Archive issue templates**: move completed theme's epic templates from `.github/ISSUE_TEMPLATE/TH<n>-*.md` → `.github/ISSUE_TEMPLATE/archive/` to keep the active template set clean for the next theme
+9. **User checkpoint**: orchestrator pauses and presents a demo summary to the user:
    - User can **accept** (proceed to next theme), **reject** (rework), or **amend** vision for next VP
    - Vision is frozen only for the theme currently in execution — future VPs can be updated at checkpoints
 
@@ -134,3 +135,4 @@ Ceremony scales with epic size:
 - Never modify vision docs during Phase 4 for the **theme currently in execution** — future VPs can be amended at user checkpoints
 - Never implement multiple stories in one agent session
 - Never skip the code quality review at epic end
+- Never leave a completed theme's issue templates in `.github/ISSUE_TEMPLATE/` — archive them to `ISSUE_TEMPLATE/archive/` at theme boundary so Loom only sees the current theme's epics

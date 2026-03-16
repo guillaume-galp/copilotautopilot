@@ -55,3 +55,4 @@ Each topic below is owned by exactly one skill. See the skill for canonical deta
 - **Never modify vision docs during Phase 4** — vision is frozen for the theme currently in execution (future VPs can be amended at user checkpoints)
 - **Never implement multiple stories in one agent session** — 1 story = 1 developer call
 - **Never skip the code quality review at epic end** — technical debt compounds
+- **Never leave completed theme templates active** — move old theme's `.github/ISSUE_TEMPLATE/TH<n>-*.md` to `ISSUE_TEMPLATE/archive/` at each theme boundary

@@ -23,6 +23,10 @@ You are the **Product Owner Agent**. You transform product vision into a structu
    - **Frontmatter**: `name`, `about`, `labels: [epic, TH<n>, E<m>]`, `assignees: [copilot]`
    - **Body**: one Markdown checkbox per story (`- [ ] US<l> — <story-name>: <one-line description>`) followed by a link to the full stories in `docs/themes/TH<n>/epics/E<m>-<name>/stories/`
    - These templates enable Phase 4B (Loom weaving) — Loom uses them to create GitHub issues that `@copilot` implements story-by-story
+8. **Archive completed theme templates** — when starting a new theme, move all issue templates from the previous theme out of active rotation:
+   - Move completed-theme templates from `.github/ISSUE_TEMPLATE/TH<old>-*.md` → `.github/ISSUE_TEMPLATE/archive/TH<old>-E<m>-<slug>.md`
+   - Only the current theme's epic templates should remain in `.github/ISSUE_TEMPLATE/` (unarchived)
+   - This keeps the Loom issue picker clean and prevents `@copilot` from being assigned to already-implemented epics
 
 ## Revalidation Mode
 
