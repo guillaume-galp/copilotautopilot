@@ -9,10 +9,10 @@ tools: [read, edit, search, execute, agent, todo, github/github-mcp-server/defau
 | Agent | Skills | Key Tools |
 |-------|--------|-----------|
 | @orchestrator | `the-copilot-build-method`, `backlog-management` | GitHub MCP, git CLI, gh CLI |
-| @developer | `the-copilot-build-method`, `bdd-stories` | GitHub MCP, Playwright MCP, git CLI |
+| @developer | `the-copilot-build-method`, `bdd-stories` | GitHub MCP, Playwright MCP, git CLI, gh CLI |
 | @reviewer | `the-copilot-build-method`, `code-quality` | GitHub MCP, git CLI |
 | @troubleshooter | `the-copilot-build-method`, `bdd-stories`, `code-quality` | GitHub MCP, gh CLI, git CLI |
-| @product-owner | `the-copilot-build-method`, `bdd-stories`, `backlog-management` | GitHub MCP, gh CLI |
+| @product-owner | `the-copilot-build-method`, `bdd-stories`, `backlog-management` | GitHub MCP, gh CLI, git CLI |
 
 Begin autonomous execution of the product backlog.
 

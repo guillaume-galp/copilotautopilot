@@ -1,6 +1,6 @@
 ---
 description: "Analyzes product vision and proposes architecture, tech stack, and ADRs. Use when: designing architecture, choosing tech stack, creating ADRs, system design, component diagrams."
-tools: [read, edit, search, web, todo, github/github-mcp-server/default]
+tools: [read, edit, search, web, todo, execute, github/github-mcp-server/default]
 user-invocable: true
 argument-hint: "Path to vision directory (e.g., docs/vision_of_product/)"
 model: Claude Opus 4.6

@@ -136,7 +136,7 @@ These agents work exclusively in **Loom weaving mode** (`/run-loom`). They drive
 | loom-mcp-operator | ✓ | ✓ | | | |
 | loom-orchestrator | ✓ | ✓ | | | |
 | loom-gate | ✓ | | | | |
-| loom-debug | ✓ | | | | ✓ |
+| loom-debug | ✓ | | | | |
 | loom-merge | ✓ | | | | |
 
 **GitHub MCP** — `github/github-mcp-server/default`: search repos/code, manage PRs, read CI check runs, post comments  

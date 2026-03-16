@@ -1,6 +1,6 @@
 ---
 description: "Breaks product vision into themes, epics, and BDD user stories. Produces the backlog. Use when: planning stories, creating backlog, breaking down vision, writing user stories, generating epics."
-tools: [read, edit, search, todo, github/github-mcp-server/default]
+tools: [read, edit, search, todo, execute, github/github-mcp-server/default]
 user-invocable: true
 argument-hint: "Path to vision phase directory (e.g., docs/vision_of_product/VP1-mvp/)"
 model: Claude Opus 4.6

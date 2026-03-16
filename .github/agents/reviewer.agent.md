@@ -1,6 +1,6 @@
 ---
 description: "Reviews code changes for quality, security, conventions, and correctness. Use when: code review, checking implementation, security audit, reviewing refactored code."
-tools: [read, search, github/github-mcp-server/default]
+tools: [read, search, execute, github/github-mcp-server/default]
 user-invocable: false
 argument-hint: "List of changed files to review and the story/epic context"
 ---

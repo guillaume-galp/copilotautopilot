@@ -1,7 +1,7 @@
 ---
 description: "Run an ad-hoc code review on recent changes. Use when: reviewing implementation quality, security audit, checking conventions outside the autopilot loop."
 agent: "reviewer"
-tools: [read, search, github/github-mcp-server/default]
+tools: [read, search, execute, github/github-mcp-server/default]
 ---
 
 ## Agents & Skills

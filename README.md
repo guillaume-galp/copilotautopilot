@@ -87,7 +87,7 @@ The agent squad uses a set of MCP servers and CLI tools. Configure them once for
 
 | Tool | Purpose | Setup |
 |------|---------|-------|
-| **GitHub MCP** | PRs, CI checks, code search, issue management | Built-in with VS Code Copilot; or add `{"github": {"type":"http","url":"https://api.githubcopilot.com/mcp/"}}` |
+| **GitHub MCP** | PRs, CI checks, code search, issue management | Built-in with VS Code Copilot; or add to `.vscode/mcp.json`: `{"mcpServers":{"github":{"type":"http","url":"https://api.githubcopilot.com/mcp/"}}}` |
 | **git CLI** | Commits, diffs, file history | Pre-installed on most systems — `git --version` to verify |
 | **gh CLI** | CI log retrieval, issue/PR management | [cli.github.com](https://cli.github.com) — run `gh auth login` after install |
 
@@ -95,7 +95,7 @@ The agent squad uses a set of MCP servers and CLI tools. Configure them once for
 
 | Tool | Purpose | Setup |
 |------|---------|-------|
-| **Playwright MCP** | Browser automation for end-to-end UI tests | Add to MCP config: `{"playwright": {"type":"stdio","command":"npx","args":["@playwright/mcp@latest"]}}` |
+| **Playwright MCP** | Browser automation for end-to-end UI tests | Add to `.vscode/mcp.json`: `{"mcpServers":{"playwright":{"type":"stdio","command":"npx","args":["@playwright/mcp@latest"]}}}` |
 
 ### Required for Loom weaving (Phase 4B only)
 
