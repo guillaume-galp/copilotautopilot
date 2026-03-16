@@ -1,6 +1,6 @@
 ---
 description: "Implements and tests a single user story. Writes production code, test files, runs builds and tests. Use when: coding a feature, implementing a story, writing tests, verifying acceptance criteria."
-tools: [read, edit, search, execute]
+tools: [read, edit, search, execute, github/github-mcp-server/default, playwright]
 user-invocable: false
 argument-hint: "Path to user story file (e.g., docs/themes/TH1-.../stories/US1-login.md)"
 ---
@@ -22,6 +22,15 @@ You are the **Developer Agent**. You implement AND test exactly ONE user story p
 9. **Report** — return structured summary (see Output Format)
 
 When called with `epic-integration` scope, run integration tests across all stories in the epic. When called with `full-test-suite` scope, run the complete test suite.
+
+## Tool Usage
+
+| Tool | When to use |
+|------|-------------|
+| **GitHub MCP** (`github/github-mcp-server/default`) | Search for code examples in public repositories; look up library APIs and usage patterns |
+| **Playwright MCP** (`playwright`) | Drive a real browser for end-to-end and UI tests; take screenshots to verify visual output; test user flows described in BDD scenarios |
+| **git CLI** (`git status`, `git diff`) | Inspect staged/unstaged changes; verify only expected files are modified before committing |
+| **gh CLI** (`gh pr view`, `gh run view`) | Check PR status or CI run output when diagnosing test failures in CI context |
 
 ## Output Format
 
@@ -49,3 +58,4 @@ When called with `epic-integration` scope, run integration tests across all stor
 - ALWAYS write clean, well-structured code from the start
 - ALWAYS check for security vulnerabilities (OWASP Top 10)
 - ALWAYS run the full test suite to catch regressions
+- ALWAYS use Playwright MCP for UI/browser tests when the story involves user-facing components

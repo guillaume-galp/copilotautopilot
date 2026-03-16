@@ -128,6 +128,87 @@ Ceremony scales with epic size:
 | loom-debug | 4B | CI failure diagnosis; posts structured debug comment |
 | loom-merge | 4B | Merge-only agent: calls `merge_pull_request` and returns JSON |
 
+## Recommended Tools per Agent
+
+Each agent has a defined set of MCP servers and CLI tools it should use. Configure these in your VS Code MCP settings before running the autopilot.
+
+### MCP Servers
+
+#### GitHub MCP (`github/github-mcp-server/default`)
+Required by: **all agents except loom-gate/merge/debug** (those already have it as their primary tool).
+
+```json
+{
+  "mcpServers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
+    }
+  }
+}
+```
+
+Use for: searching repositories and code; reading PR diffs; checking CI status; posting comments.
+
+#### Loom MCP (`loom/*`)
+Required by: **loom-mcp-operator**, **loom-orchestrator** (Phase 4B only).
+
+```json
+{
+  "mcpServers": {
+    "loom": {
+      "type": "stdio",
+      "command": "loom",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+Tools: `loom_next_step`, `loom_checkpoint`, `loom_heartbeat`, `loom_get_state`, `loom_abort`.
+
+#### Playwright MCP (`playwright`)
+Required by: **developer** (for UI/browser end-to-end tests).
+
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    }
+  }
+}
+```
+
+Use for: driving a real browser for BDD scenario tests; taking screenshots to verify visual output.
+
+### CLI Tools
+
+| CLI | Agents | Key Commands |
+|:----|:-------|:-------------|
+| **git** | orchestrator, product-owner, architect, developer, reviewer, troubleshooter | `git status/diff/log/blame/commit` |
+| **gh** | orchestrator, product-owner, developer, troubleshooter, loom-debug | `gh run view --log`, `gh pr list`, `gh issue list`, `gh auth token` |
+
+> **Note**: CLI tools are available to agents that have the `execute` built-in tool. The `gh` CLI must be authenticated (`gh auth login`) before running any agent that needs to read CI logs or manage issues.
+
+### Agent ↔ Tool Summary
+
+| Agent | GitHub MCP | Loom MCP | Playwright MCP | git CLI | gh CLI |
+|:------|:----------:|:--------:|:--------------:|:-------:|:------:|
+| orchestrator | ✓ | | | ✓ | ✓ |
+| product-owner | ✓ | | | ✓ | ✓ |
+| architect | ✓ | | | ✓ | |
+| developer | ✓ | | ✓ | ✓ | ✓ |
+| reviewer | ✓ | | | ✓ | |
+| troubleshooter | ✓ | | | ✓ | ✓ |
+| loom-mcp-operator | ✓ | ✓ | | | |
+| loom-orchestrator | ✓ | ✓ | | | |
+| loom-gate | ✓ | | | | |
+| loom-debug | ✓ | | | | ✓ |
+| loom-merge | ✓ | | | | |
+
 ## Anti-Patterns
 
 - Never hardcode state in agent memory — read/write `docs/plan/backlog.yaml`

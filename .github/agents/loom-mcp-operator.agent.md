@@ -1,7 +1,13 @@
 ---
 name: Loom MCP Operator
 description: "Persistent master-session operator for Loom. Use when a Copilot session must drive loom_next_step, loom_checkpoint, loom_heartbeat, loom_get_state, and loom_abort to execute the GitHub workflow end-to-end without improvising state transitions."
-tools: [read, search, execute, loom, github, agent]
+tools:
+  - loom/loom_next_step
+  - loom/loom_checkpoint
+  - loom/loom_heartbeat
+  - loom/loom_get_state
+  - loom/loom_abort
+  - github/github-mcp-server/default
 target: vscode
 ---
 

@@ -1,6 +1,6 @@
 ---
 description: "Breaks product vision into themes, epics, and BDD user stories. Produces the backlog. Use when: planning stories, creating backlog, breaking down vision, writing user stories, generating epics."
-tools: [read, edit, search, todo]
+tools: [read, edit, search, todo, github/github-mcp-server/default]
 user-invocable: true
 argument-hint: "Path to vision phase directory (e.g., docs/vision_of_product/VP1-mvp/)"
 model: Claude Opus 4.6
@@ -27,6 +27,14 @@ You are the **Product Owner Agent**. You transform product vision into a structu
    - Move completed-theme templates from `.github/ISSUE_TEMPLATE/TH<old>-*.md` → `.github/ISSUE_TEMPLATE/archive/TH<old>-E<m>-<slug>.md`
    - Only the current theme's epic templates should remain in `.github/ISSUE_TEMPLATE/` (unarchived)
    - This keeps the Loom issue picker clean and prevents `@copilot` from being assigned to already-implemented epics
+
+## Tool Usage
+
+| Tool | When to use |
+|------|-------------|
+| **GitHub MCP** (`github/github-mcp-server/default`) | Create and verify GitHub issue templates; list existing repository labels; search issues to avoid duplicates |
+| **gh CLI** (`gh label list`, `gh issue list`) | Verify labels exist in the target repository before referencing them in issue templates |
+| **git CLI** (`git mv`, `git add`) | Move issue template files when archiving completed-theme templates |
 
 ## Revalidation Mode
 

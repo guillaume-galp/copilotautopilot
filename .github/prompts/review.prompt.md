@@ -1,14 +1,14 @@
 ---
 description: "Run an ad-hoc code review on recent changes. Use when: reviewing implementation quality, security audit, checking conventions outside the autopilot loop."
 agent: "reviewer"
-tools: [read, search]
+tools: [read, search, github/github-mcp-server/default]
 ---
 
 ## Agents & Skills
 
-| Agent | Skills |
-|-------|--------|
-| @reviewer | `the-copilot-build-method`, `code-quality` |
+| Agent | Skills | Key Tools |
+|-------|--------|-----------|
+| @reviewer | `the-copilot-build-method`, `code-quality` | GitHub MCP, git CLI |
 
 Perform a thorough code review on recent changes.
 

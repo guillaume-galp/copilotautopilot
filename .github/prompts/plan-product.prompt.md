@@ -1,15 +1,15 @@
 ---
 description: "Transform product vision into architecture and implementation plan. Runs architect then product-owner agents sequentially. Use when: planning implementation, generating backlog, creating architecture from vision."
 agent: "agent"
-tools: [read, edit, search, agent, todo, execute, web]
+tools: [read, edit, search, agent, todo, execute, web, github/github-mcp-server/default]
 ---
 
 ## Agents & Skills
 
-| Agent | Skills |
-|-------|--------|
-| @architect | `the-copilot-build-method`, `architecture-decisions` |
-| @product-owner | `the-copilot-build-method`, `bdd-stories`, `backlog-management` |
+| Agent | Skills | Key Tools |
+|-------|--------|-----------|
+| @architect | `the-copilot-build-method`, `architecture-decisions` | GitHub MCP, web, git CLI |
+| @product-owner | `the-copilot-build-method`, `bdd-stories`, `backlog-management` | GitHub MCP, gh CLI, git CLI |
 
 Execute the planning pipeline to transform vision into an actionable backlog.
 
