@@ -40,7 +40,7 @@ Set the required environment variables before running:
 ```bash
 export LOOM_OWNER=your-github-org
 export LOOM_REPO=your-target-repo
-export LOOM_TOKEN=ghp_xxxxxxxxxxxx
+export LOOM_TOKEN=<your_github_token>   # e.g. output of: gh auth token
 ```
 
 See [https://github.com/guillaume7/loom](https://github.com/guillaume7/loom) for installation instructions.

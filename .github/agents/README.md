@@ -131,5 +131,5 @@ These agents work exclusively in **Loom weaving mode** (`/run-loom`). They drive
 | `/plan-product` | architect → product-owner | 2-3 |
 | `/run-autopilot` | orchestrator → all | 4A (local) |
 | `/run-loom` | loom-mcp-operator → loom squad | 4B (server-side) |
-| `/review` | reviewer | 4 (ad-hoc) |
-| `/troubleshoot` | troubleshooter | 4 (ad-hoc) |
+| `/review` | reviewer | 4A (ad-hoc) |
+| `/troubleshoot` | troubleshooter | 4A (ad-hoc) |

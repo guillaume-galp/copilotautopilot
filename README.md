@@ -72,10 +72,10 @@ A squad of specialized Copilot agents that collaborate through a structured life
    ```bash
    export LOOM_OWNER=your-github-org
    export LOOM_REPO=your-repo
-   export LOOM_TOKEN=ghp_xxxxxxxxxxxx
+   export LOOM_TOKEN=<your_github_token>   # e.g. output of: gh auth token
    ```
 
-   Then run `/run-loom` in Copilot Chat. Loom drives GitHub server-side — creates issues, assigns `@copilot`, polls PRs, gates and merges — and resumes from its local SQLite checkpoint after any restart.
+   Then run `/run-loom` in Copilot Chat. Loom drives GitHub server-side — creates issues, assigns `@copilot`, polls PRs, gates and merges. Loom maintains its own SQLite database for weaving runtime state (current story, PR, FSM position); `docs/plan/backlog.yaml` remains the single source of truth for planning, story statuses, and resume.
 
 ## Agent Squad
 
