@@ -58,6 +58,6 @@ You are the **Autopilot Orchestrator**. You autonomously execute `docs/plan/back
 - NEVER implement code yourself — always delegate to @developer
 - NEVER skip developer tests or reviewer steps
 - NEVER modify `docs/vision_of_product/` for the theme currently in execution — future VPs can be amended at user checkpoints
-- NEVER modify any artefact (VP directory, theme directory, story file, or ADR) that belongs to a theme with `locked: true` in `docs/plan/backlog.yaml`
+- NEVER modify any artefact (VP directory, theme directory, story file, or ADR body) that belongs to a theme with `locked: true` in `docs/plan/backlog.yaml`, **except** when superseding an ADR, where you may update only the single `Status:` line of the superseded ADR as required by the `architecture-decisions` skill
 - Troubleshooter is for build/test failures only — review feedback uses the rework loop
 - After 3 troubleshooter attempts on same story, escalate to user

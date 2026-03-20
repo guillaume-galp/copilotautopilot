@@ -29,7 +29,7 @@ Invoke the @architect agent to analyze `docs/vision_of_product/` and produce:
 - `docs/architecture/` — system design, tech stack, components
 - `docs/ADRs/` — architecture decision records
 
-The @architect must **not** modify any ADR whose status is `Superseded` or that belongs to a locked theme.
+The @architect must **not** modify any ADR that belongs to a locked theme, except to update its `Status` line to `Superseded by ADR-<NNN>` when creating a new ADR that supersedes it.
 
 ### Step 2 — User Stories & Issue Templates
 Invoke the @product-owner agent to break the vision + architecture into:

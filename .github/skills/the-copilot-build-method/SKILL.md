@@ -221,23 +221,23 @@ Use for: driving a real browser for BDD scenario tests; taking screenshots to ve
 
 ## Immutability Policy
 
-Once a specification artefact is **settled** (its theme is `done` and the user checkpoint is accepted), it is **locked** and must not be modified. Later work always **extends history** by creating new artefacts with incremented numbers.
+Once a specification artifact is **settled** (its theme is `done` and the user checkpoint is accepted), it is **locked** and must not be modified. Later work always **extends history** by creating new artifacts with incremented numbers.
 
 ### What is locked and when
 
-| Artefact | Locked when | Locked marker |
+| Artifact | Locked when | Locked marker |
 |:---|:---|:---|
 | Vision phase `VP<n>-*/` | Corresponding theme is `done` and user-accepted | `locked: true` on the theme in `backlog.yaml` |
 | Theme `TH<n>-*/` (stories, epics) | Theme status transitions to `done` and user-accepted | `locked: true` on the theme in `backlog.yaml` |
-| ADR `ADR-<NNN>-*.md` | Its theme is `done` and user-accepted | Status changes from `Accepted` to `Superseded` only via a new ADR |
+| ADR `ADR-<NNN>-*.md` | Its theme is `done` and user-accepted | Status changes from `Accepted` to `Superseded by ADR-<NNN>` only via a new ADR |
 
-### Rules for extending locked artefacts
+### Rules for extending locked artifacts
 
 - **Vision**: Create `VP<n+1>-<slug>/` instead of editing `VP<n>-*/`
-- **Architecture / ADRs**: Create a new `ADR-<NNN+1>` with status `Accepted` that sets the old ADR's status to `Superseded by ADR-<NNN+1>` — do not edit the body of the old ADR
+- **Architecture / ADRs**: Create a new `ADR-<NNN+1>` with status `Accepted` that sets the old ADR's `Status` line to `Superseded by ADR-<NNN+1>` — do not edit the body, decision, or consequences of the old ADR
 - **Themes**: Create `TH<n+1>-<slug>/` with new epics and stories; reference the new vision phase in the new theme's `vision-ref`
 - **Backlog**: Append new theme entries to `backlog.yaml` — never delete or rewrite entries for locked themes
 
 ### Checking lock status before planning
 
-Before creating or editing any specification artefact, agents **must** read `docs/plan/backlog.yaml` and identify which themes have `locked: true`. Any VP, ADR, or theme directory referenced by a locked theme is off-limits for modification.
+Before creating or editing any specification artifact, agents **must** read `docs/plan/backlog.yaml` and identify which themes have `locked: true`. Any VP, ADR, or theme directory referenced by a locked theme is off-limits for modification (except the single `Status:` line of a superseded ADR).

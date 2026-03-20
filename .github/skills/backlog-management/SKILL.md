@@ -59,7 +59,7 @@ The `locked` field applies at the **theme level** and signals that all artefacts
 When a theme is `locked: true`:
 - Its story files (`docs/themes/TH<n>-*/`) **must not be edited**
 - The VP directory it references (`docs/vision_of_product/VP<n>-*/`) **must not be modified**
-- Any ADRs created during that theme **must not be modified** (use supersession instead — see skill: `architecture-decisions`)
+- Any ADRs created during that theme are **logically immutable** — the only permitted change is updating their `Status` line to `Superseded by ADR-<NNN>` when they are superseded (see skill: `architecture-decisions` for supersession rules)
 - The only permitted change to the backlog entry is correcting clearly wrong technical references — for example, fixing a file path that points to a non-existent location. Correcting a typo in a theme name, changing story titles, or modifying acceptance criteria are **not** permitted.
 
 ### When to set locked
