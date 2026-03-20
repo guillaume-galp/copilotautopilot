@@ -11,6 +11,16 @@ agent: "ask"
 
 Let's design the product vision together. I'll help you brainstorm and capture ideas in `docs/vision_of_product/`.
 
+## Pre-flight: Check for existing locked artefacts
+
+Before creating any VP directory, read `docs/plan/backlog.yaml` (if it exists) and identify:
+- Which VP directories already exist under `docs/vision_of_product/`
+- Which themes have `locked: true` in the backlog (their referenced VP dirs are **immutable**)
+
+**Rule**: Never edit a VP directory whose corresponding theme is `locked: true`. Instead, create the next `VP<n+1>-<slug>/` directory to capture new vision work.
+
+If locked VPs exist, inform the user which vision phases are already settled and propose the next available VP number for new ideas.
+
 ## Structure
 
 Each vision phase maps to one or more implementation themes (1:N):

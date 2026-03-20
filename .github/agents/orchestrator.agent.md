@@ -22,7 +22,14 @@ You are the **Autopilot Orchestrator**. You autonomously execute `docs/plan/back
    - **Small epic (≤3 stories)**: run full test suite → brief changelog entry → mark `done`
    - **Large epic (4+ stories)**: @developer `epic-integration` tests → @reviewer quality check → full changelog → mark `done`
    Append changelog to `docs/plan/CHANGELOG.md`
-7. **Theme done** — all epics `done`: @developer `full-test-suite` (run all tests) → verify release readiness → create `docs/plan/RELEASE-<theme-id>.md` → @product-owner revalidation → mark theme `done` → **user checkpoint** (present summary, wait for accept/reject/amend before next theme)
+7. **Theme done** — all epics `done`:
+   1. @developer runs `full-test-suite` (all tests)
+   2. Verify release readiness — no `failed` stories, artifacts build, docs complete
+   3. Create `docs/plan/RELEASE-<theme-id>.md`
+   4. @product-owner revalidation against `docs/vision_of_product/VP<n>/`
+   5. Mark theme `status: done` in `docs/plan/backlog.yaml`
+   6. **User checkpoint** — present demo summary; wait for user to **accept**, **reject**, or **amend** vision for next VP
+   7. On user **accept**: set `locked: true` on the theme in `docs/plan/backlog.yaml` to freeze all associated VP directory, theme directory, story files, and ADRs
 8. **All themes done** → declare COMPLETE and stop
 
 ## Tool Usage
@@ -51,5 +58,6 @@ You are the **Autopilot Orchestrator**. You autonomously execute `docs/plan/back
 - NEVER implement code yourself — always delegate to @developer
 - NEVER skip developer tests or reviewer steps
 - NEVER modify `docs/vision_of_product/` for the theme currently in execution — future VPs can be amended at user checkpoints
+- NEVER modify any artefact (VP directory, theme directory, story file, or ADR body) that belongs to a theme with `locked: true` in `docs/plan/backlog.yaml`, **except** when superseding an ADR, where you may update only the single `Status:` line of the superseded ADR as required by the `architecture-decisions` skill
 - Troubleshooter is for build/test failures only — review feedback uses the rework loop
 - After 3 troubleshooter attempts on same story, escalate to user

@@ -101,6 +101,7 @@ Ceremony scales with epic size:
 9. **User checkpoint**: orchestrator pauses and presents a demo summary to the user:
    - User can **accept** (proceed to next theme), **reject** (rework), or **amend** vision for next VP
    - Vision is frozen only for the theme currently in execution — future VPs can be updated at checkpoints
+10. **Lock the theme**: after user accepts, orchestrator sets `locked: true` on the theme in `docs/plan/backlog.yaml` — all associated VP directory, theme directory, story files, and ADRs are now immutable. Note: issue templates were already archived in step 8; archiving is a separate operational concern from locking.
 
 ## Naming Conventions
 
@@ -217,3 +218,26 @@ Use for: driving a real browser for BDD scenario tests; taking screenshots to ve
 - Never implement multiple stories in one agent session
 - Never skip the code quality review at epic end
 - Never leave a completed theme's issue templates in `.github/ISSUE_TEMPLATE/` — archive them to `ISSUE_TEMPLATE/archive/` at theme boundary so Loom only sees the current theme's epics
+
+## Immutability Policy
+
+Once a specification artifact is **settled** (its theme is `done` and the user checkpoint is accepted), it is **locked** and must not be modified. Later work always **extends history** by creating new artifacts with incremented numbers.
+
+### What is locked and when
+
+| Artifact | Locked when | Locked marker |
+|:---|:---|:---|
+| Vision phase `VP<n>-*/` | Corresponding theme is `done` and user-accepted | `locked: true` on the theme in `backlog.yaml` |
+| Theme `TH<n>-*/` (stories, epics) | Theme status transitions to `done` and user-accepted | `locked: true` on the theme in `backlog.yaml` |
+| ADR `ADR-<NNN>-*.md` | Its theme is `done` and user-accepted | Status changes from `Accepted` to `Superseded by ADR-<NNN>` only via a new ADR |
+
+### Rules for extending locked artifacts
+
+- **Vision**: Create `VP<n+1>-<slug>/` instead of editing `VP<n>-*/`
+- **Architecture / ADRs**: Create a new `ADR-<NNN+1>` with status `Accepted` that sets the old ADR's `Status` line to `Superseded by ADR-<NNN+1>` — do not edit the body, decision, or consequences of the old ADR
+- **Themes**: Create `TH<n+1>-<slug>/` with new epics and stories; reference the new vision phase in the new theme's `vision-ref`
+- **Backlog**: Append new theme entries to `backlog.yaml` — never delete or rewrite entries for locked themes
+
+### Checking lock status before planning
+
+Before creating or editing any specification artifact, agents **must** read `docs/plan/backlog.yaml` and identify which themes have `locked: true`. Any VP, ADR, or theme directory referenced by a locked theme is off-limits for modification (except the single `Status:` line of a superseded ADR).

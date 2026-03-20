@@ -56,6 +56,15 @@ Proposed | Accepted | Deprecated | Superseded by ADR-<NNN>
 3. **Deprecated** → No longer relevant (explain why)
 4. **Superseded** → Replaced by a newer ADR (link to it)
 
+### ADR Immutability
+
+Once an ADR's status is `Accepted` **and** its associated theme is `locked` (see skill: `the-copilot-build-method` — Immutability Policy), the ADR document is **frozen**:
+
+- **Do not edit** the body, decision, or consequences of a locked ADR
+- To change or revise a decision, **create a new ADR** with the next sequential number
+- In the new ADR, reference the old one in its context (e.g., "Supersedes ADR-001")
+- Update the old ADR's `Status` line to `Superseded by ADR-<NNN>` — this is the **only permitted edit** to a locked ADR
+
 ## Tech Stack Analysis
 
 When choosing technologies, evaluate along these dimensions:

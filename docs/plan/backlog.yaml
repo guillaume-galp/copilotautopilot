@@ -3,6 +3,8 @@
 # Structure: themes → epics → stories, with dependency graph and status tracking.
 #
 # Status values: todo | in-progress | done | failed
+# locked: false (default) | true (set after user accepts the theme at the theme-done checkpoint)
+#   When locked: true, all artefacts referenced by the theme (VP dir, theme dir, ADRs) are immutable.
 #
 # The orchestrator reads this file before every decision and writes after every state change.
 
@@ -13,6 +15,7 @@ backlog:
     - id: TH1
       name: "Methodology Improvements"
       status: done
+      locked: true
       vision-ref: docs/vision_of_product/VP1-mvp/
       depends-on: []
       epics:
