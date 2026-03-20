@@ -56,3 +56,4 @@ Each topic below is owned by exactly one skill. See the skill for canonical deta
 - **Never implement multiple stories in one agent session** — 1 story = 1 developer call
 - **Never skip the code quality review at epic end** — technical debt compounds
 - **Never leave completed theme templates active** — move old theme's `.github/ISSUE_TEMPLATE/TH<n>-*.md` to `ISSUE_TEMPLATE/archive/` at each theme boundary
+- **Never edit locked artefacts** — once a theme has `locked: true` in `backlog.yaml`, its VP directory, theme directory, story files, and associated ADRs are immutable; extend history by creating new VP<n+1>, TH<n+1>, or ADR-<NNN+1> documents instead

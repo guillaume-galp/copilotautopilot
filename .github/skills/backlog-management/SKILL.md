@@ -22,6 +22,7 @@ backlog:
     - id: TH<n>
       name: "<theme name>"
       status: todo               # todo | in-progress | done
+      locked: false              # true once theme is done and user checkpoint is passed — artefacts become immutable
       vision-ref: docs/vision_of_product/VP<n>-<slug>/   # string or list of VP paths
       depends-on: []             # theme-level dependencies (cross-theme)
       epics:
@@ -45,6 +46,33 @@ backlog:
 | `in-progress` | Currently being worked on | `done`, `failed` |
 | `done` | Completed and verified | (terminal) |
 | `failed` | Failed, needs troubleshooting | `in-progress` |
+
+## Locked Field
+
+The `locked` field applies at the **theme level** and signals that all artefacts associated with that theme are **immutable**:
+
+- `locked: false` (default) — theme is active; artefacts may be updated
+- `locked: true` — theme is complete and user-accepted; artefacts are frozen
+
+### What "locked" means
+
+When a theme is `locked: true`:
+- Its story files (`docs/themes/TH<n>-*/`) **must not be edited**
+- The VP directory it references (`docs/vision_of_product/VP<n>-*/`) **must not be modified**
+- Any ADRs created during that theme **must not be modified** (use supersession instead — see skill: `architecture-decisions`)
+- The only permitted change to the backlog entry is correcting clearly wrong technical references — for example, fixing a file path that points to a non-existent location. Correcting a typo in a theme name, changing story titles, or modifying acceptance criteria are **not** permitted.
+
+### When to set locked
+
+The orchestrator sets `locked: true` on a theme **after** the user checkpoint at the end of the theme is accepted:
+
+```yaml
+- id: TH1
+  status: done
+  locked: true   # ← set after user accepts the theme at the checkpoint
+```
+
+New work always extends history in a new artefact (VP<n+1>, TH<n+1>, ADR-<NNN+1>) rather than editing locked ones.
 
 ## Dependency Resolution Rules
 

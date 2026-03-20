@@ -53,3 +53,5 @@ When called at theme completion, compare implemented theme against original visi
 - ALWAYS include edge case and error scenarios
 - Keep stories focused: one logical unit of work per story
 - Keep the dependency graph as shallow as possible
+- NEVER modify VP directories, theme directories, or story files that belong to a locked theme — read `docs/plan/backlog.yaml` first and check `locked: true` before editing any artefact
+- NEVER reuse an existing theme number for new work — always append a new `TH<n+1>` entry to `backlog.yaml` and create a new theme directory
