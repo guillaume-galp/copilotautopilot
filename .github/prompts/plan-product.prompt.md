@@ -35,7 +35,7 @@ The @architect must **not** modify any ADR that belongs to a locked theme, excep
 Invoke the @product-owner agent to break the vision + architecture into:
 - `docs/themes/TH<n>-<name>/` — theme/epic/story hierarchy
 - `docs/plan/backlog.yaml` — YAML dependency graph with all stories
-- `.github/ISSUE_TEMPLATE/TH<n>-E<m>-<slug>.md` — one GitHub issue template per epic (required for Phase 4B Loom weaving)
+- `.github/ISSUE_TEMPLATE/TH<n>-E<m>-<slug>.md` — one GitHub issue template per epic
 
 > **Archiving rule**: When re-running `/plan-product` for a new theme, the @product-owner agent must move the previous theme's templates into `.github/ISSUE_TEMPLATE/archive/` before generating new ones, so only the current theme's epics are active.
 
