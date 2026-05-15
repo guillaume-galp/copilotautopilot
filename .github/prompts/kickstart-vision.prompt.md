@@ -1,47 +1,33 @@
 ---
-description: "Brainstorm and design the product vision interactively. Use when: starting a new product, defining MVP, brainstorming features, defining vision phases."
+description: "Brainstorm and capture product vision into new VP directories with lock-aware rules."
 agent: "ask"
 ---
 
 ## Agents & Skills
 
-| Agent | Skills |
-|-------|--------|
-| Interactive (ask) | `the-copilot-build-method` |
+- Interactive (`ask`) + `the-copilot-build-method`
 
-Let's design the product vision together. I'll help you brainstorm and capture ideas in `docs/vision_of_product/`.
+## Pre-flight
 
-## Pre-flight: Check for existing locked artefacts
+Read `docs/plan/backlog.yaml` if present:
+- identify `locked: true` themes and referenced VP paths
+- identify highest existing VP number
 
-Before creating any VP directory, read `docs/plan/backlog.yaml` (if it exists) and identify:
-- Which VP directories already exist under `docs/vision_of_product/`
-- Which themes have `locked: true` in the backlog (their referenced VP dirs are **immutable**)
+Rule: never edit locked VP artefacts; create next `VP<n+1>-<slug>/`.
 
-**Rule**: Never edit a VP directory whose corresponding theme is `locked: true`. Instead, create the next `VP<n+1>-<slug>/` directory to capture new vision work.
+## Vision Capture Checklist
 
-If locked VPs exist, inform the user which vision phases are already settled and propose the next available VP number for new ideas.
+For each VP directory, capture:
+- problem statement
+- target users/personas
+- core features
+- success criteria
+- constraints
+- open questions
 
-## Structure
+## Conversation Starter
 
-Each vision phase maps to one or more implementation themes (1:N):
-- `VP1-mvp/` → `TH1` — your minimum viable product
-- `VP2-<feature>/` → `TH2`, `TH3` — larger phases can produce multiple themes
-- Theme numbering is sequential and independent of VP numbering
-
-## What to capture in each VP<n> directory
-
-Create markdown files covering:
-- **Problem statement**: What pain point does this solve?
-- **Target users**: Who are the primary users/personas?
-- **Core features**: What must this phase deliver?
-- **Success criteria**: How do we know this phase is done?
-- **Constraints**: Budget, timeline, technology, compliance
-- **Open questions**: Unknowns to resolve before implementation
-
-## Let's start
-
-1. What is the product you want to build?
+Ask:
+1. What product are we building?
 2. What problem does it solve?
 3. Who is it for?
-
-I'll help you structure the answers into VP directories as we go.

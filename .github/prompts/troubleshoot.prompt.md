@@ -1,32 +1,27 @@
 ---
-description: "Diagnose and fix a failing build, test, or story. Use when: tests are broken, build fails, a story is stuck, or you need root-cause analysis outside the autopilot loop."
+description: "Diagnose and fix failing build/test/story with minimal validated changes."
 agent: "troubleshooter"
 tools: [read, edit, search, execute, github/github-mcp-server/default]
 ---
 
 ## Agents & Skills
 
-| Agent | Skills | Key Tools |
-|-------|--------|-----------|
-| @troubleshooter | `the-copilot-build-method`, `bdd-stories`, `code-quality` | GitHub MCP, gh CLI, git CLI |
-
-Diagnose and fix the current failure.
+- `@troubleshooter`: `the-copilot-build-method`, `bdd-stories`, `code-quality`
 
 ## Context Gathering
 
-1. If a story path is provided as argument, read the story file for acceptance criteria and expected behavior
-2. Check `docs/plan/backlog.yaml` for any stories with `status: failed` — start with those
-3. Run the project's test suite to reproduce the failure
-4. Read error output carefully before proposing any fix
+1. if story path provided, read expected behavior
+2. check backlog for `status: failed` stories
+3. reproduce failure via existing project command(s)
 
-## Diagnosis Process
+## Diagnosis Flow
 
-1. **Reproduce** — run the failing test or build command
-2. **Categorize** — logic error, test bug, build/dependency issue, integration error, or requirement ambiguity
-3. **Root cause** — trace the failure to its source (don't fix symptoms)
-4. **Fix** — apply the minimal change needed
-5. **Verify** — re-run tests to confirm the fix works and doesn't break other tests
+1. reproduce
+2. categorize (logic/test/build/integration/requirement)
+3. identify root cause
+4. apply minimal fix
+5. re-run relevant tests/build
 
 ## Output
 
-Return a structured troubleshooting report with root cause, category, fix applied, and verification results.
+Return root cause, category, fix summary, and verification evidence.
