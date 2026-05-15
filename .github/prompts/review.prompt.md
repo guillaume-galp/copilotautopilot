@@ -1,33 +1,28 @@
 ---
-description: "Run an ad-hoc code review on recent changes. Use when: reviewing implementation quality, security audit, checking conventions outside the autopilot loop."
+description: "Run focused code review on recent changes with correctness, security, architecture, and tests."
 agent: "reviewer"
 tools: [read, search, execute, github/github-mcp-server/default]
 ---
 
 ## Agents & Skills
 
-| Agent | Skills | Key Tools |
-|-------|--------|-----------|
-| @reviewer | `the-copilot-build-method`, `code-quality` | GitHub MCP, git CLI |
-
-Perform a thorough code review on recent changes.
+- `@reviewer`: `the-copilot-build-method`, `code-quality`
 
 ## Context Gathering
 
-1. Run `git diff --name-only HEAD~1` (or `git diff --name-only --staged` if there are staged changes) to identify changed files
-2. If a story path is provided as argument, read the story file for acceptance criteria and BDD scenarios
-3. Read `docs/architecture/` for tech stack and conventions
-4. If no story context is given, review the changes as a standalone quality/security audit
+1. detect changed files (`git diff --name-only HEAD~1` or staged diff)
+2. if story path provided, read its AC/BDD context
+3. read architecture/ADR conventions as needed
 
 ## Review Scope
 
-Apply the full checklist from skill: `code-quality`:
-- **Correctness** — logic errors, edge cases, race conditions
-- **Security** — OWASP Top 10 audit
-- **Architecture** — component boundaries, ADR compliance
-- **Code quality** — conventions, DRY, complexity
-- **Tests** — coverage, determinism, meaningful assertions
+Apply `code-quality` checklist:
+- correctness
+- OWASP-oriented security
+- architecture/ADR compliance
+- code quality conventions
+- test quality and determinism
 
 ## Output
 
-Return a structured review report with verdict (APPROVE / REQUEST_CHANGES), issues by severity (critical, suggestion, nit), and security assessment.
+Return: `APPROVE` or `REQUEST_CHANGES`, plus findings by severity (`critical`, `suggestion`, `nit`).
