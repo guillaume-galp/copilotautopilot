@@ -85,7 +85,8 @@ docs/
 ├── ADRs/                 # Architecture Decision Records
 ├── themes/               # TH<n>/epics/E<m>/stories/US<l>.md
 └── plan/
-    ├── backlog.yaml      # Core state file (pure YAML dependency graph)
+    ├── backlog.yaml      # Runtime state (active themes + archive index)
+    ├── backlog-archive/  # Completed theme snapshots (TH<n>.yaml)
     └── session-log.md    # Autopilot session history
 
 .github/
@@ -105,7 +106,7 @@ docs/
 
 - **VP<n> ↔ TH<n>**: Vision phases map 1:N to implementation themes
 - **1 story = 1 developer session**: Stories are sized for single-agent execution
-- **Backlog is truth**: `docs/plan/backlog.yaml` is the only state file the orchestrator trusts
+- **Backlog is truth**: `docs/plan/backlog.yaml` is the runtime source the orchestrator trusts
 - **Hybrid BDD**: Stories contain acceptance criteria + Given/When/Then scenarios
 - **Language-agnostic**: Architect agent chooses tech stack based on your vision
 
