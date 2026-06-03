@@ -10,7 +10,8 @@ Template repo for autonomous product development with a 4-phase lifecycle:
 
 ## Core State (authoritative)
 
-- `docs/plan/backlog.yaml` — single source of truth for status/dependencies
+- `docs/plan/backlog.yaml` — runtime source of truth for status/dependencies
+- `docs/plan/backlog-archive/TH<n>.yaml` — completed theme snapshots (referenced by backlog.yaml)
 - `docs/plan/session-log.md` — recent resumability log (supplementary)
 
 ## Agent Roles

@@ -15,7 +15,7 @@ tools: [read, edit, search, execute, agent, todo, github/github-mcp-server/defau
 ## Pre-flight
 
 Verify:
-1. `docs/plan/backlog.yaml` exists, parses, and contains themes
+1. `docs/plan/backlog.yaml` exists, parses, and contains `active-themes` or `archived-themes`
 2. `docs/architecture/` exists
 3. `docs/themes/` has epics/stories
 4. recover any story left `in-progress` per crash-recovery rules

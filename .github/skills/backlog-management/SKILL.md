@@ -7,7 +7,8 @@ description: 'Backlog YAML schema, status transitions, dependency sequencing, lo
 
 ## Authoritative State
 
-`docs/plan/backlog.yaml` is the single source of truth (pure YAML, no markdown wrapper).
+`docs/plan/backlog.yaml` is the runtime source of truth (pure YAML, no markdown wrapper).
+Completed theme details are moved to `docs/plan/backlog-archive/TH<n>.yaml` and indexed from `backlog.yaml`.
 
 ## Minimal Schema
 
@@ -15,7 +16,7 @@ description: 'Backlog YAML schema, status transitions, dependency sequencing, lo
 backlog:
   project: "<name>"
   last-updated: "<ISO-8601>"
-  themes:
+  active-themes:
     - id: TH<n>
       name: "<theme>"
       status: todo            # todo|in-progress|done
@@ -34,6 +35,16 @@ backlog:
               priority: medium  # high|medium|low (default: medium)
               file: docs/themes/TH<n>-<slug>/epics/E<m>-<slug>/stories/US<l>-<slug>.md
               depends-on: []
+  archived-themes:
+    - id: TH<n>
+      name: "<theme>"
+      status: done
+      locked: true
+      completed-at: "<ISO-8601>"
+      archive-ref: docs/plan/backlog-archive/TH<n>.yaml
+      stats:
+        epics: <count>
+        stories: <count>
 ```
 
 ## Status Machine
@@ -66,6 +77,11 @@ For every transition:
 3. update `last-updated`
 4. write atomically
 5. append session-log entry
+
+On theme completion:
+1. move full theme payload from `active-themes` to `docs/plan/backlog-archive/TH<n>.yaml`
+2. append compact summary entry to `archived-themes`
+3. keep only active execution state in `backlog.yaml`
 
 ## Session Log
 
