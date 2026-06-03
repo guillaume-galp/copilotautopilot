@@ -47,11 +47,11 @@ Rules:
 ## Architecture Doc Set
 
 - `docs/architecture/README.md`
-- `tech-stack.md`
-- `components.md`
-- `data-model.md`
-- `project-setup.md`
-- `deployment.md` (optional when deployment target exists)
+- `docs/architecture/tech-stack.md`
+- `docs/architecture/components.md`
+- `docs/architecture/data-model.md`
+- `docs/architecture/project-setup.md`
+- `docs/architecture/deployment.md` (optional when deployment target exists)
 
 ## Commit Convention
 

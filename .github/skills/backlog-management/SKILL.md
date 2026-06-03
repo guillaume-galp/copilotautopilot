@@ -31,6 +31,7 @@ backlog:
             - id: TH<n>.E<m>.US<l>
               title: "<title>"
               status: todo    # todo|in-progress|done|failed
+              priority: medium  # high|medium|low (default: medium)
               file: docs/themes/TH<n>-<slug>/epics/E<m>-<slug>/stories/US<l>-<slug>.md
               depends-on: []
 ```

@@ -4,8 +4,9 @@
 
 Template repo for autonomous product development with a 4-phase lifecycle:
 1. Vision (`/kickstart-vision`)
-2. Architecture + Planning (`/plan-product`)
-3. Autopilot execution (`/run-autopilot`)
+2. Architecture (`/plan-product` step 1)
+3. Planning (`/plan-product` step 2)
+4. Autopilot execution (`/run-autopilot`)
 
 ## Core State (authoritative)
 

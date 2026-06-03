@@ -60,4 +60,4 @@ depends-on: []
 
 ## Status Flow
 
-`todo -> in-progress -> done` or `failed -> in-progress -> done`
+`todo -> in-progress -> done` or `in-progress -> failed -> in-progress -> done`
