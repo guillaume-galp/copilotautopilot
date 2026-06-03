@@ -3,12 +3,12 @@ backlog:
   last-updated: '2026-06-03T13:45:19Z'
   active-themes: []
   archived-themes:
-  - id: TH1
-    name: Methodology Improvements
-    status: done
-    locked: true
-    completed-at: '2026-03-10T12:30:00Z'
-    archive-ref: docs/plan/backlog-archive/TH1.yaml
-    stats:
-      epics: 6
-      stories: 26
+    - id: TH1
+      name: Methodology Improvements
+      status: done
+      locked: true
+      completed-at: '2026-03-10T12:30:00Z'
+      archive-ref: docs/plan/backlog-archive/TH1.yaml
+      stats:
+        epics: 6
+        stories: 26
