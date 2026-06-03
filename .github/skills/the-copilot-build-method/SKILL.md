@@ -1,208 +1,71 @@
 ---
 name: the-copilot-build-method
-description: 'The overarching autonomous product development methodology. Covers the 4-phase lifecycle (Vision → Architecture → Planning → Autopilot), VP↔TH mapping, Directory conventions, Definition of Done, agent squad roles, and lifecycle ceremonies. Use when: understanding the methodology, onboarding to the process, checking conventions, verifying Definition of Done.'
+description: 'Lifecycle conventions for autonomous product development: 4 phases, VP↔TH mapping, DoD, roles, ceremonies, and lock rules.'
 ---
 
 # The Copilot Build Method
 
-An autonomous product development methodology powered by a squad of specialized AI agents operating through a structured lifecycle.
+## Lifecycle
 
-## Philosophy
+1. Vision (`/kickstart-vision`) → `docs/vision_of_product/VP<n>-<slug>/`
+2. Architecture (`/plan-product` step 1) → `docs/architecture/`, `docs/ADRs/`
+3. Planning (`/plan-product` step 2) → `docs/themes/TH<n>-<slug>/`, `docs/plan/backlog.yaml`, issue templates
+4. Autopilot (`/run-autopilot`) → implement → test → review loop
 
-- **Vision-first**: Products start as free-form ideas, not code
-- **Architecture before implementation**: Design decisions are documented before a single line of code
-- **BDD-driven**: Every feature is specified as testable scenarios before implementation
-- **Incremental delivery**: Products are built in vision phases (VP<n>) that map to implementation themes (TH<n>), with 1:N mapping for large VPs
-- **Autonomous execution**: The orchestrator agent loops the squad through implement → test → review cycles
-- **Persistent state**: All progress is tracked in `docs/plan/backlog.yaml` for resumability
-- **Ceremony at boundaries**: Epic and theme completions trigger quality gates (integration tests, refactor, release notes)
+## Core Principles
 
-## The 4 Phases
+- Vision-first, then architecture, then implementation.
+- `docs/plan/backlog.yaml` is authoritative orchestration state.
+- 1 story per developer session.
+- Failed story must go through troubleshooter.
+- Ceremonies happen at epic/theme boundaries.
 
-### Phase 1 — Vision Design (Human + AI)
-- Prompt: `/kickstart-vision`
-- Output: `docs/vision_of_product/VP<n>-<name>/`
-- Free-form brainstorming canvas — no rigid structure
-- Each VP<n> maps 1:1 to a theme TH<n>
+## VP ↔ TH Mapping
 
-### Phase 2 — Architecture (Architect Agent)
-- Prompt: `/plan-product` (step 1)
-- Output: `docs/architecture/` + `docs/ADRs/`
-- System design, tech stack selection, component boundaries
-- Every significant decision recorded as an ADR
-
-### Phase 3 — Planning (Product Owner Agent)
-- Prompt: `/plan-product` (step 2)
-- Output: `docs/themes/TH<n>/` + `docs/plan/backlog.yaml` + `.github/ISSUE_TEMPLATE/TH<n>-E<m>-<slug>.md`
-- Vision decomposed into themes → epics → user stories
-- Stories are hybrid BDD (acceptance criteria + Given/When/Then)
-- Backlog YAML is the dependency graph + status state machine
-- One GitHub issue template generated per epic
-
-### Phase 4 — Local Autopilot Execution (Orchestrator Agent)
-- Prompt: `/run-autopilot`
-- Loop: implement → test → review per story
-- Epic end ceremony: integration tests + refactor + review + changelog
-- Theme end ceremony: regression tests + release readiness + release notes + vision revalidation
-- Failed stories: troubleshooter loop (max 3 attempts, then escalate)
-
-## VP ↔ TH Mapping Convention
-
-One vision phase can produce **one or more** themes (1:N). Theme numbering is sequential and independent of VP numbering.
-
-| Vision Phase | Theme(s) | Relationship |
-|:---|:---|:---|
-| `VP1-mvp/` | `TH1-<name>/` | 1:1 (simple case) |
-| `VP1-mvp/` | `TH1-<name>/`, `TH2-<name>/` | 1:N (large vision phase) |
-| `VP2-<feat>/` | `TH3-<name>/` | Sequential numbering continues |
+- VP can map to one or more themes (1:N).
+- Theme numbering is sequential and independent of VP numbering.
 
 ## Definition of Done
 
-### Story Done
-1. Code compiles / lints clean
-2. All BDD scenario tests pass (if applicable — trivial/spike stories may have fewer or no BDD tests)
-3. All acceptance criteria verified
-4. Build artifacts produce successfully
-5. Code review agent approves (trivial stories: lightweight self-review only, skip full reviewer)
-6. Relevant documentation updated
+### Story
+- compile/lint/tests pass as applicable
+- acceptance criteria verified
+- relevant docs updated
+- review completed (lightweight for trivial stories)
 
-### Epic Done (Story DoD + ceremony)
+### Epic
+- all stories done
+- small epic (≤3): full epic tests + brief changelog
+- large epic (4+): integration checks + reviewer quality pass + detailed changelog
 
-Ceremony scales with epic size:
+### Theme
+- all epics done
+- full suite + release readiness checks
+- deployment readiness validation if deployment doc exists
+- release notes + vision revalidation
+- archive old issue templates
+- user checkpoint (accept/reject/amend next VP)
+- set `locked: true` on accepted theme
 
-**Small epic (≤3 stories)**:
-1. All stories `done`
-2. Run full test suite across epic stories
-3. Brief changelog entry
+## Naming
 
-**Large epic (4+ stories)**:
-1. All stories `done`
-2. Integration test suite passes across all epic stories
-3. Reviewer performs lightweight code quality check
-4. Orchestrator generates full epic changelog entry
+- VP: `VP<n>-<slug>/`
+- Theme: `TH<n>-<slug>/`
+- Epic: `E<m>-<slug>/`
+- Story: `US<l>-<slug>.md`
+- ADR: `ADR-<NNN>-<slug>.md`
 
-### Theme Done (Epic DoD + ceremony)
-1. All epics `done`
-2. Full test suite passes (all tests across all epics)
-3. Release readiness: artifacts build, docs complete, no `failed` stories
-4. If `docs/architecture/deployment.md` exists, verify deployment readiness (CI/CD, health checks, rollback)
-5. If vision includes NFRs (performance, scalability targets), verify they are covered by test results
-6. Orchestrator produces theme release notes
-7. Product-owner revalidates theme against `docs/vision_of_product/VP<n>/`
-8. **Archive issue templates**: move completed theme's epic templates from `.github/ISSUE_TEMPLATE/TH<n>-*.md` → `.github/ISSUE_TEMPLATE/archive/` to keep the active template set clean for the next theme
-9. **User checkpoint**: orchestrator pauses and presents a demo summary to the user:
-   - User can **accept** (proceed to next theme), **reject** (rework), or **amend** vision for next VP
-   - Vision is frozen only for the theme currently in execution — future VPs can be updated at checkpoints
-10. **Lock the theme**: after user accepts, orchestrator sets `locked: true` on the theme in `docs/plan/backlog.yaml` — all associated VP directory, theme directory, story files, and ADRs are now immutable. Note: issue templates were already archived in step 8; archiving is a separate operational concern from locking.
+## Lock / Immutability Rules
 
-## Naming Conventions
+When a theme is `locked: true`:
+- VP/theme/story artefacts for that theme are immutable
+- ADR body is immutable
+- only allowed edit on old ADR: update `Status:` to `Superseded by ADR-<NNN>` when creating a replacement ADR
+- new work extends history with new VP/TH/ADR IDs
 
-| Entity | Pattern | Example |
-|:---|:---|:---|
-| Vision Phase | `VP<n>-<slug>/` | `VP1-mvp/` |
-| Theme | `TH<n>-<slug>/` | `TH1-core-platform/` |
-| Epic | `E<m>-<slug>/` | `E1-user-auth/` |
-| User Story | `US<l>-<slug>.md` | `US1-login-form.md` |
-| ADR | `ADR-<NNN>-<slug>.md` | `ADR-001-database-choice.md` |
+## Token-Efficient Defaults (GPT-5.4+ / Sonnet 4.6+)
 
-## Agent Squad Roles
-
-| Agent | Phase | Responsibility |
-|:---|:---|:---|
-| orchestrator | 4 | Local autopilot loop, sequencing, state management |
-| product-owner | 3 | Vision → themes/epics/stories + backlog |
-| architect | 2 | Vision → architecture + ADRs |
-| developer | 4 | Implements + tests one user story per session |
-| reviewer | 4 | Code review: correctness, security, conventions |
-| troubleshooter | 4 | Diagnoses + fixes failed stories |
-
-## Recommended Tools per Agent
-
-Each agent has a defined set of MCP servers and CLI tools it should use. Configure these in your VS Code MCP settings before running the autopilot.
-
-### MCP Servers
-
-#### GitHub MCP (`github/github-mcp-server/default`)
-Required by: **all agents**.
-
-```json
-{
-  "mcpServers": {
-    "github": {
-      "type": "http",
-      "url": "https://api.githubcopilot.com/mcp/"
-    }
-  }
-}
-```
-
-Use for: searching repositories and code; reading PR diffs; checking CI status; posting comments.
-
-#### Playwright MCP (`playwright`)
-Required by: **developer** (for UI/browser end-to-end tests).
-
-```json
-{
-  "mcpServers": {
-    "playwright": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["@playwright/mcp@latest"]
-    }
-  }
-}
-```
-
-Use for: driving a real browser for BDD scenario tests; taking screenshots to verify visual output.
-
-### CLI Tools
-
-| CLI | Agents | Key Commands |
-|:----|:-------|:-------------|
-| **git** | orchestrator, product-owner, architect, developer, reviewer, troubleshooter | `git status/diff/log/blame/commit` |
-| **gh** | orchestrator, product-owner, developer, troubleshooter | `gh run view --log`, `gh pr list`, `gh issue list`, `gh auth token` |
-
-> **Note**: The `gh` CLI must be authenticated (`gh auth login`) before running any agent that needs to read CI logs or manage issues.
-
-### Agent ↔ Tool Summary
-
-| Agent | GitHub MCP | Playwright MCP | git CLI | gh CLI |
-|:------|:----------:|:--------------:|:-------:|:------:|
-| orchestrator | ✓ | | ✓ | ✓ |
-| product-owner | ✓ | | ✓ | ✓ |
-| architect | ✓ | | ✓ | |
-| developer | ✓ | ✓ | ✓ | ✓ |
-| reviewer | ✓ | | ✓ | |
-| troubleshooter | ✓ | | ✓ | ✓ |
-
-## Anti-Patterns
-
-- Never hardcode state in agent memory — read/write `docs/plan/backlog.yaml`
-- Never skip the troubleshooter — failed stories must be fixed before epic completion
-- Never modify vision docs during Phase 4 for the **theme currently in execution** — future VPs can be amended at user checkpoints
-- Never implement multiple stories in one agent session
-- Never skip the code quality review at epic end
-- Never leave a completed theme's issue templates in `.github/ISSUE_TEMPLATE/` — archive them to `ISSUE_TEMPLATE/archive/` at theme boundary so only the current theme's epics are active
-
-## Immutability Policy
-
-Once a specification artifact is **settled** (its theme is `done` and the user checkpoint is accepted), it is **locked** and must not be modified. Later work always **extends history** by creating new artifacts with incremented numbers.
-
-### What is locked and when
-
-| Artifact | Locked when | Locked marker |
-|:---|:---|:---|
-| Vision phase `VP<n>-*/` | Corresponding theme is `done` and user-accepted | `locked: true` on the theme in `backlog.yaml` |
-| Theme `TH<n>-*/` (stories, epics) | Theme status transitions to `done` and user-accepted | `locked: true` on the theme in `backlog.yaml` |
-| ADR `ADR-<NNN>-*.md` | Its theme is `done` and user-accepted | Status changes from `Accepted` to `Superseded by ADR-<NNN>` only via a new ADR |
-
-### Rules for extending locked artifacts
-
-- **Vision**: Create `VP<n+1>-<slug>/` instead of editing `VP<n>-*/`
-- **Architecture / ADRs**: Create a new `ADR-<NNN+1>` with status `Accepted` that sets the old ADR's `Status` line to `Superseded by ADR-<NNN+1>` — do not edit the body, decision, or consequences of the old ADR
-- **Themes**: Create `TH<n+1>-<slug>/` with new epics and stories; reference the new vision phase in the new theme's `vision-ref`
-- **Backlog**: Append new theme entries to `backlog.yaml` — never delete or rewrite entries for locked themes
-
-### Checking lock status before planning
-
-Before creating or editing any specification artifact, agents **must** read `docs/plan/backlog.yaml` and identify which themes have `locked: true`. Any VP, ADR, or theme directory referenced by a locked theme is off-limits for modification (except the single `Status:` line of a superseded ADR).
+- Load only needed files/sections.
+- Prefer concise structured outputs.
+- Avoid repeating lifecycle explanations unless requested.
+- Batch independent tool calls.
