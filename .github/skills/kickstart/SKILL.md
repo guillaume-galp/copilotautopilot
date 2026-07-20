@@ -1,7 +1,9 @@
 ---
-description: "Brainstorm and capture product vision into new VP directories with lock-aware rules."
-agent: "ask"
+name: kickstart
+description: 'Interactive product vision kickoff that captures lock-aware VP artefacts.'
 ---
+
+# Kickstart Skill
 
 ## Agents & Skills
 

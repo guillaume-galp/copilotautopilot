@@ -1,8 +1,9 @@
 ---
-description: "Run orchestrator to execute backlog in dependency order with recovery and progress reporting."
-agent: "orchestrator"
-tools: [read, edit, search, execute, agent, todo, github/github-mcp-server/default]
+name: autopilot
+description: 'Run orchestrator to execute backlog in dependency order with recovery and progress reporting.'
 ---
+
+# Autopilot Skill
 
 ## Agents & Skills
 

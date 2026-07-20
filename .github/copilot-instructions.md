@@ -3,10 +3,12 @@
 ## Purpose
 
 Template repo for autonomous product development with a 4-phase lifecycle:
-1. Vision (`/kickstart-vision`)
-2. Architecture (`/plan-product` step 1)
-3. Planning (`/plan-product` step 2)
-4. Autopilot execution (`/run-autopilot`)
+1. Vision (`kickstart` skill)
+2. Architecture (`plan` skill step 1)
+3. Planning (`plan` skill step 2)
+4. Autopilot execution (`autopilot` skill)
+
+Core lifecycle entrypoints are skills (`kickstart`, `plan`, `autopilot`); legacy prompt names (`/kickstart-vision`, `/plan-product`, `/run-autopilot`) are deprecated and should not be used.
 
 ## Core State (authoritative)
 
@@ -26,6 +28,7 @@ Template repo for autonomous product development with a 4-phase lifecycle:
 ## Skills Map
 
 - Lifecycle/conventions: `the-copilot-build-method`
+- Lifecycle entrypoints: `kickstart`, `plan`, `autopilot`
 - Story format: `bdd-stories`
 - Backlog rules: `backlog-management`
 - Review/security: `code-quality`

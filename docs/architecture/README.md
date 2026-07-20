@@ -18,15 +18,17 @@ The "product" is the Copilot Autopilot methodology itself — a set of interconn
 │   ├── product-owner.agent.md     ← Phase 3: planning
 │   └── archive/                   ← retired agents (implementer, tester, refactorer, documenter)
 ├── skills/
+│   ├── kickstart/                 ← vision kickoff lifecycle entrypoint
+│   ├── plan/                      ← architecture + planning lifecycle entrypoint
+│   ├── autopilot/                 ← execution lifecycle entrypoint
 │   ├── the-copilot-build-method/  ← canonical lifecycle, conventions, DoD
 │   ├── backlog-management/        ← canonical backlog schema, state machine
 │   ├── bdd-stories/               ← canonical story format, BDD patterns
 │   ├── code-quality/              ← canonical review checklist, refactoring
 │   └── architecture-decisions/    ← canonical ADR format, tech stack analysis
 ├── prompts/
-│   ├── kickstart-vision.prompt.md ← interactive vision brainstorm (keep)
-│   ├── plan-product.prompt.md     ← architect → product-owner pipeline (keep)
-│   └── run-autopilot.prompt.md    ← launch orchestrator (evaluate: keep or drop)
+│   ├── review.prompt.md           ← review utility prompt
+│   └── troubleshoot.prompt.md     ← troubleshooting utility prompt
 docs/
 ├── plan/
 │   └── backlog.yaml               ← pure YAML, sole source of truth (replaces backlog.md)
