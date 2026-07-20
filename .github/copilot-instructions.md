@@ -8,6 +8,8 @@ Template repo for autonomous product development with a 4-phase lifecycle:
 3. Planning (`plan` skill step 2)
 4. Autopilot execution (`autopilot` skill)
 
+Core lifecycle entrypoints are skills (`kickstart`, `plan`, `autopilot`); legacy prompt names (`/kickstart-vision`, `/plan-product`, `/run-autopilot`) are deprecated and should not be used.
+
 ## Core State (authoritative)
 
 - `docs/plan/backlog.yaml` — runtime source of truth for status/dependencies

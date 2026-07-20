@@ -11,17 +11,18 @@ A squad of specialized Copilot agents that collaborate through a structured life
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  Phase 1: VISION          Human + AI brainstorm                 │
-│  #kickstart skill         → docs/vision_of_product/VP<n>/       │
+│  kickstart skill          → docs/vision_of_product/VP<n>-<slug>/ │
 ├─────────────────────────────────────────────────────────────────┤
 │  Phase 2: ARCHITECTURE    Architect agent                       │
-│  #plan skill              → docs/architecture/ + docs/ADRs/     │
+│  plan skill               → docs/architecture/ + docs/ADRs/      │
 ├─────────────────────────────────────────────────────────────────┤
 │  Phase 3: PLANNING        Product Owner agent                   │
-│  #plan skill              → docs/themes/TH<n>/ + backlog.yaml  │
+│  plan skill               → docs/themes/TH<n>-<slug>/ +           │
+│                           docs/plan/backlog.yaml                  │
 │                           → .github/ISSUE_TEMPLATE/ (per epic)  │
 ├─────────────────────────────────────────────────────────────────┤
 │  Phase 4: LOCAL AUTOPILOT  Orchestrator loops the squad          │
-│  #autopilot skill         implement → test → review → repeat    │
+│  autopilot skill          implement → test → review → repeat     │
 │                           epic end: integration + review          │
 │                           theme end: full test suite + release    │
 └─────────────────────────────────────────────────────────────────┘
