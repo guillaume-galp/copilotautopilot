@@ -7,10 +7,10 @@ description: 'Lifecycle conventions for autonomous product development: 4 phases
 
 ## Lifecycle
 
-1. Vision (`/kickstart-vision`) → `docs/vision_of_product/VP<n>-<slug>/`
-2. Architecture (`/plan-product` step 1) → `docs/architecture/`, `docs/ADRs/`
-3. Planning (`/plan-product` step 2) → `docs/themes/TH<n>-<slug>/`, `docs/plan/backlog.yaml`, issue templates
-4. Autopilot (`/run-autopilot`) → implement → test → review loop
+1. Vision (`kickstart` skill) → `docs/vision_of_product/VP<n>-<slug>/`
+2. Architecture (`plan` skill step 1) → `docs/architecture/`, `docs/ADRs/`
+3. Planning (`plan` skill step 2) → `docs/themes/TH<n>-<slug>/`, `docs/plan/backlog.yaml`, issue templates
+4. Autopilot (`autopilot` skill) → implement → test → review loop
 
 ## Core Principles
 

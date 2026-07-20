@@ -1,8 +1,9 @@
 ---
-description: "Generate architecture and backlog from vision using architect then product-owner."
-agent: "agent"
-tools: [read, edit, search, agent, todo, execute, web, github/github-mcp-server/default]
+name: plan
+description: 'Generate architecture and backlog from vision using architect then product-owner.'
 ---
+
+# Plan Skill
 
 ## Agents & Skills
 
