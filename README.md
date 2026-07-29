@@ -55,6 +55,7 @@ The agent squad uses a set of MCP servers and CLI tools. Configure them once for
 | Tool | Purpose | Setup |
 |------|---------|-------|
 | **GitHub MCP** | PRs, CI checks, code search, issue management | Built-in with VS Code Copilot; or add to `.vscode/mcp.json`: `{"mcpServers":{"github":{"type":"http","url":"https://api.githubcopilot.com/mcp/"}}}` |
+| **Graphify CLI** | Local codebase graph queries when `graphify-out/graph.json` exists | Install/initialize Graphify separately, then agents use `graphify query "<question>" --graph "$REPO/graphify-out/graph.json"` before broad text search |
 | **git CLI** | Commits, diffs, file history | Pre-installed on most systems — `git --version` to verify |
 | **gh CLI** | CI log retrieval, issue/PR management | [cli.github.com](https://cli.github.com) — run `gh auth login` after install |
 

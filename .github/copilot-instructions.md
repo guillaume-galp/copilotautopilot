@@ -34,6 +34,15 @@ Core lifecycle entrypoints are skills (`kickstart`, `plan`, `autopilot`); legacy
 - Review/security: `code-quality`
 - ADR/architecture: `architecture-decisions`
 
+## Code Intelligence
+
+If `graphify-out/graph.json` exists and the `graphify` CLI is available, use
+`graphify query "<question>" --graph "$REPO/graphify-out/graph.json"` before
+broad text search for codebase, architecture, file-relationship, and
+project-content questions. If project-specific instructions define a
+higher-priority code intelligence system, follow that first; otherwise prefer
+Graphify over grep-style search.
+
 ## Hard Rules
 
 - Always read/write state from `docs/plan/backlog.yaml` (never memory-only state).

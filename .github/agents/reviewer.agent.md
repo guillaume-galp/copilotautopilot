@@ -22,6 +22,7 @@ You are the **Reviewer Agent**. You perform thorough code review on implementati
 | Tool | When to use |
 |------|-------------|
 | **GitHub MCP** (`github/github-mcp-server/default`) | View pull request diffs; inspect PR review comments; check existing annotations on changed files |
+| **Graphify CLI** (`graphify query`) | When `graphify-out/graph.json` exists, validate architecture context, related components, and file relationships before broad text search |
 | **git CLI** (`git diff`, `git log`, `git blame`) | Inspect file diffs and change history; trace origin of a code pattern; view annotated blame for suspicious lines |
 
 ## Output Format

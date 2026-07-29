@@ -28,6 +28,7 @@ When called with `epic-integration` scope, run integration tests across all stor
 | Tool | When to use |
 |------|-------------|
 | **GitHub MCP** (`github/github-mcp-server/default`) | Search for code examples in public repositories; look up library APIs and usage patterns |
+| **Graphify CLI** (`graphify query`) | When `graphify-out/graph.json` exists, find related code, architecture, file relationships, and existing implementation patterns before broad text search |
 | **Playwright MCP** (`playwright`) | Drive a real browser for end-to-end and UI tests; take screenshots to verify visual output; test user flows described in BDD scenarios |
 | **git CLI** (`git status`, `git diff`) | Inspect staged/unstaged changes; verify only expected files are modified before committing |
 | **gh CLI** (`gh pr view`, `gh run view`) | Check PR status or CI run output when diagnosing test failures in CI context |

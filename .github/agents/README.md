@@ -78,16 +78,17 @@ The Copilot Build Method is powered by a squad of specialized agents, each with 
 
 ## Agent ↔ MCP & CLI Tools Matrix
 
-| Agent | GitHub MCP | Playwright MCP | git CLI | gh CLI |
-|:---|:---:|:---:|:---:|:---:|
-| orchestrator | ✓ | | ✓ | ✓ |
-| product-owner | ✓ | | ✓ | ✓ |
-| architect | ✓ | | ✓ | |
-| developer | ✓ | ✓ | ✓ | ✓ |
-| reviewer | ✓ | | ✓ | |
-| troubleshooter | ✓ | | ✓ | ✓ |
+| Agent | GitHub MCP | Graphify CLI | Playwright MCP | git CLI | gh CLI |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| orchestrator | ✓ | ✓ | | ✓ | ✓ |
+| product-owner | ✓ | ✓ | | ✓ | ✓ |
+| architect | ✓ | ✓ | | ✓ | |
+| developer | ✓ | ✓ | ✓ | ✓ | ✓ |
+| reviewer | ✓ | ✓ | | ✓ | |
+| troubleshooter | ✓ | ✓ | | ✓ | ✓ |
 
 **GitHub MCP** — `github/github-mcp-server/default`: search repos/code, manage PRs, read CI check runs, post comments  
+**Graphify CLI** — `graphify query`: when `graphify-out/graph.json` exists, answer codebase, architecture, file-relationship, and project-content questions before broad text search
 **Playwright MCP** — `playwright`: browser automation for end-to-end UI tests  
 **git CLI** — `git status/diff/log/blame/commit`: file diffs, commit history, making commits  
 **gh CLI** — `gh run view/list`, `gh pr list`: CI log retrieval, PR status, issue management

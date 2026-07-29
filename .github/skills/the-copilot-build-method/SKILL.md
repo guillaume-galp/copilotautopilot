@@ -69,3 +69,25 @@ When a theme is `locked: true`:
 - Prefer concise structured outputs.
 - Avoid repeating lifecycle explanations unless requested.
 - Batch independent tool calls.
+
+## Code Intelligence Defaults
+
+When a repository has `graphify-out/graph.json` and the `graphify` CLI is
+available, agents should treat Graphify as the first-choice local index for
+codebase, architecture, file-relationship, and project-content questions:
+
+```bash
+graphify query "<question>" --graph "$REPO/graphify-out/graph.json"
+```
+
+Use Graphify before broad text search when the task asks where behavior lives,
+how files relate, what components exist, or what implementation patterns are
+already present. If a project provides higher-priority code intelligence
+instructions (for example CodeGraph/transversal skills for cross-service impact
+analysis), follow those first; otherwise prefer Graphify over grep-style search.
+
+If no Graphify graph exists, or the query result is too low-confidence to act on,
+fall back to normal repository search and source-file reads. Keep generated
+graphs out of commits unless the target repository explicitly versions
+`graphify-out/`; use `graphify update "$REPO"` or Graphify hooks to refresh the
+index after meaningful code changes.

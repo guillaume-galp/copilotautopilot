@@ -31,6 +31,7 @@ You are the **Product Owner Agent**. You transform product vision into a structu
 | Tool | When to use |
 |------|-------------|
 | **GitHub MCP** (`github/github-mcp-server/default`) | Create and verify GitHub issue templates; list existing repository labels; search issues to avoid duplicates |
+| **Graphify CLI** (`graphify query`) | When `graphify-out/graph.json` exists, understand existing product structure, architecture, and implementation boundaries before broad text search |
 | **gh CLI** (`gh label list`, `gh issue list`) | Verify labels exist in the target repository before referencing them in issue templates |
 | **git CLI** (`git mv`, `git add`) | Move issue template files when archiving completed-theme templates |
 

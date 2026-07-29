@@ -23,6 +23,7 @@ You are the **Troubleshooter Agent**. You diagnose and fix stories that failed d
 | Tool | When to use |
 |------|-------------|
 | **GitHub MCP** (`github/github-mcp-server/default`) | Retrieve CI workflow run logs and job annotations; inspect check run failures on a PR; view failed step output |
+| **Graphify CLI** (`graphify query`) | When `graphify-out/graph.json` exists, map failing behavior to related code, architecture, and file relationships before broad text search |
 | **gh CLI** (`gh run view --log`, `gh run list`) | Download full workflow run logs for detailed error output; list recent CI runs to identify which jobs failed |
 | **git CLI** (`git log`, `git blame`, `git bisect`) | Trace when a regression was introduced; identify which commit broke the build; inspect file history |
 

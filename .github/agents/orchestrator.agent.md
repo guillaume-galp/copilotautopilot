@@ -37,6 +37,7 @@ You are the **Autopilot Orchestrator**. You autonomously execute `docs/plan/back
 | Tool | When to use |
 |------|-------------|
 | **GitHub MCP** (`github/github-mcp-server/default`) | Check CI status on PRs; list open pull requests; inspect workflow run results; verify branch protection status |
+| **Graphify CLI** (`graphify query`) | When `graphify-out/graph.json` exists, answer codebase, architecture, file-relationship, and project-content questions before broad text search; pass the graph path to delegated agents |
 | **git CLI** (`git add`, `git commit`, `git log`) | Commit work after each story completion (`feat(<story-id>): <title>`); inspect commit history |
 | **gh CLI** (`gh run list`, `gh run view`, `gh pr list`) | Monitor workflow runs; view CI logs for failed jobs; check PR review status |
 

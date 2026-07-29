@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.7.0 — 2026-07-29
+
+### Key Changes
+- Added Graphify-aware code intelligence defaults for all autopilot roles.
+- Autopilot now detects `graphify-out/graph.json` and delegates the graph path so agents use `graphify query` before broad text search for codebase, architecture, file-relationship, and project-content questions.
+
+### Files Modified
+- `.github/skills/the-copilot-build-method/SKILL.md`
+- `.github/skills/autopilot/SKILL.md`
+- `.github/copilot-instructions.md`
+- `.github/agents/*.agent.md`
+- `.github/agents/README.md`
+- `README.md`
+
 ## Epic E1 — Core Schema & State
 
 ### Stories Completed

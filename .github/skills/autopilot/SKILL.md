@@ -20,6 +20,10 @@ Verify:
 2. `docs/architecture/` exists
 3. `docs/themes/` has epics/stories
 4. recover any story left `in-progress` per crash-recovery rules
+5. if `graphify-out/graph.json` exists and `graphify` is available, pass the
+   repository graph path to delegated agents and instruct them to use
+   `graphify query "<question>" --graph "$REPO/graphify-out/graph.json"` before
+   broad text search for codebase, architecture, and file-relationship questions
 
 ## Execution
 
