@@ -5,7 +5,7 @@ backlog:
     - id: TH2
       name: Gitflow Operator
       status: done
-      locked: false
+      locked: true
       vision-ref: docs/vision_of_product/VP2-gitflow-operator/
       depends-on: []
       epics:
