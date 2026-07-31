@@ -7,10 +7,10 @@ description: 'Run orchestrator to execute backlog in dependency order with recov
 
 ## Agents & Skills
 
-- `@orchestrator`: `the-copilot-build-method`, `backlog-management`
-- `@developer`: `the-copilot-build-method`, `bdd-stories`
+- `@orchestrator`: `the-copilot-build-method`, `backlog-management`, `gitflow-operator`
+- `@developer`: `the-copilot-build-method`, `bdd-stories`, `gitflow-operator`
 - `@reviewer`: `the-copilot-build-method`, `code-quality`
-- `@troubleshooter`: `the-copilot-build-method`, `bdd-stories`, `code-quality`
+- `@troubleshooter`: `the-copilot-build-method`, `bdd-stories`, `code-quality`, `gitflow-operator`
 - `@product-owner`: `the-copilot-build-method`, `bdd-stories`, `backlog-management`
 
 ## Pre-flight
@@ -28,4 +28,6 @@ Verify:
 ## Execution
 
 Run dependency-ordered loop: implement → test → review per story.
+Use `gitflow-operator` for branch, commit, merge-request, CI, squash-merge, and
+release-note operations; do not hand-write ad hoc Gitflow steps.
 Report progress after each completed story.

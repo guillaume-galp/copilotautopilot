@@ -57,9 +57,19 @@ copilot-instructions.md (concise entry point, references skills)
 ```
 No content is duplicated between these layers.
 
+### AD6 — Gitflow Operator Contract
+Autopilot skills do not hand-write ad hoc GitOps flows. When a delivery item
+requires branching, commits, merge requests, CI monitoring, squash merge, or
+release-note preparation, the relevant skill must use the `gitflow-operator`
+tool contract. See [ADR-001](../ADRs/ADR-001-gitflow-operator.md).
+
 ## Change Strategy
 
 Modifications are **in-place edits to existing markdown files**. No programming language, no build system, no dependencies. Verification = read the file back and confirm it matches the specification.
+
+For TH2, modifications introduce a tool contract and skill-method integration.
+The architecture remains markdown/tooling-first: the `gitflow-operator` is a
+method-owned command surface, not a cockpit queue implementation.
 
 ## Dependency Flow Between Epics
 
@@ -73,3 +83,42 @@ E1 (Core Schema)
 ```
 
 E1 is foundational — qualified IDs and backlog format changes affect everything downstream.
+
+## TH2 Architecture — Gitflow Operator
+
+`copilotautopilot` owns the delivery-method side of Gitflow. It does not own
+cockpit runtime orchestration, worker pane dispatch, or cockpit-specific
+clearance gates.
+
+```
+Autopilot skill
+  ├─ architect / product-owner / orchestrator / developer / reviewer
+  │
+  └─ when Gitflow operation is needed
+        ▼
+   gitflow-operator
+     ├─ branch-from-develop
+     ├─ status
+     ├─ commit
+     ├─ create-merge-request
+     ├─ watch-ci
+     ├─ prepare-release-notes
+     └─ squash-merge-to-develop
+        ▼
+   Git provider / local git repository
+```
+
+### Component boundaries
+
+| Component | Responsibility | Does not own |
+|-----------|----------------|--------------|
+| Current autopilot skills | Decide when delivery work needs Gitflow evidence and call `gitflow-operator`. | Provider-specific Git command sequences. |
+| `gitflow-operator` | Execute consistent branch/MR/CI/release-note operations and return evidence. | Product implementation, review decisions, cockpit queue state. |
+| `docs/plan/backlog.yaml` | Track active themes, epics, stories, and dependencies. | Runtime queue ordering or worker dispatch. |
+
+### Delivery invariant
+
+A story that needs Gitflow operations cannot be marked complete unless it has
+`gitflow-operator` evidence or an explicit not-applicable rationale. This keeps
+the methodology token-efficient and prevents each skill from reinventing branch,
+MR, CI, and release-note instructions.

@@ -1,0 +1,165 @@
+#!/usr/bin/env python3
+"""gitflow-operator — consistent Gitflow evidence for autopilot skills."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Dict, List, Optional
+
+
+def now() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def run_git(repo: Path, args: List[str], check: bool = True) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(["git", "-C", str(repo), *args], check=check, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+
+def current_branch(repo: Path) -> str:
+    return run_git(repo, ["rev-parse", "--abbrev-ref", "HEAD"]).stdout.strip()
+
+
+def current_commit(repo: Path) -> str:
+    return run_git(repo, ["rev-parse", "HEAD"]).stdout.strip()
+
+
+def dirty_files(repo: Path) -> List[str]:
+    out = run_git(repo, ["status", "--short"]).stdout
+    return [line for line in out.splitlines() if line.strip()]
+
+
+def branch_exists(repo: Path, branch: str) -> bool:
+    return run_git(repo, ["show-ref", "--verify", "--quiet", f"refs/heads/{branch}"], check=False).returncode == 0
+
+
+def evidence(repo: Path, item_id: Optional[str] = None, **extra: object) -> Dict[str, object]:
+    data: Dict[str, object] = {
+        "timestamp": now(),
+        "repo": str(repo),
+        "branch": current_branch(repo),
+        "commit": current_commit(repo),
+        "dirty_files": dirty_files(repo),
+    }
+    if item_id:
+        data["item_id"] = item_id
+    data.update(extra)
+    return data
+
+
+def emit(data: Dict[str, object]) -> int:
+    print(json.dumps(data, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_status(args: argparse.Namespace) -> int:
+    return emit(evidence(args.repo, args.item_id, operation="status"))
+
+
+def cmd_branch_from_develop(args: argparse.Namespace) -> int:
+    if not branch_exists(args.repo, "develop"):
+        return emit(evidence(args.repo, args.item_id, operation="branch-from-develop", status="blocked", reason="develop branch missing"))
+    if branch_exists(args.repo, args.branch):
+        return emit(evidence(args.repo, args.item_id, operation="branch-from-develop", status="blocked", reason=f"branch already exists: {args.branch}"))
+    run_git(args.repo, ["checkout", "develop"])
+    run_git(args.repo, ["checkout", "-b", args.branch])
+    return emit(evidence(args.repo, args.item_id, operation="branch-from-develop", status="created", target_branch=args.branch))
+
+
+def cmd_commit(args: argparse.Namespace) -> int:
+    if not dirty_files(args.repo):
+        return emit(evidence(args.repo, args.item_id, operation="commit", status="blocked", reason="no changes to commit"))
+    run_git(args.repo, ["add", *args.paths])
+    run_git(args.repo, ["commit", "-m", args.message])
+    return emit(evidence(args.repo, args.item_id, operation="commit", status="committed", message=args.message))
+
+
+def cmd_prepare_release_notes(args: argparse.Namespace) -> int:
+    notes = [
+        f"## Delivery {args.item_id or 'item'}",
+        "",
+        f"- Summary: {args.summary}",
+        f"- Branch: {current_branch(args.repo)}",
+        f"- Commit: {current_commit(args.repo)}",
+    ]
+    if args.tests:
+        notes.append(f"- Tests: {args.tests}")
+    return emit(evidence(args.repo, args.item_id, operation="prepare-release-notes", status="prepared", release_notes="\n".join(notes)))
+
+
+def cmd_create_merge_request(args: argparse.Namespace) -> int:
+    body = args.body or ""
+    if args.dry_run:
+        return emit(evidence(args.repo, args.item_id, operation="create-merge-request", status="dry-run", title=args.title, body=body))
+    gh = subprocess.run(["gh", "pr", "create", "--base", "develop", "--title", args.title, "--body", body], cwd=args.repo, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if gh.returncode != 0:
+        return emit(evidence(args.repo, args.item_id, operation="create-merge-request", status="blocked", reason=gh.stderr.strip()))
+    return emit(evidence(args.repo, args.item_id, operation="create-merge-request", status="created", url=gh.stdout.strip()))
+
+
+def cmd_watch_ci(args: argparse.Namespace) -> int:
+    if args.dry_run:
+        return emit(evidence(args.repo, args.item_id, operation="watch-ci", status="dry-run"))
+    gh = subprocess.run(["gh", "pr", "checks", "--watch"], cwd=args.repo, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    status = "passed" if gh.returncode == 0 else "failed"
+    return emit(evidence(args.repo, args.item_id, operation="watch-ci", status=status, output=(gh.stdout or gh.stderr).strip()))
+
+
+def cmd_squash_merge(args: argparse.Namespace) -> int:
+    if args.dry_run:
+        return emit(evidence(args.repo, args.item_id, operation="squash-merge-to-develop", status="dry-run"))
+    gh = subprocess.run(["gh", "pr", "merge", "--squash", "--base", "develop"], cwd=args.repo, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if gh.returncode != 0:
+        return emit(evidence(args.repo, args.item_id, operation="squash-merge-to-develop", status="blocked", reason=gh.stderr.strip()))
+    return emit(evidence(args.repo, args.item_id, operation="squash-merge-to-develop", status="merged", output=gh.stdout.strip()))
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Gitflow operator for autopilot delivery")
+    parser.add_argument("--repo", type=Path, default=Path.cwd())
+    parser.add_argument("--item-id")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    sub.add_parser("status").set_defaults(func=cmd_status)
+
+    branch = sub.add_parser("branch-from-develop")
+    branch.add_argument("--branch", required=True)
+    branch.set_defaults(func=cmd_branch_from_develop)
+
+    commit = sub.add_parser("commit")
+    commit.add_argument("--message", required=True)
+    commit.add_argument("paths", nargs="*", default=["."])
+    commit.set_defaults(func=cmd_commit)
+
+    mr = sub.add_parser("create-merge-request")
+    mr.add_argument("--title", required=True)
+    mr.add_argument("--body")
+    mr.add_argument("--dry-run", action="store_true")
+    mr.set_defaults(func=cmd_create_merge_request)
+
+    ci = sub.add_parser("watch-ci")
+    ci.add_argument("--dry-run", action="store_true")
+    ci.set_defaults(func=cmd_watch_ci)
+
+    notes = sub.add_parser("prepare-release-notes")
+    notes.add_argument("--summary", required=True)
+    notes.add_argument("--tests")
+    notes.set_defaults(func=cmd_prepare_release_notes)
+
+    merge = sub.add_parser("squash-merge-to-develop")
+    merge.add_argument("--dry-run", action="store_true")
+    merge.set_defaults(func=cmd_squash_merge)
+    return parser
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    args = build_parser().parse_args(argv)
+    return args.func(args)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
