@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.8.0 — 2026-07-31
+
+### Key Changes
+- Added `bin/gitflow-operator` for consistent branch-from-develop, status,
+  commit, merge-request, CI, squash-merge, and release-note evidence.
+- Added the mandatory `gitflow-operator` skill contract and integrated it into
+  current build-method, autopilot, orchestrator, and developer guidance.
+- Added Gitflow evidence tests and contract tests to prevent stale cockpit queue
+  ownership claims in autopilot docs.
+
+### Files Modified
+- `bin/gitflow-operator`
+- `.github/skills/gitflow-operator/SKILL.md`
+- `.github/skills/the-copilot-build-method/SKILL.md`
+- `.github/skills/autopilot/SKILL.md`
+- `.github/agents/orchestrator.agent.md`
+- `.github/agents/developer.agent.md`
+- `tests/test_gitflow_operator.py`
+- `tests/test_skill_gitflow_contract.py`
+
 ## v0.7.0 — 2026-07-29
 
 ### Key Changes
