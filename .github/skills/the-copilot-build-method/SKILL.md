@@ -19,6 +19,8 @@ description: 'Lifecycle conventions for autonomous product development: 4 phases
 - 1 story per developer session.
 - Failed story must go through troubleshooter.
 - Ceremonies happen at epic/theme boundaries.
+- Current autopilot skills MUST use `gitflow-operator` for branch, commit,
+  merge-request, CI, squash-merge, and release-note operations.
 
 ## VP ↔ TH Mapping
 
@@ -69,6 +71,19 @@ When a theme is `locked: true`:
 - Prefer concise structured outputs.
 - Avoid repeating lifecycle explanations unless requested.
 - Batch independent tool calls.
+
+## Gitflow Operator
+
+When delivery work needs Gitflow, use the `gitflow-operator` command surface
+instead of hand-writing ad hoc Git instructions:
+
+```bash
+bin/gitflow-operator --repo <repo> --item-id <story-or-delivery-id> status
+bin/gitflow-operator --repo <repo> --item-id <story-or-delivery-id> branch-from-develop --branch feature/<slug>
+bin/gitflow-operator --repo <repo> --item-id <story-or-delivery-id> prepare-release-notes --summary "<summary>"
+```
+
+If Gitflow is not applicable, record a not-applicable rationale.
 
 ## Code Intelligence Defaults
 

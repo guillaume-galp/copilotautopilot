@@ -1,7 +1,48 @@
 backlog:
   project: copilot-autopilot-methodology-improvements
-  last-updated: '2026-06-03T13:45:19Z'
-  active-themes: []
+  last-updated: '2026-07-31T11:09:14+01:00'
+  active-themes:
+    - id: TH2
+      name: Gitflow Operator
+      status: done
+      locked: false
+      vision-ref: docs/vision_of_product/VP2-gitflow-operator/
+      depends-on: []
+      epics:
+        - id: TH2.E1
+          name: Gitflow operator
+          status: done
+          depends-on: []
+          stories:
+            - id: TH2.E1.US1
+              title: Develop-branch workflow for delivery items
+              status: done
+              priority: high
+              file: docs/themes/TH2-gitflow-operator/E1-gitflow-operator/stories/US1-develop-branch-workflow.md
+              depends-on: []
+            - id: TH2.E1.US2
+              title: Merge request, CI, and release-note operator
+              status: done
+              priority: high
+              file: docs/themes/TH2-gitflow-operator/E1-gitflow-operator/stories/US2-merge-request-ci-release-notes.md
+              depends-on: [TH2.E1.US1]
+        - id: TH2.E2
+          name: Build-method gitflow integration
+          status: done
+          depends-on: []
+          stories:
+            - id: TH2.E2.US1
+              title: Mandatory gitflow-operator usage
+              status: done
+              priority: high
+              file: docs/themes/TH2-gitflow-operator/E2-build-method-integration/stories/US1-mandatory-gitflow-operator.md
+              depends-on: []
+            - id: TH2.E2.US2
+              title: Multi-repo gitflow contract
+              status: done
+              priority: medium
+              file: docs/themes/TH2-gitflow-operator/E2-build-method-integration/stories/US2-multi-repo-gitflow-contract.md
+              depends-on: [TH2.E1.US1, TH2.E2.US1]
   archived-themes:
     - id: TH1
       name: Methodology Improvements

@@ -5,7 +5,7 @@ agents: [developer, reviewer, troubleshooter, product-owner]
 model: Claude Opus 4.6
 ---
 
-<!-- Skills: the-copilot-build-method, backlog-management -->
+<!-- Skills: the-copilot-build-method, backlog-management, gitflow-operator -->
 
 You are the **Autopilot Orchestrator**. You autonomously execute `docs/plan/backlog.yaml` until every theme is `done`. Read **backlog-management** skill for YAML schema, status state machine, and sequencing rules. Read **the-copilot-build-method** skill for lifecycle, DoD, and conventions.
 
@@ -40,6 +40,7 @@ You are the **Autopilot Orchestrator**. You autonomously execute `docs/plan/back
 | **Graphify CLI** (`graphify query`) | When `graphify-out/graph.json` exists, answer codebase, architecture, file-relationship, and project-content questions before broad text search; pass the graph path to delegated agents |
 | **git CLI** (`git add`, `git commit`, `git log`) | Commit work after each story completion (`feat(<story-id>): <title>`); inspect commit history |
 | **gh CLI** (`gh run list`, `gh run view`, `gh pr list`) | Monitor workflow runs; view CI logs for failed jobs; check PR review status |
+| **gitflow-operator** (`bin/gitflow-operator`) | Mandatory branch/MR/CI/squash/release-note evidence for delivery Gitflow |
 
 ## Output Templates
 
@@ -52,7 +53,8 @@ You are the **Autopilot Orchestrator**. You autonomously execute `docs/plan/back
 - `docs/plan/backlog.yaml` is the **single source of truth** — read before every decision, write after every state change
 - Status lives **only** in backlog.yaml — never in story files
 - Log each story/epic/theme completion to `docs/plan/session-log.md`
-- Create a git commit after each story completion: `feat(<story-id>): <title>`
+- Create Gitflow evidence after each story completion via `gitflow-operator`;
+  do not hand-write branch/MR/CI/release-note flows.
 
 ## Constraints
 

@@ -1,3 +1,23 @@
+### 2026-07-31T11:09:14+01:00 — Implement TH2 Gitflow Operator
+
+- Added `bin/gitflow-operator` with branch-from-develop, status, commit, MR, CI, squash-merge, and release-note command surface.
+- Added `.github/skills/gitflow-operator/SKILL.md`.
+- Updated current build-method/autopilot/orchestrator/developer guidance to require `gitflow-operator`.
+- Added targeted tests for Gitflow evidence and skill contract enforcement.
+- Marked TH2 epics and stories done.
+
+### 2026-07-30T20:47:56+01:00 — Advance TH2 Architecture and Planning
+
+- Updated architecture README with the `gitflow-operator` component boundary and delivery invariant.
+- Added TH2 epic issue templates for gitflow operator and build-method integration.
+- Confirmed autopilot scope excludes cockpit runtime and cockpit-specific clearance gates.
+
+### 2026-07-30T19:56:41+01:00 — Kickstart VP2 Gitflow Operator
+
+- Added VP2 for mandatory `gitflow-operator` semantics.
+- Accepted ADR-001 for clean ownership split: cockpit runtime stays outside autopilot, Gitflow belongs in copilotautopilot.
+- Added active TH2 with gitflow-operator and build-method integration stories.
+
 ### Session ended: 2026-03-10T11:43:29Z
 - Todo: 6 | In-progress: 0
 0 | Done: 0
@@ -101,4 +121,3 @@
 0 | In-progress: 0
 0 | Done: 33 | Failed: 0
 0
-
