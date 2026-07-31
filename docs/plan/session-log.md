@@ -1,3 +1,8 @@
+### 2026-07-31T11:09:14+01:00 — Accept and Lock TH2
+
+- User accepted the TH2 delivery checkpoint.
+- Locked TH2 Gitflow Operator.
+
 ### 2026-07-31T11:09:14+01:00 — Implement TH2 Gitflow Operator
 
 - Added `bin/gitflow-operator` with branch-from-develop, status, commit, MR, CI, squash-merge, and release-note command surface.
