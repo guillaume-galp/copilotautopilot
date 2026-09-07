@@ -12,6 +12,6 @@ runner-sha256: 749669834d3cb5dcfaa7dc964e57828096a78ddf386590b8db8966d3565ac4fb
 source-input-sha256: 65d0561e6ab06787639067cb621d1326d3a78270acfeaa6611ec777efad8d6ed
 executed-input-sha256: 65d0561e6ab06787639067cb621d1326d3a78270acfeaa6611ec777efad8d6ed
 run-output: docs/plan/evidence/control-activation/runs/CTL-001-gates-restore-and-pass.json
-run-output-sha256: 8291a24c52447a6f56bd5ade61259dae83e32818cf8185be3d21df42e62d1e0c
+run-output-sha256: 49b234c9d22893d37bd6962c5f0e43cf00c339e160d4292faebcf9cc1eac0b4f
 observed-exit: 0
-observed-at: '2026-09-07T11:50:08.938253+01:00'
+observed-at: '2026-09-07T12:19:40.946133+01:00'

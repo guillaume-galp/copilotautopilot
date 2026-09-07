@@ -12,6 +12,6 @@ runner-sha256: 749669834d3cb5dcfaa7dc964e57828096a78ddf386590b8db8966d3565ac4fb
 source-input-sha256: 65d0561e6ab06787639067cb621d1326d3a78270acfeaa6611ec777efad8d6ed
 executed-input-sha256: fe8cf695db63210e7b72ec8cb084b4af02f259c0afb5cbf45c46e9fbe0877618
 run-output: docs/plan/evidence/control-activation/runs/CTL-003-trace-bypass-attempt.json
-run-output-sha256: a31516e7cde7c93e733ebf23248a437720a4766b4547f27325e4a64799fec3ff
+run-output-sha256: dd966a95d100a49fdc4d6aea2b260a7b765b0bba0124dd9ab18711271bbccad7
 observed-exit: 2
-observed-at: '2026-09-07T11:50:11.551072+01:00'
+observed-at: '2026-09-07T12:19:43.651601+01:00'

@@ -12,6 +12,6 @@ runner-sha256: 749669834d3cb5dcfaa7dc964e57828096a78ddf386590b8db8966d3565ac4fb
 source-input-sha256: 65d0561e6ab06787639067cb621d1326d3a78270acfeaa6611ec777efad8d6ed
 executed-input-sha256: 5ad18f51cd6875b164f47e77cba7a072e31d4fcf13b952be2a7da6ce9106539e
 run-output: docs/plan/evidence/control-activation/runs/CTL-014-docs-bypass-attempt.json
-run-output-sha256: e3f25f779969a3e4de268ddb5d6edb38c8554dba11a17f61a33a42be488481ef
+run-output-sha256: 4abfbc613a3f25ff4db6144399b1d8e9f2727b47307169952e4110ae5a780b58
 observed-exit: 2
-observed-at: '2026-09-07T11:50:12.601971+01:00'
+observed-at: '2026-09-07T12:19:44.644561+01:00'

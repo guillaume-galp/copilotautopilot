@@ -12,6 +12,6 @@ runner-sha256: 749669834d3cb5dcfaa7dc964e57828096a78ddf386590b8db8966d3565ac4fb
 source-input-sha256: 65d0561e6ab06787639067cb621d1326d3a78270acfeaa6611ec777efad8d6ed
 executed-input-sha256: 1f4101a82cb54a587396c0e6154c02524fb8bf6e4e040688f0fd02391b8dfa28
 run-output: docs/plan/evidence/control-activation/runs/CTL-003-lock-bypass-attempt.json
-run-output-sha256: d028b23ad5641130dcea5ab0ec51043831f9bca5f2f68f0917b3f4655f17fd85
+run-output-sha256: adececed21f1f0cc0c7d9f52d352cd5c5b37d4addb0eac6aa5fb89479aa1de6b
 observed-exit: 2
-observed-at: '2026-09-07T11:50:10.306761+01:00'
+observed-at: '2026-09-07T12:19:42.734678+01:00'

@@ -12,6 +12,6 @@ runner-sha256: 749669834d3cb5dcfaa7dc964e57828096a78ddf386590b8db8966d3565ac4fb
 source-input-sha256: 65d0561e6ab06787639067cb621d1326d3a78270acfeaa6611ec777efad8d6ed
 executed-input-sha256: 65d0561e6ab06787639067cb621d1326d3a78270acfeaa6611ec777efad8d6ed
 run-output: docs/plan/evidence/control-activation/runs/CTL-002-schema-restore-and-pass.json
-run-output-sha256: c6ec2e7ca1dc6f02efebf372703c1db5b6e3c06d4e401a0bc7795d6e0d3d179d
+run-output-sha256: aada7075f7824e01be080d75fd24bef0a11925834c5090077e69467068bc903a
 observed-exit: 0
-observed-at: '2026-09-07T11:50:09.753748+01:00'
+observed-at: '2026-09-07T12:19:42.066355+01:00'
