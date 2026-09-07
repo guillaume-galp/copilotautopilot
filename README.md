@@ -4,44 +4,52 @@ A template repository for **AI-driven autonomous product development** using VS 
 
 ## What is this?
 
-A squad of specialized Copilot agents that collaborate through a structured lifecycle to take a product from **vision** to **working software** — autonomously.
+A squad of specialized Copilot agents that collaborate through a structured
+lifecycle to take a product from **vision** to **working software** —
+autonomously.
 
 ## Development Lifecycle
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  Phase 1: VISION          Human + AI brainstorm                 │
-│  kickstart skill          → docs/vision_of_product/VP<n>-<slug>/ │
-├─────────────────────────────────────────────────────────────────┤
-│  Phase 2: ARCHITECTURE    Architect agent                       │
-│  plan skill               → docs/architecture/ + docs/ADRs/      │
-├─────────────────────────────────────────────────────────────────┤
-│  Phase 3: PLANNING        Product Owner agent                   │
-│  plan skill               → docs/themes/TH<n>-<slug>/ +           │
-│                           docs/plan/backlog.yaml                  │
-│                           → .github/ISSUE_TEMPLATE/ (per epic)  │
-├─────────────────────────────────────────────────────────────────┤
-│  Phase 4: LOCAL AUTOPILOT  Orchestrator loops the squad          │
-│  autopilot skill          implement → test → review → repeat     │
-│                           epic end: integration + review          │
-│                           theme end: full test suite + release    │
-└─────────────────────────────────────────────────────────────────┘
-```
+The method has **six stages exposed through five entrypoints**. The canonical
+stage order, gates, authorities, artefact ownership, and lock rules are owned
+only by the
+[`the-copilot-build-method`](.github/skills/the-copilot-build-method/SKILL.md)
+skill; this table is a reader-oriented summary.
+
+<!-- lifecycle-summary:start -->
+| Stage | Entrypoint | Outcome |
+|---|---|---|
+| Vision sketch | `kickstart` | A VP sketch records the product intent. |
+| Discovery | `discover` | A human accepts a `READY` or `READY_WITH_DEFERRALS` dossier verdict. |
+| PRD finalization | `requirements` | A human approves measurable product requirements. |
+| Architecture | `plan` stage 1 | A human accepts architecture derived from accepted Discovery and an approved PRD. |
+| Planning | `plan` stage 2 | The product owner and validator admit delivery plans. |
+| Autopilot | `autopilot` | The squad implements, tests, reviews, and completes the applicable Definition of Done. |
+<!-- lifecycle-summary:end -->
 
 ## Quick Start
 
-1. **Design your product vision**
+1. **Sketch the product vision with `kickstart`**
    - Run the `kickstart` skill in Copilot Chat
    - Brainstorm freely — capture ideas in `docs/vision_of_product/VP1-mvp/`
-   - Add more phases: `VP2-<feature>/`, `VP3-<feature>/`, etc.
+   - Add more VP scopes: `VP2-<feature>/`, `VP3-<feature>/`, etc.
 
-2. **Generate architecture and plan**
-   - Run the `plan` skill in Copilot Chat
-   - Architect agent produces `docs/architecture/` and `docs/ADRs/`
-   - Product Owner agent breaks vision into themes/epics/stories and builds `docs/plan/backlog.yaml`
-   - Product Owner also creates `.github/ISSUE_TEMPLATE/TH<n>-E<m>-<slug>.md` — one per epic
+2. **Run evidence-backed Discovery with `discover`**
+   - Classify the scope and build `docs/discovery/VP<n>-<slug>/`
+   - Obtain the human-accepted Discovery readiness verdict
 
-3. **Launch autopilot**
+3. **Finalize requirements with `requirements`**
+   - Translate accepted Discovery into
+     `docs/requirements/VP<n>-<slug>/PRD.md`
+   - Obtain human PRD approval
+
+4. **Create architecture and delivery plans with `plan`**
+   - Stage 1 produces `docs/architecture/` and `docs/ADRs/`, then stops for
+     human architecture acceptance
+   - Stage 2 creates themes, epics, stories, issue templates, and the backlog
+     only after the architecture gate opens
+
+5. **Launch delivery with `autopilot`**
    - Run the `autopilot` skill in Copilot Chat in "Autopilot" mode
    - Orchestrator executes stories locally: implement → test → review
    - Session state persists in `docs/plan/backlog.yaml` — resume anytime
@@ -69,20 +77,25 @@ The agent squad uses a set of MCP servers and CLI tools. Configure them once for
 
 ## Agent Squad
 
-| Agent | Role | Phase |
+| Agent | Role | Lifecycle responsibility |
 |-------|------|-------|
-| **orchestrator** | Local autopilot loop: sequencing, parallelism, state management | 4 |
-| **product-owner** | Vision → themes → epics → BDD stories | 3 |
-| **architect** | Vision → architecture, tech stack, ADRs | 2 |
-| **developer** | Implements + tests one user story per session | 4 |
-| **reviewer** | Code review: correctness, security, conventions | 4 |
-| **troubleshooter** | Diagnoses and fixes failed stories | 4 |
+| **discovery-facilitator** | Maintains a coherent dossier without taking human authority | Discovery |
+| **investigator** | Returns evidence for one bounded Discovery question | Discovery |
+| **requirements-facilitator** | Drafts measurable, traceable requirements | PRD finalization |
+| **architect** | Produces architecture, tech stack, and ADRs | Architecture |
+| **product-owner** | Produces themes, epics, BDD stories, and planning admission | Planning |
+| **orchestrator** | Sequences delivery and manages runtime state | Autopilot |
+| **developer** | Implements and tests one user story per session | Autopilot |
+| **reviewer** | Reviews correctness, security, and conventions | Autopilot |
+| **troubleshooter** | Diagnoses and fixes failed stories | Autopilot |
 
 ## Directory Structure
 
 ```
 docs/
-├── vision_of_product/    # Free-form product vision (VP<n> → TH<n>)
+├── vision_of_product/    # Free-form product vision
+├── discovery/            # Evidence, decisions, risks, and readiness
+├── requirements/         # Approved PRDs and change records
 ├── architecture/         # System design + tech stack
 ├── ADRs/                 # Architecture Decision Records
 ├── themes/               # TH<n>/epics/E<m>/stories/US<l>.md
@@ -92,9 +105,10 @@ docs/
     └── session-log.md    # Autopilot session history
 
 .github/
-├── agents/               # 6 specialized agents
+├── agents/               # Specialized agent definitions
 ├── prompts/              # Optional prompts (for example /review, /troubleshoot)
-├── skills/               # Reusable skills (kickstart, plan, autopilot,
+├── skills/               # Reusable skills (kickstart, discover, requirements,
+│                         #   plan, autopilot,
 │                         #   the-copilot-build-method,
 │                         #   bdd-stories, backlog-management, code-quality,
 │                         #   architecture-decisions)

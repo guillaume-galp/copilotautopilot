@@ -1,0 +1,220 @@
+#!/usr/bin/env python3
+"""Generate TH3.E4.US5 evidence using only closed local operations."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+from datetime import datetime
+from pathlib import Path
+
+import yaml
+
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from methodlib import exits, recovery, self_hosted  # noqa: E402
+
+
+def _timestamp() -> str:
+    return datetime.now().astimezone().isoformat(timespec="microseconds")
+
+
+def _copy_repository(destination: Path) -> Path:
+    target = destination / "repository"
+    shutil.copytree(
+        ROOT,
+        target,
+        ignore=shutil.ignore_patterns(
+            ".pytest_cache",
+            ".mypy_cache",
+            "__pycache__",
+            ".coverage",
+            "*.pyc",
+        ),
+    )
+    return target
+
+
+def _run_validator(root: Path, case: recovery.RecoveryCase) -> dict[str, object]:
+    started_at = _timestamp()
+    completed = subprocess.run(
+        [str(root / "bin/method"), *case.arguments],
+        cwd=root,
+        env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"},
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+        timeout=20,
+    )
+    completed_at = _timestamp()
+    try:
+        payload = json.loads(completed.stdout)
+    except json.JSONDecodeError as error:
+        raise RuntimeError(
+            f"{case.stem} did not emit one JSON result: {error}"
+        ) from error
+    if not isinstance(payload, dict):
+        raise RuntimeError(f"{case.stem} emitted a non-object JSON result")
+    return {
+        "started-at": started_at,
+        "completed-at": completed_at,
+        "observed-exit": completed.returncode,
+        "stderr": completed.stderr,
+        "result": payload,
+    }
+
+
+def _write_json(path: Path, value: object) -> str:
+    encoded = (
+        json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+        + "\n"
+    ).encode("utf-8")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(encoded)
+    return recovery.sha256_bytes(encoded)
+
+
+def _write_yaml(path: Path, value: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        yaml.safe_dump(value, sort_keys=False),
+        encoding="utf-8",
+    )
+
+
+def _validate_phase(
+    case: recovery.RecoveryCase,
+    kind: str,
+    run: dict[str, object],
+) -> None:
+    expected_exit = (
+        exits.VALIDATION_FAILURE if kind == "bypass-attempt" else exits.SUCCESS
+    )
+    result = run["result"]
+    assert isinstance(result, dict)
+    findings = result.get("findings")
+    if (
+        run["observed-exit"] != expected_exit
+        or result.get("check") != case.validator_check
+        or not isinstance(findings, list)
+        or (kind == "bypass-attempt" and not findings)
+        or (kind == "restore-and-pass" and findings)
+    ):
+        raise RuntimeError(
+            f"{case.stem} {kind} did not produce the required validator outcome"
+        )
+
+
+def run_recoveries() -> dict[str, object]:
+    digests = recovery.file_digest_fields(ROOT)
+    dependency_files = recovery.command_dependency_files(ROOT)
+    generated: list[str] = []
+    for case in recovery.CASES:
+        source_digest = recovery.input_digest(
+            ROOT,
+            case,
+            "restore-and-pass",
+            dependency_files=dependency_files,
+        )
+        with tempfile.TemporaryDirectory(prefix=f"{case.stem}-") as directory:
+            fixture_root = _copy_repository(Path(directory))
+            original = recovery.apply_bypass(fixture_root, case)
+            bypass = _run_validator(fixture_root, case)
+            _validate_phase(case, "bypass-attempt", bypass)
+            recovery.restore(fixture_root, case, original)
+            restored = _run_validator(fixture_root, case)
+            _validate_phase(case, "restore-and-pass", restored)
+
+        for kind, run in (
+            ("bypass-attempt", bypass),
+            ("restore-and-pass", restored),
+        ):
+            output = {
+                "run-output-version": 1,
+                "runner": "method-recovery-v1",
+                "control-id": case.control_id,
+                "validator-check": case.validator_check,
+                "recovery-case": case.recovery_case,
+                "evidence-kind": kind,
+                "fixture": {
+                    "path": recovery.FIXTURE_PATH,
+                    "sha256": digests["fixture-sha256"],
+                },
+                "test": {
+                    "reference": recovery.TEST_REFERENCE,
+                    "sha256": digests["test-sha256"],
+                },
+                "runner-file": {
+                    "path": recovery.RUNNER_PATH,
+                    "sha256": digests["runner-sha256"],
+                },
+                "source-input-sha256": source_digest,
+                "executed-input-sha256": recovery.input_digest(
+                    ROOT,
+                    case,
+                    kind,
+                    dependency_files=dependency_files,
+                ),
+                **run,
+            }
+            output_relative = recovery.output_relative(case, kind)
+            output_digest = _write_json(ROOT / output_relative, output)
+            evidence = {
+                "evidence-version": 2,
+                "control-id": case.control_id,
+                "evidence-kind": kind,
+                "validator-check": case.validator_check,
+                "recovery-case": case.recovery_case,
+                "fixture-path": recovery.FIXTURE_PATH,
+                "fixture-sha256": digests["fixture-sha256"],
+                "test-reference": recovery.TEST_REFERENCE,
+                "test-sha256": digests["test-sha256"],
+                "runner-path": recovery.RUNNER_PATH,
+                "runner-sha256": digests["runner-sha256"],
+                "source-input-sha256": source_digest,
+                "executed-input-sha256": output["executed-input-sha256"],
+                "run-output": output_relative,
+                "run-output-sha256": output_digest,
+                "observed-exit": run["observed-exit"],
+                "observed-at": run["completed-at"],
+            }
+            evidence_relative = recovery.evidence_relative(case, kind)
+            _write_yaml(ROOT / evidence_relative, evidence)
+            generated.extend((output_relative, evidence_relative))
+    return {
+        "status": "ok",
+        "runner": "method-recovery-v1",
+        "pairs": len(recovery.CASES),
+        "files": generated,
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "operation",
+        choices=("recoveries", "report", "network-child"),
+    )
+    arguments = parser.parse_args()
+    if arguments.operation == "recoveries":
+        result = run_recoveries()
+    elif arguments.operation == "report":
+        result = self_hosted.run_report(ROOT)
+    elif arguments.operation == "network-child":
+        result = self_hosted._network_child(ROOT)
+    else:  # pragma: no cover - argparse closes the vocabulary
+        raise AssertionError(arguments.operation)
+    print(json.dumps(result, sort_keys=True, separators=(",", ":")))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

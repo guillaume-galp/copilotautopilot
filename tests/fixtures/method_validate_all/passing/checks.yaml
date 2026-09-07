@@ -1,0 +1,21 @@
+<!-- method-validate-docs: fixture -->
+fixture-version: 1
+cases:
+  schema:
+    arguments: [validate, schema, --json]
+    mutation: none
+  gates:
+    arguments: [validate, gates, --vp, VP3, --stage, requirements, --json]
+    mutation: none
+  lock:
+    arguments: [validate, lock, --json]
+    mutation: none
+  trace:
+    arguments: [validate, trace, --json]
+    mutation: none
+  maturity:
+    arguments: [validate, maturity, --json]
+    mutation: none
+  docs:
+    arguments: [validate, docs, --json]
+    mutation: none

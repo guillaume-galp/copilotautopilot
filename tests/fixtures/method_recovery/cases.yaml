@@ -1,0 +1,23 @@
+fixture-version: 1
+runner: method-recovery-v1
+cases:
+  - control-id: CTL-001
+    validator-check: gates
+    recovery-case: requirements-gate-blocked-then-restored
+    mutation: blocked-discovery-gate
+  - control-id: CTL-002
+    validator-check: schema
+    recovery-case: backlog-malformed-then-restored
+    mutation: malformed-backlog
+  - control-id: CTL-003
+    validator-check: lock
+    recovery-case: locked-story-edited-then-restored
+    mutation: edited-locked-story
+  - control-id: CTL-003
+    validator-check: trace
+    recovery-case: story-trace-dangling-then-restored
+    mutation: dangling-story-trace
+  - control-id: CTL-014
+    validator-check: docs
+    recovery-case: active-doc-stale-then-removed
+    mutation: stale-active-document
