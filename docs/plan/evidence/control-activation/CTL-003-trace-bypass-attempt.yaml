@@ -1,0 +1,17 @@
+evidence-version: 2
+control-id: CTL-003
+evidence-kind: bypass-attempt
+validator-check: trace
+recovery-case: story-trace-dangling-then-restored
+fixture-path: tests/fixtures/method_recovery/cases.yaml
+fixture-sha256: dee8bf7f13d43b5397daaac01492b6ec16c6809b1f1620ebaa2b798d969b859e
+test-reference: tests/test_e4_self_hosted_validation.py::test_recovery_runner_outputs_are_bound_and_consumed
+test-sha256: bfc46cc0f634bf7d824c4151c9e7c4a1d3860b1ff53a162e601de5855b309962
+runner-path: bin/run-th3-e4-us5-evidence
+runner-sha256: 749669834d3cb5dcfaa7dc964e57828096a78ddf386590b8db8966d3565ac4fb
+source-input-sha256: 65d0561e6ab06787639067cb621d1326d3a78270acfeaa6611ec777efad8d6ed
+executed-input-sha256: fe8cf695db63210e7b72ec8cb084b4af02f259c0afb5cbf45c46e9fbe0877618
+run-output: docs/plan/evidence/control-activation/runs/CTL-003-trace-bypass-attempt.json
+run-output-sha256: dd966a95d100a49fdc4d6aea2b260a7b765b0bba0124dd9ab18711271bbccad7
+observed-exit: 2
+observed-at: '2026-09-07T12:19:43.651601+01:00'

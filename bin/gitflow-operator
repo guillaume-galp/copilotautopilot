@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 import json
 import subprocess
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -112,7 +111,7 @@ def cmd_watch_ci(args: argparse.Namespace) -> int:
 def cmd_squash_merge(args: argparse.Namespace) -> int:
     if args.dry_run:
         return emit(evidence(args.repo, args.item_id, operation="squash-merge-to-develop", status="dry-run"))
-    gh = subprocess.run(["gh", "pr", "merge", "--squash", "--base", "develop"], cwd=args.repo, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    gh = subprocess.run(["gh", "pr", "merge", "--squash"], cwd=args.repo, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if gh.returncode != 0:
         return emit(evidence(args.repo, args.item_id, operation="squash-merge-to-develop", status="blocked", reason=gh.stderr.strip()))
     return emit(evidence(args.repo, args.item_id, operation="squash-merge-to-develop", status="merged", output=gh.stdout.strip()))

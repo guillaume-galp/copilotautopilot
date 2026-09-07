@@ -1,0 +1,1469 @@
+theme:
+  id: TH3
+  name: Discovery and requirements foundation
+  schema-version: 2
+  status: done
+  locked: true
+  vision-ref: docs/vision_of_product/VP3-discovery-led-cost-aware-methodology/
+  discovery-ref: docs/discovery/VP3-discovery-led-cost-aware-methodology/
+  requirements-ref: docs/requirements/VP3-discovery-led-cost-aware-methodology/PRD.md
+  depends-on: []
+  budgets:
+    target: null
+    warning: null
+    pause: null
+    unit: AIC
+  usage:
+    value: null
+    confidence: unknown
+    source: none
+    sampled-at: null
+  epics:
+  - id: TH3.E1
+    name: Lifecycle contracts and structured artefact schemas
+    status: done
+    depends-on: []
+    budgets:
+      target: null
+      warning: null
+      pause: null
+      unit: AIC
+    usage:
+      value: null
+      confidence: unknown
+      source: none
+      sampled-at: null
+    stories:
+    - id: TH3.E1.US1
+      title: Six-stage lifecycle and gate contract
+      status: done
+      priority: high
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E1-lifecycle-contracts/stories/US1-six-stage-lifecycle-contract.md
+      depends-on: []
+      risk:
+        tier: R2
+        triggers:
+        - cross-component-contract
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        - reasoning
+        escalations: []
+      verification:
+        profile: targeted-plus-integration
+        matrix:
+        - lint
+        - unit
+        - integration
+        suite-policy:
+          story: targeted
+          epic: required
+          theme: full
+        waivers: []
+      review-profile: adversarial
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E1.US1/
+        verification:
+        - '2026-09-05 targeted lifecycle contract: 8 passed'
+        - '2026-09-05 full suite after implementation: 13 passed'
+        review:
+        - 'REQUEST_CHANGES: fail-closed entrypoint, admission-record, mapping, lock,
+          and test gaps'
+        - APPROVED after developer rework iteration 1
+        gitflow:
+        - '2026-09-05T17:13:30Z branch-from-develop blocked: develop branch missing;
+          commits, merge request, CI, and squash-merge are not applicable until Gitflow
+          can start from develop'
+        usage: []
+      confidence: high
+    - id: TH3.E1.US2
+      title: Discovery dossier record schema
+      status: done
+      priority: high
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E1-lifecycle-contracts/stories/US2-discovery-dossier-schema.md
+      depends-on:
+      - TH3.E1.US1
+      risk:
+        tier: R2
+        triggers:
+        - cross-component-contract
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        - reasoning
+        escalations: []
+      verification:
+        profile: targeted-plus-integration
+        matrix:
+        - lint
+        - unit
+        - integration
+        suite-policy:
+          story: targeted
+          epic: required
+          theme: full
+        waivers: []
+      review-profile: adversarial
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E1.US2/
+        verification:
+        - 'Implementation iteration 2 targeted dossier contract suite: 40 passed'
+        - 'Implementation iteration 2 full suite: 53 passed'
+        - 'Authorized implementation iteration 3 targeted dossier contract suite:
+          73 passed'
+        - 'Authorized implementation iteration 3 full suite: 86 passed'
+        - 'Adjudicated consolidated pass targeted dossier contract suite: 79 passed'
+        - 'Adjudicated consolidated pass full suite: 92 passed'
+        - 'Final metadata-separator pass targeted dossier contract suite: 81 passed'
+        - 'Final metadata-separator pass full suite: 94 passed'
+        review:
+        - 'REQUEST_CHANGES iteration 0: legacy applicability, traceability, ownership,
+          waiver encoding, sensitive-data scope, and weak tests'
+        - 'REQUEST_CHANGES iteration 1: ownership drift, append-only content, ID/classification,
+          WAIVED fixtures, and acceptance suffix validation'
+        - 'REQUEST_CHANGES iteration 2: accepted DEF/RSK immutability, adjacent acceptance,
+          supplied suffix validation, WAIVED gate/expiry semantics, and complete ownership
+          drift remain unresolved; configured rework limit exhausted'
+        - 2026-09-05 user authorized one bounded third rework to resolve the five
+          remaining contract-test gaps, preserving all other lifecycle limits
+        - 'REQUEST_CHANGES iteration 3: remote acceptance on non-claiming rows, timestamp-precision
+          waiver expiry, required markdown separators, and architecture logical-supersession
+          wording remain unresolved; bounded authorization exhausted'
+        - 'Independent referee adjudication: remote acceptance, timestamp-precision
+          expiry, and mandatory markdown separators are category (b) blocking acceptance-evidence
+          gaps; architecture physical-deletion wording is category (a) blocking contract
+          defect; no category (c) findings'
+        - 'User-authorized bounded process correction: one consolidated pass is authorized
+          only for the finite adjudicated (a)/(b) set, followed by one closed-checklist
+          review'
+        - 'Closed-checklist review found one direct AC2 omission inside the adjudicated
+          separator scope: EXP/DR metadata tables did not require separators; surgical
+          completion pass authorized under delegated process-correction authority'
+        - 'APPROVED by final closed-checklist review: AC1-AC6, all BDD scenarios,
+          and all adjudicated actions passed'
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; no ad hoc Git operation used'
+        usage: []
+      confidence: high
+    - id: TH3.E1.US3
+      title: Product requirements record schema
+      status: done
+      priority: high
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E1-lifecycle-contracts/stories/US3-product-requirements-schema.md
+      depends-on:
+      - TH3.E1.US1
+      risk:
+        tier: R2
+        triggers:
+        - cross-component-contract
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        - reasoning
+        escalations: []
+      verification:
+        profile: targeted-plus-integration
+        matrix:
+        - lint
+        - unit
+        - integration
+        suite-policy:
+          story: targeted
+          epic: required
+          theme: full
+        waivers: []
+      review-profile: adversarial
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E1.US3/
+        verification:
+        - 'Initial implementation targeted PRD contract suite: 37 passed; full suite:
+          131 passed'
+        - 'Rework iteration 1 targeted PRD contract suite: 73 passed; full suite:
+          167 passed'
+        - 'Rework iteration 2 targeted PRD contract suite: 89 passed; full suite:
+          183 passed'
+        - 'Adjudicated consolidated pass targeted PRD contract suite: 106 passed;
+          full suite: 200 passed'
+        review:
+        - 'REQUEST_CHANGES iteration 0: nine finite trace, gate, low-impact, PCR,
+          architecture-boundary, and exact-schema evidence gaps'
+        - 'REQUEST_CHANGES iteration 1: five finite owning-state, low-impact, PCR
+          operation/ID, architecture wording, and fence/placement evidence gaps'
+        - 'REQUEST_CHANGES iteration 2: stale Vision coverage, acceptance-threshold
+          low-impact classification, rejected-PCR applicability, and subject-first
+          language selection remain'
+        - 'Independent referee: all four residual findings are category (b) blocking
+          acceptance-evidence gaps; no category (a) or (c); one finite consolidated
+          evidence pass authorized'
+        - 'APPROVED by final closed-checklist review: AC1-AC5, all BDD scenarios,
+          and all adjudicated evidence actions passed'
+        - 'Epic-quality referee: Vision ownership bypass coverage is category (b)
+          blocking acceptance evidence; bounded correction authorized'
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; no ad hoc Git operation used'
+        usage: []
+      confidence: high
+    - id: TH3.E1.US4
+      title: Lifecycle artefact templates and gate records
+      status: done
+      priority: medium
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E1-lifecycle-contracts/stories/US4-artefact-templates-and-gate-records.md
+      depends-on:
+      - TH3.E1.US2
+      - TH3.E1.US3
+      risk:
+        tier: R1
+        triggers:
+        - local-behavior-change
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        escalations: []
+      verification:
+        profile: lint-and-targeted-unit
+        matrix:
+        - lint
+        - unit
+        suite-policy:
+          story: targeted
+          epic: conditional
+          theme: full
+        waivers: []
+      review-profile: standard
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E1.US4/
+        verification:
+        - 'Targeted template contract suite: 10 passed'
+        - 'Lifecycle/discovery/requirements integration contracts: 205 passed'
+        - 'Full suite after implementation: 210 passed'
+        review:
+        - APPROVED by standard reviewer
+        - 'Epic-quality referee: unchanged DR Actor placeholder rejection is category
+          (b) blocking acceptance evidence; bounded correction authorized'
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; no ad hoc Git operation used'
+        usage: []
+      confidence: high
+  - id: TH3.E2
+    name: Local method CLI and TH3 contract validators
+    status: done
+    depends-on:
+    - TH3.E1
+    budgets:
+      target: null
+      warning: null
+      pause: null
+      unit: AIC
+    usage:
+      value: null
+      confidence: unknown
+      source: none
+      sampled-at: null
+    stories:
+    - id: TH3.E2.US1
+      title: method CLI foundation and methodlib core
+      status: done
+      priority: high
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E2-method-cli-validators/stories/US1-method-cli-foundation.md
+      depends-on: []
+      risk:
+        tier: R1
+        triggers:
+        - local-behavior-change
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        escalations: []
+      verification:
+        profile: lint-and-targeted-unit
+        matrix:
+        - lint
+        - unit
+        suite-policy:
+          story: targeted
+          epic: conditional
+          theme: full
+        waivers: []
+      review-profile: standard
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E2.US1/
+        verification:
+        - 'Targeted method CLI suite: 27 passed'
+        - 'Full suite after rework: 279 passed'
+        review:
+        - 'REQUEST_CHANGES: missing validate dod reservation and deleted-cwd JSON
+          framing'
+        - APPROVED after rework iteration 1
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; no ad hoc Git operation used'
+        usage: []
+      confidence: high
+    - id: TH3.E2.US2
+      title: Markdown record parser and ID index
+      status: done
+      priority: high
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E2-method-cli-validators/stories/US2-record-parser-and-id-index.md
+      depends-on:
+      - TH3.E2.US1
+      risk:
+        tier: R1
+        triggers:
+        - local-behavior-change
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        escalations: []
+      verification:
+        profile: lint-and-targeted-unit
+        matrix:
+        - lint
+        - unit
+        suite-policy:
+          story: targeted
+          epic: conditional
+          theme: full
+        waivers: []
+      review-profile: standard
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E2.US2/
+        verification:
+        - 'Targeted record parser suite: 21 passed'
+        - 'Full suite after rework: 300 passed'
+        review:
+        - 'REQUEST_CHANGES: invalid headers emitted records, split file identity,
+          and ValueError paths raised'
+        - APPROVED after rework iteration 1
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; no ad hoc Git operation used'
+        usage: []
+      confidence: high
+    - id: TH3.E2.US3
+      title: validate schema check
+      status: done
+      priority: high
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E2-method-cli-validators/stories/US3-validate-schema.md
+      depends-on:
+      - TH3.E2.US1
+      risk:
+        tier: R2
+        triggers:
+        - cross-component-contract
+        - persistence-compatibility
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        - reasoning
+        escalations: []
+      verification:
+        profile: targeted-plus-integration
+        matrix:
+        - lint
+        - unit
+        - integration
+        suite-policy:
+          story: targeted
+          epic: required
+          theme: full
+        waivers: []
+      review-profile: adversarial
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E2.US3/
+        verification:
+        - 'Initial targeted schema/CLI/lifecycle suite: 64 passed; full suite: 328
+          passed'
+        - 'Rework iteration 1 targeted schema suite: 48 passed; full suite: 348 passed'
+        - 'Rework iteration 2 targeted schema suite: 59 passed; full suite: 359 passed'
+        - 'Adjudicated targeted schema suite: 62 passed; full suite: 362 passed'
+        review:
+        - 'REQUEST_CHANGES iteration 0: recursive alias, archive dependencies, story
+          path coverage, usage invariants, and confidence drift'
+        - 'REQUEST_CHANGES iteration 1: archive lock/provenance and extensible legacy-confidence
+          allowlist'
+        - 'REQUEST_CHANGES iteration 2: unpinned story-confidence cross-field contract
+          can disable immutable legacy checks'
+        - Independent referee classified residual cross-field drift as category (a)
+          blocking contract defect; minimal fail-closed correction authorized
+        - APPROVED by final closed-scope review
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; no ad hoc Git operation used'
+        usage: []
+      confidence: measured
+    - id: TH3.E2.US4
+      title: validate gates check
+      status: done
+      priority: high
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E2-method-cli-validators/stories/US4-validate-gates.md
+      depends-on:
+      - TH3.E2.US2
+      risk:
+        tier: R2
+        triggers:
+        - cross-component-contract
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        - reasoning
+        escalations: []
+      verification:
+        profile: targeted-plus-integration
+        matrix:
+        - lint
+        - unit
+        - integration
+        suite-policy:
+          story: targeted
+          epic: required
+          theme: full
+        waivers: []
+      review-profile: adversarial
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E2.US4/
+        verification:
+        - 'Initial targeted gate suite: 43 passed; full suite: 391 passed'
+        - 'Rework iteration 1 targeted gate suite: 54 passed; full suite: 416 passed'
+        - 'Rework iteration 2 targeted gate suite: 54 passed; full suite: 416 passed'
+        - 'Adjudicated gate suite: 62 passed; full suite: 424 passed'
+        - 'Effective-state surgical pass gate suite: 65 passed; full suite: 427 passed'
+        - 'Shared PCR applicability pass gate suite: 69 passed; full suite: 431 passed'
+        - 'Final baseline-validity gate suite: 73 passed; full suite: 435 passed'
+        review:
+        - 'REQUEST_CHANGES iteration 0: seven stage, authority, hidden gate, freshness,
+          waiver, PRD/PCR, and working-state defects'
+        - 'REQUEST_CHANGES iteration 1: five authority, legacy, waiver, PCR, and working-state
+          bypasses'
+        - 'REQUEST_CHANGES iteration 2: non-requirement PCR waiver invalidation and
+          dangling affected IDs'
+        - Independent referee classified both residual findings as category (a) blocking
+          contract defects; minimal two-item correction authorized
+        - Closed review found invalid Approved proposals still contaminated effective
+          requirement state; surgical completion authorized within adjudicated prior-state
+          scope
+        - Closed re-review found waiver applicability used a weaker PCR validity predicate;
+          shared fully-valid applicability correction authorized within AC4 scope
+        - Closed applicability review found invalid baseline PRD gate findings were
+          not propagated; exact baseline-validity correction authorized
+        - APPROVED by final closed-scope review
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; no ad hoc Git operation used'
+        usage: []
+      confidence: measured
+    - id: TH3.E2.US5
+      title: validate lock check
+      status: done
+      priority: high
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E2-method-cli-validators/stories/US5-validate-lock.md
+      depends-on:
+      - TH3.E2.US2
+      risk:
+        tier: R2
+        triggers:
+        - cross-component-contract
+        - persistence-compatibility
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        - reasoning
+        escalations: []
+      verification:
+        profile: targeted-plus-integration
+        matrix:
+        - lint
+        - unit
+        - integration
+        suite-policy:
+          story: targeted
+          epic: required
+          theme: full
+        waivers: []
+      review-profile: adversarial
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E2.US5/
+        verification:
+        - 'Initial targeted lock/CLI suite: 44 passed; full suite: 452 passed'
+        - 'Rework iteration 1 targeted lock suite: 35 passed; full suite: 469 passed'
+        - 'Rework iteration 2 targeted lock suite: 47 passed; full suite: 481 passed'
+        - 'Adjudicated targeted lock suite: 52 passed; full suite: 486 passed'
+        review:
+        - 'REQUEST_CHANGES iteration 0: VP reopen/partial rewrite, weak ADR replacement,
+          and Git executable substitution'
+        - 'REQUEST_CHANGES iteration 1: append retention/schema, ancestor symlink,
+          and ADR relation bypasses'
+        - 'REQUEST_CHANGES iteration 2: first draft frozen instead of first accepted
+          record and partial VP status mismatch'
+        - Independent referee classified both residual findings as category (a) blocking
+          contract defects; bounded correction authorized
+        - APPROVED by final closed-scope review
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; no ad hoc Git operation used'
+        usage: []
+      confidence: measured
+    - id: TH3.E2.US6
+      title: validate trace check
+      status: done
+      priority: medium
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E2-method-cli-validators/stories/US6-validate-trace.md
+      depends-on:
+      - TH3.E2.US2
+      risk:
+        tier: R2
+        triggers:
+        - cross-component-contract
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        - reasoning
+        escalations: []
+      verification:
+        profile: targeted-plus-integration
+        matrix:
+        - lint
+        - unit
+        - integration
+        suite-policy:
+          story: targeted
+          epic: required
+          theme: full
+        waivers: []
+      review-profile: adversarial
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E2.US6/
+        verification:
+        - 'Initial targeted trace suite: 11 passed; full suite: 496 passed'
+        - 'Rework iteration 1 targeted trace suite: 18 passed; full suite: 503 passed'
+        - 'Rework iteration 2 targeted trace suite: 25 passed; full suite: 510 passed'
+        - 'E2 integration suite: 259 passed; full suite: 511 passed'
+        - 'Real trace gate: exit 2 with 212 authoritative VP3 findings and no unexpected
+          categories'
+        review:
+        - 'REQUEST_CHANGES iteration 0: ownership, consequentiality, VP scope, story
+          discovery, low-impact, and evidence defects'
+        - 'REQUEST_CHANGES iteration 1: evidence-label, EXP, and DEF omissions'
+        - APPROVED after rework iteration 2; real VP3 exit 2 is attributable to authoritative
+          trace violations
+        - 'E2 closure blocked: frozen current-theme VP3 Vision lacks canonical VO
+          records and immutable legacy PRD contains wrong-owner VO/DEF copies; append-only
+          non-Vision changes cannot clear the gate'
+        - '2026-09-06 ownership reconciliation: prior blocker classification withdrawn;
+          accepted VP3 PRD owns VO records and its DEF table is a declared reference
+          view, so architecture/skill/validator Vision-ownership assumptions are contract
+          drift'
+        - 'Independent residual adjudication: no accepted-artefact contradiction;
+          54 downstream findings result from VP-global immediate-edge enforcement
+          and missing structured architecture edges, with TH4/TH5 story/evidence absence
+          non-blocking'
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; no ad hoc Git operation used'
+        usage: []
+      confidence: measured
+  - id: TH3.E3
+    name: Interactive Discovery and requirements workflow
+    status: done
+    depends-on:
+    - TH3.E2
+    budgets:
+      target: null
+      warning: null
+      pause: null
+      unit: AIC
+    usage:
+      value: null
+      confidence: unknown
+      source: none
+      sampled-at: null
+    stories:
+    - id: TH3.E3.US1
+      title: discover interactive skill
+      status: done
+      priority: high
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E3-discovery-requirements-workflow/stories/US1-discover-skill.md
+      depends-on: []
+      risk:
+        tier: R2
+        triggers:
+        - cross-component-contract
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        - reasoning
+        escalations: []
+      verification:
+        profile: targeted-plus-integration
+        matrix:
+        - lint
+        - unit
+        - integration
+        suite-policy:
+          story: targeted
+          epic: required
+          theme: full
+        waivers: []
+      review-profile: adversarial
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E3.US1/
+        verification:
+        - 'Discover skill contract: 7 passed'
+        - 'Lifecycle and gate regression suites: 91 passed'
+        - 'Full suite after rework: 522 passed'
+        review:
+        - 'REQUEST_CHANGES: distinguish untouched readiness scaffold completion findings
+          from invalid attempted acceptance'
+        - APPROVED after developer rework iteration 1
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; repository remains on master and no commit was attempted'
+        usage: []
+      confidence: measured
+    - id: TH3.E3.US2
+      title: discovery-facilitator agent
+      status: done
+      priority: high
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E3-discovery-requirements-workflow/stories/US2-discovery-facilitator-agent.md
+      depends-on:
+      - TH3.E3.US1
+      risk:
+        tier: R1
+        triggers:
+        - local-behavior-change
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        escalations: []
+      verification:
+        profile: lint-and-targeted-unit
+        matrix:
+        - lint
+        - unit
+        suite-policy:
+          story: targeted
+          epic: conditional
+          theme: full
+        waivers: []
+      review-profile: standard
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E3.US2/
+        verification:
+        - 'Discovery facilitator and related Discovery contracts: 118 passed'
+        - 'Full suite after thin-agent rework: 528 passed'
+        review:
+        - 'REQUEST_CHANGES: agent exceeded the canonical 50-line thin-agent limit
+          and duplicated owning-skill procedure'
+        - APPROVED after developer rework iteration 1
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; no commit attempted on master'
+        usage: []
+      confidence: measured
+    - id: TH3.E3.US3
+      title: investigator agent with untrusted-evidence handling
+      status: done
+      priority: high
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E3-discovery-requirements-workflow/stories/US3-investigator-agent.md
+      depends-on:
+      - TH3.E3.US1
+      risk:
+        tier: R3
+        triggers:
+        - security-and-untrusted-content
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: reasoning
+        allowed-classes:
+        - balanced
+        - reasoning
+        - critical
+        escalations: []
+      verification:
+        profile: integration-plus-failure-injection
+        matrix:
+        - lint
+        - unit
+        - integration
+        - failure-injection
+        suite-policy:
+          story: targeted
+          epic: required
+          theme: full-plus-release-readiness
+        waivers: []
+      review-profile: critical
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E3.US3/
+        verification:
+        - 'Investigator unit, integration, and failure-injection contracts: 8 passed'
+        - 'Discovery workflow regressions: 126 passed'
+        - 'Full suite after rework: 536 passed'
+        review:
+        - 'REQUEST_CHANGES: `unknown` was incorrectly used as a record disposition
+          rather than classification'
+        - APPROVED after canonical unknown-classification/open-disposition rework
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; no commit attempted on master'
+        usage: []
+      confidence: measured
+    - id: TH3.E3.US4
+      title: requirements interactive skill
+      status: done
+      priority: high
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E3-discovery-requirements-workflow/stories/US4-requirements-skill.md
+      depends-on: []
+      risk:
+        tier: R2
+        triggers:
+        - cross-component-contract
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        - reasoning
+        escalations: []
+      verification:
+        profile: targeted-plus-integration
+        matrix:
+        - lint
+        - unit
+        - integration
+        suite-policy:
+          story: targeted
+          epic: required
+          theme: full
+        waivers: []
+      review-profile: adversarial
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E3.US4/
+        verification:
+        - 'Requirements skill targeted contracts: 13 passed'
+        - 'Lifecycle and requirements regressions: 324 passed'
+        - 'Full suite after rework: 549 passed'
+        - 'Real VP3 requirements gate: passed'
+        review:
+        - 'REQUEST_CHANGES: DEF reconciliation scope, gate authority evidence, effective
+          requirement re-review, and canonical working-state test gaps'
+        - APPROVED after developer rework iteration 1
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; no commit attempted on master'
+        usage: []
+      confidence: measured
+    - id: TH3.E3.US5
+      title: requirements-facilitator agent
+      status: done
+      priority: medium
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E3-discovery-requirements-workflow/stories/US5-requirements-facilitator-agent.md
+      depends-on:
+      - TH3.E3.US4
+      risk:
+        tier: R1
+        triggers:
+        - local-behavior-change
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        escalations: []
+      verification:
+        profile: lint-and-targeted-unit
+        matrix:
+        - lint
+        - unit
+        suite-policy:
+          story: targeted
+          epic: conditional
+          theme: full
+        waivers: []
+      review-profile: standard
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E3.US5/
+        verification:
+        - 'Requirements facilitator targeted contracts: 7 passed'
+        - 'Related requirements, Discovery, lifecycle, and agent tests: 261 passed'
+        - 'Full suite: 572 passed'
+        review:
+        - APPROVED by standard reviewer
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; no commit attempted on master'
+        usage: []
+      confidence: measured
+    - id: TH3.E3.US6
+      title: plan stage gating and human architecture checkpoint
+      status: done
+      priority: high
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E3-discovery-requirements-workflow/stories/US6-plan-stage-gating-and-architecture-checkpoint.md
+      depends-on:
+      - TH3.E3.US1
+      - TH3.E3.US4
+      risk:
+        tier: R2
+        triggers:
+        - cross-component-contract
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        - reasoning
+        escalations: []
+      verification:
+        profile: targeted-plus-integration
+        matrix:
+        - lint
+        - unit
+        - integration
+        suite-policy:
+          story: targeted
+          epic: required
+          theme: full
+        waivers: []
+      review-profile: adversarial
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E3.US6/
+        verification:
+        - 'Plan-stage contract suite after rework: 15 passed'
+        - 'Gate validator suite after rework: 74 passed'
+        - 'Full suite after rework: 565 passed'
+        - 'Real VP3 architecture, planning, and schema gates: passed'
+        review:
+        - 'REQUEST_CHANGES: VP token boundary, independent product-owner gate, canonical
+          path, and archive-order defects'
+        - Closed re-review returned unsupported REQUEST_CHANGES with no finite finding
+        - Independent closed-checklist adjudication APPROVED all four corrected items
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; no commit attempted on master'
+        usage: []
+      confidence: measured
+  - id: TH3.E4
+    name: Activation, migration, and lifecycle integration
+    status: done
+    depends-on:
+    - TH3.E3
+    budgets:
+      target: null
+      warning: null
+      pause: null
+      unit: AIC
+    usage:
+      value: null
+      confidence: unknown
+      source: none
+      sampled-at: null
+    stories:
+    - id: TH3.E4.US1
+      title: Activation ledger and validate maturity check
+      status: done
+      priority: high
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E4-activation-migration-integration/stories/US1-activation-ledger-and-validate-maturity.md
+      depends-on: []
+      risk:
+        tier: R2
+        triggers:
+        - cross-component-contract
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        - reasoning
+        escalations: []
+      verification:
+        profile: targeted-plus-integration
+        matrix:
+        - lint
+        - unit
+        - integration
+        suite-policy:
+          story: targeted
+          epic: required
+          theme: full
+        waivers: []
+      review-profile: adversarial
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E4.US1/
+        verification:
+        - 'Final maturity validator suite: 40 passed'
+        - 'Full suite after final surgical correction: 624 passed'
+        - 'Real maturity, schema, gates, lock, and trace validators: passed with zero
+          findings'
+        review:
+        - 'REQUEST_CHANGES: promotion provenance, recovery identity, VERIFIED evidence,
+          capability truthfulness, and PRD reference resolution'
+        - Independent adjudication after unsupported bare re-review reduced residuals
+          to noncanonical promotion IDs and redirected archive references
+        - Final checklist found one noncanonical ledger-ID filtering bypass; surgical
+          correction completed
+        - APPROVED by final closed one-item review
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; no commit attempted on master'
+        usage: []
+      confidence: measured
+    - id: TH3.E4.US2
+      title: Migration assessment command and artefact
+      status: done
+      priority: medium
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E4-activation-migration-integration/stories/US2-migration-assessment.md
+      depends-on: []
+      risk:
+        tier: R1
+        triggers:
+        - local-behavior-change
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        escalations: []
+      verification:
+        profile: lint-and-targeted-unit
+        matrix:
+        - lint
+        - unit
+        suite-policy:
+          story: targeted
+          epic: conditional
+          theme: full
+        waivers: []
+      review-profile: standard
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E4.US2/
+        verification:
+        - 'Migration assessment suite after rework: 18 passed'
+        - 'Full suite after rework: 665 passed'
+        - Real migration reruns byte-identical with changed false
+        - 'Real validate all: passed with zero findings'
+        review:
+        - Initial reviewer returned unsupported REQUEST_CHANGES without findings
+        - Independent adjudication found locked-output, VP-prefix, aggregate-bound,
+          and filesystem-framing defects
+        - APPROVED after developer rework iteration 1
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; no commit attempted on master'
+        usage: []
+      confidence: measured
+    - id: TH3.E4.US3
+      title: Lifecycle documentation migration to the six-stage lifecycle
+      status: done
+      priority: high
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E4-activation-migration-integration/stories/US3-lifecycle-documentation-migration.md
+      depends-on: []
+      risk:
+        tier: R1
+        triggers:
+        - local-behavior-change
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        escalations: []
+      verification:
+        profile: lint-and-targeted-unit
+        matrix:
+        - lint
+        - unit
+        suite-policy:
+          story: targeted
+          epic: conditional
+          theme: full
+        waivers: []
+      review-profile: standard
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E4.US3/
+        verification:
+        - 'Lifecycle migration and lifecycle contract tests: 15 passed'
+        - 'Full suite: 630 passed'
+        - 'Active legacy lifecycle scan and protected exclusion hashes: passed'
+        review:
+        - APPROVED by standard reviewer
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; retained inventory records no-PR provenance'
+        usage: []
+      confidence: measured
+    - id: TH3.E4.US4
+      title: TH3 usage-evidence waiver and honest acceptance reporting
+      status: done
+      priority: medium
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E4-activation-migration-integration/stories/US4-usage-evidence-waiver-and-acceptance-reporting.md
+      depends-on:
+      - TH3.E4.US1
+      risk:
+        tier: R1
+        triggers:
+        - local-behavior-change
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        escalations: []
+      verification:
+        profile: lint-and-targeted-unit
+        matrix:
+        - lint
+        - unit
+        suite-policy:
+          story: targeted
+          epic: conditional
+          theme: full
+        waivers: []
+      review-profile: standard
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E4.US4/
+        verification:
+        - 'Final usage waiver and maturity suite: 61 passed'
+        - 'Full suite after rework: 686 passed'
+        - 'Real maturity and validate all: passed with zero findings'
+        review:
+        - 'REQUEST_CHANGES: keyword-only waiver semantics and omitted missing-usage
+          mappings'
+        - APPROVED after developer rework iteration 1
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; no commit attempted on master'
+        usage:
+        - WVR-001 records missing TH3 usage evidence as unknown and expires at TH3
+          acceptance or earlier CTL-010 instrumentation
+      confidence: measured
+    - id: TH3.E4.US5
+      title: TH3 self-hosted validation run
+      status: done
+      priority: high
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E4-activation-migration-integration/stories/US5-self-hosted-validation-run.md
+      depends-on:
+      - TH3.E4.US1
+      - TH3.E4.US2
+      - TH3.E4.US3
+      - TH3.E4.US4
+      - TH3.E4.US6
+      risk:
+        tier: R2
+        triggers:
+        - cross-component-contract
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        - reasoning
+        escalations: []
+      verification:
+        profile: targeted-plus-integration
+        matrix:
+        - lint
+        - unit
+        - integration
+        suite-policy:
+          story: targeted
+          epic: required
+          theme: full
+        waivers: []
+      review-profile: adversarial
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E4.US5/
+        verification:
+        - 'Final self-hosted contract suite: 28 passed'
+        - 'Full suite and retained theme verification: 714 passed'
+        - 'Real validate all: six checks passed in 2.22 seconds with zero findings'
+        - 'Loaded real subprocess: 381 to 1181 records (3.0997x) in 3.293 seconds'
+        - 'Bubblewrap network-isolated run: passed in 2.990 seconds'
+        review:
+        - 'REQUEST_CHANGES: recovery ordering/provenance, stale report, in-process
+          load timing, and incomplete network proof'
+        - 'REQUEST_CHANGES closed re-review: transitive digest, validate-all semantic
+          output, and strict greater-than-three-times gaps'
+        - APPROVED after bounded rework iteration 2
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; no commit attempted on master'
+        usage: []
+      confidence: measured
+    - id: TH3.E4.US6
+      title: validate docs check and lifecycle documentation tests
+      status: done
+      priority: high
+      file: docs/themes/TH3-discovery-requirements-foundation/epics/E4-activation-migration-integration/stories/US6-validate-docs.md
+      depends-on:
+      - TH3.E4.US3
+      risk:
+        tier: R2
+        triggers:
+        - cross-component-contract
+        assigned-by: product-owner
+        validated-by: reviewer
+        overrides: []
+      model-route:
+        default-class: balanced
+        allowed-classes:
+        - light
+        - balanced
+        - reasoning
+        escalations: []
+      verification:
+        profile: targeted-plus-integration
+        matrix:
+        - lint
+        - unit
+        - integration
+        suite-policy:
+          story: targeted
+          epic: required
+          theme: full
+        waivers: []
+      review-profile: adversarial
+      budgets:
+        target: null
+        warning: null
+        pause: null
+        unit: AIC
+      usage:
+        value: null
+        confidence: unknown
+        source: none
+        sampled-at: null
+      evidence:
+        packets:
+        - docs/plan/runtime/packets/TH3.E4.US6/
+        verification:
+        - 'Final documentation validator suite: 19 passed'
+        - 'Full suite after rework: 648 passed'
+        - 'Real validate docs and validate all: passed with zero findings'
+        review:
+        - 'REQUEST_CHANGES: unsafe active-root omission, paragraph rather than matched
+          line numbers, and incomplete stale-handoff detection'
+        - 'REQUEST_CHANGES closed re-review: canonical Discovery noun false positive'
+        - APPROVED after bounded rework iteration 2
+        gitflow:
+        - 'Gitflow not applicable: branch-from-develop blocked because develop branch
+          is missing; no commit attempted on master'
+        usage: []
+      confidence: measured

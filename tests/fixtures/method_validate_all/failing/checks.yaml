@@ -1,0 +1,27 @@
+<!-- method-validate-docs: fixture -->
+fixture-version: 1
+cases:
+  schema:
+    arguments: [validate, schema, --json]
+    mutation: malformed-backlog
+    expected-record: backlog
+  gates:
+    arguments: [validate, gates, --vp, VP3, --stage, requirements, --json]
+    mutation: blocked-discovery-gate
+    expected-record: discovery-readiness
+  lock:
+    arguments: [validate, lock, --json]
+    mutation: edited-locked-story
+    expected-record: TH2
+  trace:
+    arguments: [validate, trace, --json]
+    mutation: dangling-story-trace
+    expected-record: TH3.E4.US5
+  maturity:
+    arguments: [validate, maturity, --json]
+    mutation: missing-docs-recovery
+    expected-record: CTL-014
+  docs:
+    arguments: [validate, docs, --json]
+    mutation: stale-active-document
+    expected-record: stale-stage-list

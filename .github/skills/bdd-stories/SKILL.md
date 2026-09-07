@@ -5,6 +5,10 @@ description: 'Hybrid BDD story format, acceptance criteria patterns, scenario re
 
 # BDD Stories Skill
 
+Use `the-copilot-build-method` as the canonical lifecycle, gate, authority, and
+split-lock contract; this skill defines story form only and does not restate
+that contract.
+
 ## Story Path
 
 `docs/themes/TH<n>-<slug>/epics/E<m>-<slug>/stories/US<l>-<slug>.md`
@@ -20,11 +24,60 @@ priority: medium          # optional: high | medium | low
 size: M                   # optional: S | M | L
 agents: [developer]
 skills: [bdd-stories]
+traceability:
+  vision: [VO-001]
+  requirements: [PR-001, QR-001]
+  adrs: [ADR-001]
+  invariants: [INV-001]
 acceptance-criteria:
   - AC1: "<criterion>"
   - AC2: "<criterion>"
 depends-on: []
 ---
+```
+
+## Traceability Frontmatter Contract
+
+`traceability` is the authoritative story-level declaration. References in a
+story body, epic summary, backlog description, or generated packet do not add
+or replace story traceability.
+
+Every `standard` and `spike` story must declare the block and all four keys.
+Each value is a YAML list of one or more record IDs. A `trivial` story must
+also declare all four keys, but may use an empty list for any or every key
+when no such record applies. Extra keys, scalar values, aliases, and IDs with
+prefixes not assigned to that key are invalid.
+
+The following fenced block is the machine-readable contract consumed by
+`method validate trace`. The validator pins its version, fields, key set, and
+prefix sets and fails closed if this definition drifts.
+
+<!-- traceability-contract:start -->
+```yaml
+contract-version: 1
+frontmatter-key: traceability
+required-story-types: [standard, spike]
+empty-allowed-story-types: [trivial]
+keys:
+  vision:
+    prefixes: [VO]
+  requirements:
+    prefixes: [PR, QR]
+  adrs:
+    prefixes: [ADR]
+  invariants:
+    prefixes: [INV]
+```
+<!-- traceability-contract:end -->
+
+Worked example:
+
+```yaml
+traceability:
+  vision: [VO-004]
+  requirements: [PR-109, QR-002]
+  adrs: [ADR-005]
+  invariants: [INV-007]
 ```
 
 ## Body Template
