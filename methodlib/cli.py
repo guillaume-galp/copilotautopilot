@@ -18,6 +18,7 @@ from methodlib import (
     gates,
     lock,
     migrate,
+    packet,
     trace,
 )
 
@@ -32,8 +33,9 @@ VALIDATE_CHECKS = (
     "docs",
     "dod",
 )
-RESERVED_COMMANDS = ("tx", "packet", "usage", "budget", "report")
-VALID_COMMANDS = ("validate", "doctor", *RESERVED_COMMANDS, "migrate")
+RESERVED_COMMANDS = ("tx", "usage", "budget", "report")
+VALID_COMMANDS = ("validate", "doctor", "packet", *RESERVED_COMMANDS, "migrate")
+PACKET_ACTIONS = ("project", "build", "verify", "preflight", "reconcile")
 
 
 @dataclass(frozen=True)
@@ -381,6 +383,60 @@ def _reserved_command(
     )
 
 
+def _packet_command(
+    arguments: argparse.Namespace,
+    probe_directory: Path | None,
+) -> CommandResult:
+    repository_root = (
+        probe_directory
+        if probe_directory is not None
+        else Path(__file__).resolve().parents[1]
+    )
+    action = arguments.packet_action
+    if action == "project":
+        result = packet.project_next(
+            repository_root,
+            expected_revision=arguments.expected_revision,
+        )
+    elif action == "build":
+        result = packet.build_packet(
+            repository_root,
+            task=arguments.task,
+            story_id=arguments.story,
+            mode=arguments.mode,
+            implementation_root=arguments.implementation_root,
+            allowed_implementation_root=arguments.allowed_implementation_root,
+            planning_roots=arguments.planning_root,
+            output=arguments.output,
+            trace_id=arguments.trace_id,
+            expected_revision=arguments.expected_revision,
+        )
+    elif action == "verify":
+        result = packet.verify_packet(
+            repository_root,
+            packet_path=arguments.packet,
+            allowed_implementation_root=arguments.allowed_implementation_root,
+            expected_authorization_hash=arguments.expected_authorization_hash,
+        )
+    elif action == "preflight":
+        result = packet.preflight_packet(
+            repository_root,
+            packet_path=arguments.packet,
+            allowed_implementation_root=arguments.allowed_implementation_root,
+            expected_authorization_hash=arguments.expected_authorization_hash,
+        )
+    elif action == "reconcile":
+        result = packet.reconcile_packet(
+            repository_root,
+            packet_path=arguments.packet,
+            allowed_implementation_root=arguments.allowed_implementation_root,
+            expected_authorization_hash=arguments.expected_authorization_hash,
+        )
+    else:
+        return _usage_result("unknown packet action")
+    return CommandResult(result.exit_code, result.payload, result.diagnostics)
+
+
 def _migrate_command(
     arguments: argparse.Namespace,
     probe_directory: Path | None,
@@ -471,6 +527,150 @@ def build_parser() -> MethodArgumentParser:
         help="probe local runtime and filesystem capabilities",
     )
     doctor_parser.set_defaults(handler=_doctor_command)
+
+    packet_parser = subcommands.add_parser(
+        "packet",
+        help="project backlog work and build or validate mission packets",
+    )
+    packet_actions = packet_parser.add_subparsers(
+        dest="packet_action",
+        required=True,
+        parser_class=MethodArgumentParser,
+    )
+    project = packet_actions.add_parser(
+        "project",
+        help="project the next dependency-eligible backlog story",
+    )
+    project.add_argument(
+        "--expected-revision",
+        type=int,
+        help="refuse if backlog.revision differs from this value",
+    )
+    project.add_argument(
+        "--json",
+        action="store_true",
+        help="retained for compatibility; output is always JSON",
+    )
+    project.set_defaults(handler=_packet_command)
+
+    build = packet_actions.add_parser(
+        "build",
+        help="build one mission packet for the projected story",
+    )
+    build.add_argument("--task", required=True, help="bounded task identifier")
+    build.add_argument(
+        "--story",
+        help="fully-qualified story ID; omitted means use the current projection",
+    )
+    build.add_argument(
+        "--mode",
+        choices=("developer", "planning"),
+        default="developer",
+        help="capability grant for this packet",
+    )
+    build.add_argument(
+        "--implementation-root",
+        required=True,
+        help="writable implementation checkout root",
+    )
+    build.add_argument(
+        "--allowed-implementation-root",
+        required=True,
+        help="explicit boundary containing the writable implementation root",
+    )
+    build.add_argument(
+        "--planning-root",
+        action="append",
+        default=[],
+        required=True,
+        help="read-only authoritative planning root; repeat for multiple roots",
+    )
+    build.add_argument(
+        "--output",
+        help="repository-relative output path under docs/plan/runtime/packets",
+    )
+    build.add_argument("--trace-id", help="caller trace identifier")
+    build.add_argument(
+        "--expected-revision",
+        type=int,
+        help="refuse if backlog.revision differs from this value",
+    )
+    build.add_argument(
+        "--json",
+        action="store_true",
+        help="retained for compatibility; output is always JSON",
+    )
+    build.set_defaults(handler=_packet_command)
+
+    verify = packet_actions.add_parser(
+        "verify",
+        help="verify packet source hashes against current repository state",
+    )
+    verify.add_argument("--packet", required=True, help="packet path to verify")
+    verify.add_argument(
+        "--allowed-implementation-root",
+        required=True,
+        help="caller-authorized boundary expected in the packet",
+    )
+    verify.add_argument(
+        "--expected-authorization-hash",
+        required=True,
+        help="authorization anchor returned by packet build",
+    )
+    verify.add_argument(
+        "--json",
+        action="store_true",
+        help="retained for compatibility; output is always JSON",
+    )
+    verify.set_defaults(handler=_packet_command)
+
+    preflight = packet_actions.add_parser(
+        "preflight",
+        help="verify packet freshness and workspace access before dispatch",
+    )
+    preflight.add_argument("--packet", required=True, help="packet path to preflight")
+    preflight.add_argument(
+        "--allowed-implementation-root",
+        required=True,
+        help="caller-authorized boundary expected in the packet",
+    )
+    preflight.add_argument(
+        "--expected-authorization-hash",
+        required=True,
+        help="authorization anchor returned by packet build",
+    )
+    preflight.add_argument(
+        "--json",
+        action="store_true",
+        help="retained for compatibility; output is always JSON",
+    )
+    preflight.set_defaults(handler=_packet_command)
+
+    reconcile = packet_actions.add_parser(
+        "reconcile",
+        help="rebind a packet after an authoritative lifecycle transition",
+    )
+    reconcile.add_argument(
+        "--packet",
+        required=True,
+        help="canonical packet path to reconcile",
+    )
+    reconcile.add_argument(
+        "--allowed-implementation-root",
+        required=True,
+        help="caller-authorized boundary expected in the old packet",
+    )
+    reconcile.add_argument(
+        "--expected-authorization-hash",
+        required=True,
+        help="authorization anchor retained from the prior packet state",
+    )
+    reconcile.add_argument(
+        "--json",
+        action="store_true",
+        help="retained for compatibility; output is always JSON",
+    )
+    reconcile.set_defaults(handler=_packet_command)
 
     for command in RESERVED_COMMANDS:
         reserved = subcommands.add_parser(

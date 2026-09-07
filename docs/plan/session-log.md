@@ -9,6 +9,22 @@
 | Rationale | Explicit human checkpoint acceptance of the completed TH3 release; WVR-001 is consumed at its contractual expiry, and TH3 usage remains unknown because no usage instrumentation was available. |
 | Source revision | backlog revision 67; sha256:800f69de716dff98a938354128fbd766ee603a5f9b838a1819fef862ef34e6dc |
 
+### 2026-09-07T20:43:00+01:00 - Resolve BUG-001 Packet Dispatch Contract
+
+- Added backlog FIFO projection and one-story mission packet build, preflight,
+  verification, and reconciliation commands.
+- Bound dispatch authority to story frontmatter, current backlog state,
+  caller-retained authorization hashes, canonical workspace boundaries, and
+  complete source manifests.
+- Enforced append-only evidence, positive completion results, and separate
+  story, epic, and theme completion revisions.
+- Integrated the mandatory packet lifecycle into Autopilot and Cockpit
+  boundaries and renewed human architecture acceptance for the exact revised
+  source.
+- Full suite passed (850), `method validate all` passed with zero findings,
+  retained self-hosted evidence was regenerated, and independent review
+  approved delivery.
+
 ### 2026-09-06T22:45:00+01:00 - Complete TH3 for Human Checkpoint
 
 - Theme gate troubleshooting corrected one stale E4 integration assertion and

@@ -14,7 +14,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from methodlib import backlog, cli, exits  # noqa: E402
+from methodlib import backlog, cli, exits, packet  # noqa: E402
 
 
 SKILL = ROOT / ".github/skills/backlog-management/SKILL.md"
@@ -101,7 +101,7 @@ def v2_story(path: str = "stories/US1.md") -> dict[str, object]:
             "packets": ["docs/plan/runtime/packets/TH3.E1.US1/"],
             "verification": ["unit passed"],
             "review": ["approved"],
-            "gitflow": ["not applicable"],
+            "gitflow": ["not-applicable: isolated fixture has no delivery remote"],
             "usage": ["sample-1"],
         },
         "confidence": "measured",
@@ -228,6 +228,42 @@ def valid_backlog() -> dict[str, object]:
     }
 
 
+def story_document(
+    identifier: str = "TH3.E1.US1",
+    *,
+    title: str = "Schema story",
+    agents: tuple[str, ...] = ("developer",),
+    story_type: str = "standard",
+    priority: str | None = None,
+    size: str | None = None,
+    dependencies: tuple[str, ...] = (),
+) -> str:
+    optional = ""
+    if priority is not None:
+        optional += f"priority: {priority}\n"
+    if size is not None:
+        optional += f"size: {size}\n"
+    return (
+        "---\n"
+        f"id: {identifier}\n"
+        f'title: "{title}"\n'
+        f"type: {story_type}\n"
+        f"{optional}"
+        f"agents: [{', '.join(agents)}]\n"
+        "skills: [the-copilot-build-method]\n"
+        "traceability:\n"
+        "  vision: [VO-001]\n"
+        "  requirements: [PR-001]\n"
+        "  adrs: [ADR-004]\n"
+        "  invariants: [INV-001]\n"
+        "acceptance-criteria:\n"
+        '  - AC1: "Packet contract is enforced"\n'
+        f"depends-on: [{', '.join(dependencies)}]\n"
+        "---\n\n"
+        f"# {identifier}\n"
+    )
+
+
 def write_repository(
     tmp_path: Path,
     document: object | None = None,
@@ -238,11 +274,42 @@ def write_repository(
     skill = root / backlog.SKILL_PATH
     skill.parent.mkdir(parents=True)
     skill.write_text(SKILL.read_text(encoding="utf-8"), encoding="utf-8")
+    method_skill = root / ".github/skills/the-copilot-build-method/SKILL.md"
+    method_skill.parent.mkdir(parents=True, exist_ok=True)
+    method_skill.write_text(
+        (ROOT / ".github/skills/the-copilot-build-method/SKILL.md").read_text(
+            encoding="utf-8"
+        ),
+        encoding="utf-8",
+    )
+    for name in ("bdd-stories", "code-quality"):
+        target = root / f".github/skills/{name}/SKILL.md"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(
+            (ROOT / f".github/skills/{name}/SKILL.md").read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
+    for directory in (
+        "docs/vision_of_product/VP3",
+        "docs/discovery/VP3",
+        "docs/architecture",
+        "docs/ADRs",
+    ):
+        (root / directory).mkdir(parents=True, exist_ok=True)
+    (root / "docs/vision_of_product/VP3/README.md").write_text("# Vision\n")
+    (root / "docs/discovery/VP3/README.md").write_text("# Discovery\n")
+    (root / "docs/requirements/VP3").mkdir(parents=True)
+    (root / "docs/requirements/VP3/PRD.md").write_text("# Requirements\n")
+    (root / "docs/architecture/README.md").write_text("# Architecture\n")
+    (root / "docs/ADRs/ADR-004-fixture.md").write_text("# ADR-004\n")
     plan = root / "docs/plan"
     (plan / "backlog-archive").mkdir(parents=True)
     (root / "stories").mkdir()
     for name in ("US1.md", "TH1-US1.md", "TH2-US1.md"):
-        (root / "stories" / name).write_text(f"# {name}\n", encoding="utf-8")
+        (root / "stories" / name).write_text(
+            story_document(),
+            encoding="utf-8",
+        )
     source = backlog_text
     if source is None:
         source = yaml.safe_dump(
@@ -845,6 +912,1936 @@ def test_archived_dependency_cycles_are_not_executable_graph_cycles(tmp_path: Pa
     archive.write_text(yaml.safe_dump(snapshot, sort_keys=False))
 
     assert backlog.validate_repository(root).valid
+
+
+def test_packet_projection_uses_backlog_fifo_without_duplicate_queue_state(
+    tmp_path: Path,
+):
+    document = valid_backlog()
+    story = document["backlog"]["active-themes"][0]["epics"][0]["stories"][0]
+    story["status"] = "done"
+    second = copy.deepcopy(story)
+    second.update(
+        {
+            "id": "TH3.E1.US2",
+            "title": "Next eligible story",
+            "status": "todo",
+            "priority": "low",
+            "file": "stories/US2.md",
+            "depends-on": ["TH3.E1.US1"],
+        }
+    )
+    third = copy.deepcopy(story)
+    third.update(
+        {
+            "id": "TH3.E1.US3",
+            "title": "Blocked by dependency",
+            "status": "todo",
+            "priority": "high",
+            "file": "stories/US3.md",
+            "depends-on": ["TH3.E1.US2"],
+        }
+    )
+    stories = document["backlog"]["active-themes"][0]["epics"][0]["stories"]
+    stories.extend([second, third])
+    root = write_repository(tmp_path, document)
+    (root / "stories/US2.md").write_text("# US2\n", encoding="utf-8")
+    (root / "stories/US3.md").write_text("# US3\n", encoding="utf-8")
+
+    result = packet.project_next(root)
+
+    assert result.exit_code == exits.SUCCESS
+    projection = result.payload["projection"]
+    assert projection["source"]["path"] == "docs/plan/backlog.yaml"
+    assert projection["story"]["id"] == "TH3.E1.US2"
+    assert projection["dependencies"]["story"] == ["TH3.E1.US1"]
+
+
+@pytest.mark.parametrize("status", ("blocked", "failed", "in-progress"))
+def test_packet_projection_refuses_non_dispatchable_story_status(
+    tmp_path: Path,
+    status: str,
+):
+    document = valid_backlog()
+    document["backlog"]["active-themes"][0]["epics"][0]["stories"][0][
+        "status"
+    ] = status
+    root = write_repository(tmp_path, document)
+
+    result = packet.project_next(root)
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert result.payload["status"] == "projection-refused"
+    assert any(status in finding["message"] for finding in result.payload["findings"])
+
+
+def test_packet_build_preflight_verify_and_stale_backlog_detection(tmp_path: Path):
+    root = write_repository(tmp_path)
+    allowed = tmp_path / "implementation"
+    implementation = allowed / "checkout"
+    implementation.mkdir(parents=True)
+    build = packet.build_packet(
+        root,
+        task="impl-1",
+        story_id=None,
+        mode="developer",
+        implementation_root=implementation.as_posix(),
+        allowed_implementation_root=allowed.as_posix(),
+        planning_roots=[root.as_posix()],
+    )
+    packet_path = build.payload["packet"]
+
+    assert build.exit_code == exits.SUCCESS
+    preflight = packet.preflight_packet(
+        root,
+        packet_path=packet_path,
+        allowed_implementation_root=allowed.as_posix(),
+        expected_authorization_hash=str(build.payload["authorization_hash"]),
+    )
+    assert preflight.exit_code == exits.SUCCESS
+    assert preflight.payload["findings"] == []
+
+    backlog_path = root / "docs/plan/backlog.yaml"
+    document = yaml.safe_load(backlog_path.read_text(encoding="utf-8"))
+    document["backlog"]["revision"] = 8
+    backlog_path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+
+    verify = packet.verify_packet(
+        root,
+        packet_path=packet_path,
+        allowed_implementation_root=allowed.as_posix(),
+        expected_authorization_hash=str(build.payload["authorization_hash"]),
+    )
+
+    assert verify.exit_code == exits.VALIDATION_FAILURE
+    assert verify.payload["status"] == "STALE"
+    assert any(
+        finding["record"] == "backlog.revision"
+        for finding in verify.payload["findings"]
+    )
+
+
+def test_packet_build_refuses_missing_implementation_root(tmp_path: Path):
+    root = write_repository(tmp_path)
+
+    result = packet.build_packet(
+        root,
+        task="impl-1",
+        story_id=None,
+        mode="developer",
+        implementation_root=(tmp_path / "missing").as_posix(),
+        allowed_implementation_root=(tmp_path / "implementation").as_posix(),
+        planning_roots=[root.as_posix()],
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert result.payload["status"] == "failed"
+    assert any(
+        finding["record"] == "implementation-root"
+        for finding in result.payload["findings"]
+    )
+
+
+def test_planning_packet_cannot_authorize_mutations(tmp_path: Path):
+    root = write_repository(tmp_path)
+    (root / "stories/US1.md").write_text(
+        story_document(agents=("product-owner",)),
+        encoding="utf-8",
+    )
+    allowed = tmp_path / "implementation"
+    implementation = allowed / "checkout"
+    implementation.mkdir(parents=True)
+
+    build = packet.build_packet(
+        root,
+        task="plan-1",
+        story_id=None,
+        mode="planning",
+        implementation_root=implementation.as_posix(),
+        allowed_implementation_root=allowed.as_posix(),
+        planning_roots=[root.as_posix()],
+    )
+    packet_path = root / build.payload["packet"]
+    document = yaml.safe_load(packet_path.read_text(encoding="utf-8"))
+
+    assert build.exit_code == exits.SUCCESS
+    assert document["workspace"]["mutation-scope"] == []
+    assert document["workspace"]["implementation-root"] in document["workspace"][
+        "denied-paths"
+    ]
+    assert "write-implementation" not in document["workspace"]["permitted-actions"]
+
+
+def test_packet_build_rejects_later_eligible_story_until_fifo_projection_runs(
+    tmp_path: Path,
+):
+    document = valid_backlog()
+    first = document["backlog"]["active-themes"][0]["epics"][0]["stories"][0]
+    second = copy.deepcopy(first)
+    second.update(
+        {
+            "id": "TH3.E1.US2",
+            "title": "Later story",
+            "status": "todo",
+            "file": "stories/US2.md",
+            "depends-on": [],
+        }
+    )
+    document["backlog"]["active-themes"][0]["epics"][0]["stories"].append(second)
+    root = write_repository(tmp_path, document)
+    (root / "stories/US2.md").write_text(
+        story_document("TH3.E1.US2"),
+        encoding="utf-8",
+    )
+    allowed = tmp_path / "implementation"
+    implementation = allowed / "checkout"
+    implementation.mkdir(parents=True)
+
+    result = packet.build_packet(
+        root,
+        task="impl-2",
+        story_id="TH3.E1.US2",
+        mode="developer",
+        implementation_root=implementation.as_posix(),
+        allowed_implementation_root=allowed.as_posix(),
+        planning_roots=[root.as_posix()],
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert "not the next FIFO projection" in result.payload["findings"][0]["message"]
+
+
+def build_test_packet(
+    root: Path,
+    tmp_path: Path,
+    *,
+    mode: str = "developer",
+    task: str = "impl-1",
+) -> tuple[packet.PacketResult, Path]:
+    (root / "stories/US1.md").write_text(
+        story_document(
+            agents=("developer",) if mode == "developer" else ("product-owner",)
+        ),
+        encoding="utf-8",
+    )
+    allowed = tmp_path / f"{task}-implementation"
+    implementation = allowed / "checkout"
+    implementation.mkdir(parents=True)
+    result = packet.build_packet(
+        root,
+        task=task,
+        story_id=None,
+        mode=mode,
+        implementation_root=implementation.as_posix(),
+        allowed_implementation_root=allowed.as_posix(),
+        planning_roots=[root.as_posix()],
+    )
+    assert result.exit_code == exits.SUCCESS
+    return result, root / str(result.payload["packet"])
+
+
+@pytest.mark.parametrize(
+    ("field", "mutate"),
+    (
+        ("story", lambda value: value["story"].update({"title": "Tampered"})),
+        ("workspace", lambda value: value["workspace"]["permitted-actions"].append("shell")),
+        ("required-gates", lambda value: value["required-gates"].append("bypass")),
+    ),
+)
+def test_packet_authorization_hash_rejects_tampered_authority(
+    tmp_path: Path,
+    field: str,
+    mutate,
+):
+    root = write_repository(tmp_path)
+    build, path = build_test_packet(root, tmp_path)
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    mutate(document)
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+
+    result = packet.verify_packet(
+        root,
+        packet_path=path.relative_to(root).as_posix(),
+        allowed_implementation_root=(
+            tmp_path / "impl-1-implementation"
+        ).as_posix(),
+        expected_authorization_hash=str(build.payload["authorization_hash"]),
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "authorization-hash"
+        for finding in result.payload["findings"]
+    ), field
+
+
+def test_packet_story_is_checked_against_authority_after_hash_is_recomputed(
+    tmp_path: Path,
+):
+    root = write_repository(tmp_path)
+    build, path = build_test_packet(root, tmp_path)
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    document["story"]["title"] = "Forged but self-consistent"
+    document["authorization-hash"] = packet._authorization_hash(document)
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+
+    result = packet.verify_packet(
+        root,
+        packet_path=path.relative_to(root).as_posix(),
+        allowed_implementation_root=(
+            tmp_path / "impl-1-implementation"
+        ).as_posix(),
+        expected_authorization_hash=str(build.payload["authorization_hash"]),
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "story"
+        and "authoritative backlog" in finding["message"]
+        for finding in result.payload["findings"]
+    )
+
+
+def test_planning_packet_cannot_be_tampered_into_developer_capabilities(
+    tmp_path: Path,
+):
+    root = write_repository(tmp_path)
+    build, path = build_test_packet(root, tmp_path, mode="planning", task="plan")
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    implementation = document["workspace"]["implementation-root"]
+    document["mode"] = "developer"
+    document["workspace"].update(
+        {
+            "permitted-actions": [
+                "read",
+                "write-implementation",
+                "test",
+                "review",
+            ],
+            "mutation-scope": [implementation],
+            "denied-paths": [root.as_posix()],
+        }
+    )
+    document["required-skills"].append("code-quality")
+    document["required-gates"] = ["lint", "unit", "integration", "review"]
+    document["authorization-hash"] = packet._authorization_hash(document)
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+
+    result = packet.verify_packet(
+        root,
+        packet_path=path.relative_to(root).as_posix(),
+        allowed_implementation_root=(tmp_path / "plan-implementation").as_posix(),
+        expected_authorization_hash=str(build.payload["authorization_hash"]),
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "mode"
+        and "authoritative backlog data" in finding["message"]
+        for finding in result.payload["findings"]
+    )
+
+
+@pytest.mark.parametrize("case", ("broad", "outside", "overlap"))
+def test_packet_rejects_broad_outside_or_overlapping_implementation_roots(
+    tmp_path: Path,
+    case: str,
+):
+    root = write_repository(tmp_path)
+    dedicated = tmp_path / "implementation"
+    implementation = dedicated / "checkout"
+    implementation.mkdir(parents=True)
+    allowed = dedicated
+    if case == "broad":
+        allowed = tmp_path
+    elif case == "outside":
+        allowed = tmp_path / "other"
+        allowed.mkdir()
+    elif case == "overlap":
+        implementation = root
+
+    result = packet.build_packet(
+        root,
+        task=f"invalid-{case}",
+        story_id=None,
+        mode="developer",
+        implementation_root=implementation.as_posix(),
+        allowed_implementation_root=allowed.as_posix(),
+        planning_roots=[root.as_posix()],
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"]
+        in {"allowed-implementation-root", "implementation-root"}
+        for finding in result.payload["findings"]
+    )
+
+
+def test_packet_requires_authoritative_repository_as_a_planning_root(tmp_path: Path):
+    root = write_repository(tmp_path)
+    (root / "stories/US1.md").write_text(
+        story_document(agents=("product-owner",)),
+        encoding="utf-8",
+    )
+    planning = tmp_path / "partial-planning"
+    planning.mkdir()
+    allowed = tmp_path / "implementation"
+    implementation = allowed / "checkout"
+    implementation.mkdir(parents=True)
+
+    result = packet.build_packet(
+        root,
+        task="missing-authority",
+        story_id=None,
+        mode="planning",
+        implementation_root=implementation.as_posix(),
+        allowed_implementation_root=allowed.as_posix(),
+        planning_roots=[planning.as_posix()],
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "planning-roots"
+        and "authoritative repository" in finding["message"]
+        for finding in result.payload["findings"]
+    )
+
+
+def test_packet_build_rejects_mode_not_authorized_by_story_agents(tmp_path: Path):
+    root = write_repository(tmp_path)
+    (root / "stories/US1.md").write_text(
+        story_document(agents=("developer", "reviewer")),
+        encoding="utf-8",
+    )
+    allowed = tmp_path / "implementation"
+    implementation = allowed / "checkout"
+    implementation.mkdir(parents=True)
+
+    result = packet.build_packet(
+        root,
+        task="unauthorized-plan",
+        story_id=None,
+        mode="planning",
+        implementation_root=implementation.as_posix(),
+        allowed_implementation_root=allowed.as_posix(),
+        planning_roots=[root.as_posix()],
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert result.payload["status"] == "packet-refused"
+    assert "not requested planning mode" in result.payload["message"]
+
+
+@pytest.mark.parametrize("action", ("verify", "preflight"))
+def test_packet_rejects_recomputed_workspace_boundary_against_caller_assertion(
+    tmp_path: Path,
+    action: str,
+):
+    root = write_repository(tmp_path)
+    build, path = build_test_packet(root, tmp_path)
+    expected_allowed = tmp_path / "impl-1-implementation"
+    forged_allowed = tmp_path / "forged-implementation"
+    forged_checkout = forged_allowed / "checkout"
+    forged_checkout.mkdir(parents=True)
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    document["workspace"].update(
+        {
+            "allowed-implementation-root": forged_allowed.as_posix(),
+            "implementation-root": forged_checkout.as_posix(),
+            "mutation-scope": [forged_checkout.as_posix()],
+        }
+    )
+    document["authorization-hash"] = packet._authorization_hash(document)
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+
+    result = cli.dispatch(
+        [
+            "packet",
+            action,
+            "--packet",
+            path.relative_to(root).as_posix(),
+            "--allowed-implementation-root",
+            expected_allowed.as_posix(),
+            "--expected-authorization-hash",
+            str(build.payload["authorization_hash"]),
+        ],
+        probe_directory=root,
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "workspace.allowed-implementation-root"
+        and "caller-authorized boundary" in finding["message"]
+        for finding in result.payload["findings"]
+    )
+
+
+def test_packet_rejects_dotdot_workspace_alias_even_with_recomputed_hash(
+    tmp_path: Path,
+):
+    root = write_repository(tmp_path)
+    build, path = build_test_packet(root, tmp_path)
+    allowed = tmp_path / "impl-1-implementation"
+    (allowed / "alias").mkdir()
+    alias = f"{allowed.as_posix()}/alias/../checkout"
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    document["workspace"]["implementation-root"] = alias
+    document["workspace"]["mutation-scope"] = [alias]
+    document["authorization-hash"] = packet._authorization_hash(document)
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+
+    result = packet.verify_packet(
+        root,
+        packet_path=path.relative_to(root).as_posix(),
+        allowed_implementation_root=allowed.as_posix(),
+        expected_authorization_hash=str(build.payload["authorization_hash"]),
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "workspace.implementation-root"
+        and "canonical resolved absolute" in finding["message"]
+        for finding in result.payload["findings"]
+    )
+
+
+def test_packet_build_and_preflight_reject_extra_planning_root(tmp_path: Path):
+    root = write_repository(tmp_path)
+    allowed = tmp_path / "implementation"
+    implementation = allowed / "checkout"
+    implementation.mkdir(parents=True)
+
+    build = packet.build_packet(
+        root,
+        task="extra-planning",
+        story_id=None,
+        mode="developer",
+        implementation_root=implementation.as_posix(),
+        allowed_implementation_root=allowed.as_posix(),
+        planning_roots=[root.as_posix(), "/etc"],
+    )
+
+    assert build.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "planning-roots"
+        and "exactly the authoritative repository root" in finding["message"]
+        for finding in build.payload["findings"]
+    )
+
+    valid_build, path = build_test_packet(root, tmp_path)
+    packet_allowed = tmp_path / "impl-1-implementation"
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    document["workspace"]["planning-roots"].append(
+        {"path": "/etc", "access": "read-only"}
+    )
+    document["workspace"]["denied-paths"].append("/etc")
+    document["authorization-hash"] = packet._authorization_hash(document)
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+
+    preflight = packet.preflight_packet(
+        root,
+        packet_path=path.relative_to(root).as_posix(),
+        allowed_implementation_root=packet_allowed.as_posix(),
+        expected_authorization_hash=str(valid_build.payload["authorization_hash"]),
+    )
+
+    assert preflight.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "workspace.planning-roots"
+        and "exactly the authoritative repository root" in finding["message"]
+        for finding in preflight.payload["findings"]
+    )
+
+
+def test_cross_active_theme_story_dependency_is_eligible(tmp_path: Path):
+    document = valid_backlog()
+    completed = v2_archive_theme("TH4")
+    completed["locked"] = False
+    document["backlog"]["active-themes"].append(completed)
+    story = document["backlog"]["active-themes"][0]["epics"][0]["stories"][0]
+    story["depends-on"] = ["TH4.E1.US1"]
+    root = write_repository(tmp_path, document)
+    (root / "stories/TH4-US1.md").write_text(
+        story_document("TH4.E1.US1"),
+        encoding="utf-8",
+    )
+
+    result = packet.project_next(root)
+
+    assert result.exit_code == exits.SUCCESS
+    assert result.payload["projection"]["story"]["id"] == "TH3.E1.US1"
+
+
+def test_archived_story_and_normalized_v1_epic_dependencies_are_eligible(
+    tmp_path: Path,
+):
+    document = valid_backlog()
+    theme = document["backlog"]["active-themes"][0]
+    theme["epics"][0]["depends-on"] = ["TH2.E1"]
+    theme["epics"][0]["stories"][0]["depends-on"] = ["TH2.E1.US1"]
+    root = write_repository(tmp_path, document)
+
+    result = packet.project_next(root)
+
+    assert result.exit_code == exits.SUCCESS
+    assert result.payload["projection"]["story"]["id"] == "TH3.E1.US1"
+
+
+def test_acceptance_criteria_are_required_bound_and_authoritatively_compared(
+    tmp_path: Path,
+):
+    root = write_repository(tmp_path)
+    build, path = build_test_packet(root, tmp_path)
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    assert document["acceptance-criteria"] == [
+        {"AC1": "Packet contract is enforced"}
+    ]
+    document["acceptance-criteria"][0]["AC1"] = "Tampered criterion"
+    document["authorization-hash"] = packet._authorization_hash(document)
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+
+    result = packet.verify_packet(
+        root,
+        packet_path=path.relative_to(root).as_posix(),
+        allowed_implementation_root=(
+            tmp_path / "impl-1-implementation"
+        ).as_posix(),
+        expected_authorization_hash=str(build.payload["authorization_hash"]),
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "acceptance-criteria"
+        for finding in result.payload["findings"]
+    )
+
+
+@pytest.mark.parametrize(
+    "story_text",
+    (
+        "---\nid: TH3.E1.US1\n---\n# Missing\n",
+        "---\nid: TH3.E1.US1\nacceptance-criteria: []\n---\n# Empty\n",
+        (
+            "---\nid: TH3.E1.US1\nacceptance-criteria: [AC1]\n"
+            "acceptance-criteria: [AC2]\n---\n# Duplicate\n"
+        ),
+    ),
+)
+def test_packet_build_rejects_missing_empty_or_duplicate_acceptance_criteria(
+    tmp_path: Path,
+    story_text: str,
+):
+    root = write_repository(tmp_path)
+    (root / "stories/US1.md").write_text(story_text, encoding="utf-8")
+    allowed = tmp_path / "implementation"
+    implementation = allowed / "checkout"
+    implementation.mkdir(parents=True)
+
+    result = packet.build_packet(
+        root,
+        task="invalid-ac",
+        story_id=None,
+        mode="developer",
+        implementation_root=implementation.as_posix(),
+        allowed_implementation_root=allowed.as_posix(),
+        planning_roots=[root.as_posix()],
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert "frontmatter" in result.payload["message"]
+
+
+def test_verify_and_preflight_frame_disappearing_backlog_as_packet_results(
+    tmp_path: Path,
+):
+    root = write_repository(tmp_path)
+    build, _path = build_test_packet(root, tmp_path)
+    (root / backlog.BACKLOG_PATH).unlink()
+
+    results = [
+        packet.verify_packet(
+            root,
+            packet_path=str(build.payload["packet"]),
+            allowed_implementation_root=(
+                tmp_path / "impl-1-implementation"
+            ).as_posix(),
+            expected_authorization_hash=str(build.payload["authorization_hash"]),
+        ),
+        packet.preflight_packet(
+            root,
+            packet_path=str(build.payload["packet"]),
+            allowed_implementation_root=(
+                tmp_path / "impl-1-implementation"
+            ).as_posix(),
+            expected_authorization_hash=str(build.payload["authorization_hash"]),
+        ),
+    ]
+
+    for result in results:
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        emitted = cli.emit(
+            cli.CommandResult(result.exit_code, result.payload, result.diagnostics),
+            stdout=stdout,
+            stderr=stderr,
+        )
+        assert emitted == exits.VALIDATION_FAILURE
+        assert len(stdout.getvalue().splitlines()) == 1
+        assert json.loads(stdout.getvalue())["status"] in {
+            "packet-invalid",
+            "preflight-refused",
+        }
+        assert "Traceback" not in stderr.getvalue()
+
+
+def test_project_frames_backlog_disappearance_after_validation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    root = write_repository(tmp_path)
+    backlog_path = root / backlog.BACKLOG_PATH
+    original_hash = packet._sha256_file
+
+    def disappear_before_hash(path: Path) -> str:
+        if path == backlog_path:
+            path.unlink()
+        return original_hash(path)
+
+    monkeypatch.setattr(packet, "_sha256_file", disappear_before_hash)
+
+    result = packet.project_next(root)
+    stdout = io.StringIO()
+    stderr = io.StringIO()
+    cli.emit(
+        cli.CommandResult(result.exit_code, result.payload, result.diagnostics),
+        stdout=stdout,
+        stderr=stderr,
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert result.payload["action"] == "project"
+    assert len(stdout.getvalue().splitlines()) == 1
+    assert json.loads(stdout.getvalue())["status"] == "projection-refused"
+    assert "Traceback" not in stderr.getvalue()
+
+
+def test_projection_failure_frames_backlog_hash_enrichment_race(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    document = valid_backlog()
+    document["backlog"]["active-themes"][0]["epics"][0]["stories"][0][
+        "status"
+    ] = "blocked"
+    root = write_repository(tmp_path, document)
+
+    def unreadable(_path: Path) -> str:
+        raise PermissionError("simulated enrichment race")
+
+    monkeypatch.setattr(packet, "_sha256_file", unreadable)
+
+    result = packet.project_next(root)
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert result.payload["status"] == "projection-refused"
+    assert result.payload["backlog_sha256"] is None
+    assert "simulated enrichment race" in result.payload["backlog_enrichment_error"]
+
+
+@pytest.mark.parametrize("action", ("verify", "preflight"))
+def test_verify_and_preflight_frame_unreadable_hash_errors(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    action: str,
+):
+    root = write_repository(tmp_path)
+    build, _path = build_test_packet(root, tmp_path)
+    original_hash = packet._sha256_file
+
+    def unreadable(path: Path) -> str:
+        if path == root / backlog.BACKLOG_PATH:
+            raise PermissionError("simulated unreadable backlog")
+        return original_hash(path)
+
+    monkeypatch.setattr(packet, "_sha256_file", unreadable)
+    operation = (
+        packet.verify_packet if action == "verify" else packet.preflight_packet
+    )
+
+    result = operation(
+        root,
+        packet_path=str(build.payload["packet"]),
+        allowed_implementation_root=(
+            tmp_path / "impl-1-implementation"
+        ).as_posix(),
+        expected_authorization_hash=str(build.payload["authorization_hash"]),
+    )
+    stdout = io.StringIO()
+    stderr = io.StringIO()
+    cli.emit(
+        cli.CommandResult(result.exit_code, result.payload, result.diagnostics),
+        stdout=stdout,
+        stderr=stderr,
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert len(stdout.getvalue().splitlines()) == 1
+    assert json.loads(stdout.getvalue())["status"] in {
+        "packet-invalid",
+        "preflight-refused",
+    }
+    assert "Traceback" not in stderr.getvalue()
+
+
+def test_packet_binds_scope_traceability_and_complete_source_manifest(
+    tmp_path: Path,
+):
+    root = write_repository(tmp_path)
+    build, path = build_test_packet(root, tmp_path)
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    source_paths = {item["path"] for item in document["sources"]}
+    source_trust = {item["path"]: item["trust"] for item in document["sources"]}
+
+    assert document["scope"] == {
+        "story-id": "TH3.E1.US1",
+        "story-file": "stories/US1.md",
+        "maximum-stories": 1,
+        "mutation": "implementation-root-only",
+    }
+    assert document["traceability"]["adrs"] == ["ADR-004"]
+    assert {
+        ".github/skills/bdd-stories/SKILL.md",
+        ".github/skills/the-copilot-build-method/SKILL.md",
+        ".github/skills/backlog-management/SKILL.md",
+        "docs/vision_of_product/VP3/README.md",
+        "docs/discovery/VP3/README.md",
+        "docs/requirements/VP3/PRD.md",
+        "docs/architecture/README.md",
+        "docs/ADRs/ADR-004-fixture.md",
+    } <= source_paths
+    assert source_trust["docs/plan/backlog.yaml"] == "untrusted"
+    assert all(
+        trust == (
+            "trusted" if path.startswith(".github/skills/") else "untrusted"
+        )
+        for path, trust in source_trust.items()
+    )
+    assert build.payload["authorization_hash"] == document["authorization-hash"]
+
+
+@pytest.mark.parametrize(
+    "relative",
+    ("docs/plan/backlog.yaml", "docs/ADRs/ADR-004-fixture.md"),
+)
+def test_packet_verify_rejects_trust_elevation_for_untrusted_sources(
+    tmp_path: Path,
+    relative: str,
+):
+    root = write_repository(tmp_path)
+    build, path = build_test_packet(root, tmp_path)
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    source = next(item for item in document["sources"] if item["path"] == relative)
+    source["trust"] = "trusted"
+    document["authorization-hash"] = packet._authorization_hash(document)
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+
+    result = packet.verify_packet(
+        root,
+        packet_path=path.relative_to(root).as_posix(),
+        allowed_implementation_root=(
+            tmp_path / "impl-1-implementation"
+        ).as_posix(),
+        expected_authorization_hash=str(document["authorization-hash"]),
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "sources"
+        for finding in result.payload["findings"]
+    )
+
+
+@pytest.mark.parametrize(
+    "relative",
+    (
+        ".github/skills/bdd-stories/SKILL.md",
+        "docs/ADRs/ADR-004-fixture.md",
+        "docs/vision_of_product/VP3/README.md",
+    ),
+)
+def test_packet_detects_required_skill_adr_and_planning_source_staleness(
+    tmp_path: Path,
+    relative: str,
+):
+    root = write_repository(tmp_path)
+    build, path = build_test_packet(root, tmp_path)
+    source = root / relative
+    source.write_text(source.read_text(encoding="utf-8") + "\nchanged\n")
+
+    result = packet.verify_packet(
+        root,
+        packet_path=path.relative_to(root).as_posix(),
+        allowed_implementation_root=(tmp_path / "impl-1-implementation").as_posix(),
+        expected_authorization_hash=str(build.payload["authorization_hash"]),
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert result.payload["status"] == "STALE"
+    assert any(relative in finding["message"] for finding in result.payload["findings"])
+
+
+@pytest.mark.parametrize("field", ("task", "trace-id", "generated-at"))
+def test_recomputed_hash_tamper_fails_external_authorization_anchor(
+    tmp_path: Path,
+    field: str,
+):
+    root = write_repository(tmp_path)
+    build, path = build_test_packet(root, tmp_path)
+    original_hash = str(build.payload["authorization_hash"])
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    document[field] = f"forged-{field}"
+    if field == "generated-at":
+        document[field] = "2026-09-07T12:00:00+00:00"
+    document["authorization-hash"] = packet._authorization_hash(document)
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+
+    result = packet.verify_packet(
+        root,
+        packet_path=path.relative_to(root).as_posix(),
+        allowed_implementation_root=(tmp_path / "impl-1-implementation").as_posix(),
+        expected_authorization_hash=original_hash,
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        "caller-provided anchor" in finding["message"]
+        for finding in result.payload["findings"]
+    )
+
+
+def test_build_rejects_noncanonical_output_and_frames_hash_race(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    root = write_repository(tmp_path)
+    allowed = tmp_path / "implementation"
+    implementation = allowed / "checkout"
+    implementation.mkdir(parents=True)
+    arguments = {
+        "task": "impl-1",
+        "story_id": None,
+        "mode": "developer",
+        "implementation_root": implementation.as_posix(),
+        "allowed_implementation_root": allowed.as_posix(),
+        "planning_roots": [root.as_posix()],
+    }
+    wrong = packet.build_packet(
+        root,
+        **arguments,
+        output="docs/plan/runtime/packets/TH3.E1.US1/wrong.yaml",
+    )
+    assert wrong.exit_code == exits.VALIDATION_FAILURE
+
+    def raced(_path: Path) -> str:
+        raise FileNotFoundError("simulated build hash race")
+
+    monkeypatch.setattr(packet, "_sha256_file", raced)
+    result = packet.build_packet(root, **arguments)
+    stdout = io.StringIO()
+    cli.emit(
+        cli.CommandResult(result.exit_code, result.payload, result.diagnostics),
+        stdout=stdout,
+        stderr=io.StringIO(),
+    )
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert len(stdout.getvalue().splitlines()) == 1
+    assert "simulated build hash race" in result.payload["message"]
+
+
+@pytest.mark.parametrize("action", ("verify", "preflight"))
+def test_packet_validation_rejects_noncanonical_packet_location(
+    tmp_path: Path,
+    action: str,
+):
+    root = write_repository(tmp_path)
+    build, path = build_test_packet(root, tmp_path)
+    moved = root / "docs/plan/runtime/packets/TH3.E1.US1/copied.yaml"
+    shutil.copyfile(path, moved)
+    operation = (
+        packet.verify_packet if action == "verify" else packet.preflight_packet
+    )
+
+    result = operation(
+        root,
+        packet_path=moved.relative_to(root).as_posix(),
+        allowed_implementation_root=(tmp_path / "impl-1-implementation").as_posix(),
+        expected_authorization_hash=str(build.payload["authorization_hash"]),
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "path" for finding in result.payload["findings"]
+    )
+
+
+def transition_fixture_backlog(
+    root: Path,
+    story_status: str,
+    *,
+    parent_status: str = "in-progress",
+    completion_evidence: bool = True,
+) -> None:
+    path = root / backlog.BACKLOG_PATH
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    state = document["backlog"]
+    state["revision"] += 1
+    state["last-updated"] = (
+        f"2026-09-07T12:{state['revision']:02d}:00+00:00"
+    )
+    theme = state["active-themes"][0]
+    theme["status"] = parent_status
+    theme["epics"][0]["status"] = parent_status
+    story = theme["epics"][0]["stories"][0]
+    story["status"] = story_status
+    if story_status == "done" and completion_evidence:
+        story["evidence"]["verification"].extend(
+            ["lint passed", "integration passed"]
+        )
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+
+
+def reconcile_test_packet(
+    root: Path,
+    tmp_path: Path,
+    build: packet.PacketResult,
+) -> packet.PacketResult:
+    return packet.reconcile_packet(
+        root,
+        packet_path=str(build.payload["packet"]),
+        allowed_implementation_root=(
+            tmp_path / "impl-1-implementation"
+        ).as_posix(),
+        expected_authorization_hash=str(build.payload["authorization_hash"]),
+    )
+
+
+def update_story_revision(root: Path, mutate) -> None:
+    path = root / backlog.BACKLOG_PATH
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    state = document["backlog"]
+    state["revision"] += 1
+    state["last-updated"] = f"2026-09-07T13:{state['revision']:02d}:00+00:00"
+    theme = state["active-themes"][0]
+    mutate(theme, theme["epics"][0], theme["epics"][0]["stories"][0])
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+
+
+def test_packet_reconcile_todo_start_then_verify_and_preflight(tmp_path: Path):
+    document = valid_backlog()
+    theme = document["backlog"]["active-themes"][0]
+    theme["status"] = "todo"
+    theme["epics"][0]["status"] = "todo"
+    root = write_repository(tmp_path, document)
+    build, path = build_test_packet(root, tmp_path)
+    old_hash = str(build.payload["authorization_hash"])
+    old_packet = yaml.safe_load(path.read_text(encoding="utf-8"))
+
+    transition_fixture_backlog(root, "in-progress")
+    unreconciled = packet.verify_packet(
+        root,
+        packet_path=str(build.payload["packet"]),
+        allowed_implementation_root=(
+            tmp_path / "impl-1-implementation"
+        ).as_posix(),
+        expected_authorization_hash=old_hash,
+    )
+    reconciled = reconcile_test_packet(root, tmp_path, build)
+
+    assert unreconciled.exit_code == exits.VALIDATION_FAILURE
+    assert unreconciled.payload["status"] == "STALE"
+    assert reconciled.exit_code == exits.SUCCESS
+    new_hash = str(reconciled.payload["authorization_hash"])
+    assert new_hash != old_hash
+    rewritten = yaml.safe_load(path.read_text(encoding="utf-8"))
+    assert rewritten["story"]["status"] == "in-progress"
+    assert rewritten["theme"]["status"] == "in-progress"
+    assert rewritten["epic"]["status"] == "in-progress"
+    assert rewritten["backlog"]["revision"] == 8
+    assert rewritten["sources"] != old_packet["sources"]
+    assert rewritten["composite-hash"] != old_packet["composite-hash"]
+    assert rewritten["reconciliations"] == [
+        {
+            "from-revision": 7,
+            "to-revision": 8,
+            "from-backlog-sha256": old_packet["backlog"]["sha256"],
+            "to-backlog-sha256": rewritten["backlog"]["sha256"],
+            "from-status": {
+                "theme": "todo",
+                "epic": "todo",
+                "story": "todo",
+            },
+            "to-status": {
+                "theme": "in-progress",
+                "epic": "in-progress",
+                "story": "in-progress",
+            },
+            "timestamp": rewritten["reconciliations"][0]["timestamp"],
+            "reason": "status-transition",
+        }
+    ]
+    for operation in (packet.verify_packet, packet.preflight_packet):
+        result = operation(
+            root,
+            packet_path=str(build.payload["packet"]),
+            allowed_implementation_root=(
+                tmp_path / "impl-1-implementation"
+            ).as_posix(),
+            expected_authorization_hash=new_hash,
+        )
+        assert result.exit_code == exits.SUCCESS
+        assert result.payload["findings"] == []
+
+
+def test_packet_reconciles_evidence_before_review_then_parent_completion(
+    tmp_path: Path,
+):
+    document = valid_backlog()
+    evidence = document["backlog"]["active-themes"][0]["epics"][0]["stories"][0][
+        "evidence"
+    ]
+    evidence["verification"] = []
+    evidence["review"] = []
+    evidence["gitflow"] = []
+    root = write_repository(tmp_path, document)
+    current, path = build_test_packet(root, tmp_path)
+
+    transition_fixture_backlog(root, "in-progress")
+    current = reconcile_test_packet(root, tmp_path, current)
+
+    update_story_revision(
+        root,
+        lambda _theme, _epic, story: story["evidence"]["verification"].extend(
+            ["UNIT: PASSED", "lint passed", "integration: passed"]
+        ),
+    )
+    current = reconcile_test_packet(root, tmp_path, current)
+    assert current.exit_code == exits.SUCCESS
+    assert current.payload["reconciliation"]["reason"] == "evidence-update"
+    before_review = packet.verify_packet(
+        root,
+        packet_path=str(current.payload["packet"]),
+        allowed_implementation_root=(
+            tmp_path / "impl-1-implementation"
+        ).as_posix(),
+        expected_authorization_hash=str(current.payload["authorization_hash"]),
+    )
+    assert before_review.exit_code == exits.SUCCESS
+
+    def append_approval(_theme, _epic, story):
+        story["evidence"]["review"].extend(
+            ["security review complete", "APPROVED"]
+        )
+        story["evidence"]["gitflow"].append(
+            "not-applicable: fixture has no delivery remote"
+        )
+
+    update_story_revision(root, append_approval)
+    current = reconcile_test_packet(root, tmp_path, current)
+    assert current.exit_code == exits.SUCCESS
+    assert current.payload["reconciliation"]["reason"] == "evidence-update"
+
+    update_story_revision(
+        root,
+        lambda _theme, _epic, story: story.update({"status": "done"}),
+    )
+    current = reconcile_test_packet(root, tmp_path, current)
+    assert current.exit_code == exits.SUCCESS
+    assert current.payload["reconciliation"]["reason"] == "status-transition"
+
+    update_story_revision(
+        root,
+        lambda _theme, epic, _story: epic.update({"status": "done"}),
+    )
+    current = reconcile_test_packet(root, tmp_path, current)
+    assert current.exit_code == exits.SUCCESS
+    assert current.payload["reconciliation"]["reason"] == "parent-completion"
+
+    update_story_revision(
+        root,
+        lambda theme, _epic, _story: theme.update({"status": "done"}),
+    )
+    current = reconcile_test_packet(root, tmp_path, current)
+    assert current.exit_code == exits.SUCCESS
+    assert current.payload["reconciliation"]["reason"] == "parent-completion"
+    reasons = [
+        item["reason"]
+        for item in yaml.safe_load(path.read_text(encoding="utf-8"))[
+            "reconciliations"
+        ]
+    ]
+    assert reasons == [
+        "status-transition",
+        "evidence-update",
+        "evidence-update",
+        "status-transition",
+        "parent-completion",
+        "parent-completion",
+    ]
+
+
+def test_packet_reconcile_rejects_noop_newer_revision(tmp_path: Path):
+    root = write_repository(tmp_path)
+    current, _path = build_test_packet(root, tmp_path)
+    transition_fixture_backlog(root, "in-progress")
+    current = reconcile_test_packet(root, tmp_path, current)
+    update_story_revision(root, lambda _theme, _epic, _story: None)
+
+    result = reconcile_test_packet(root, tmp_path, current)
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "reconciliation"
+        and "no authorized lifecycle change" in finding["message"]
+        for finding in result.payload["findings"]
+    )
+
+
+def test_packet_reconcile_supports_block_resume_and_completion(tmp_path: Path):
+    root = write_repository(tmp_path)
+    current, path = build_test_packet(root, tmp_path)
+    hashes = [str(current.payload["authorization_hash"])]
+
+    for story_status in (
+        "in-progress",
+        "blocked",
+        "in-progress",
+        "done",
+    ):
+        transition_fixture_backlog(
+            root,
+            story_status,
+            parent_status="in-progress",
+        )
+        current = reconcile_test_packet(root, tmp_path, current)
+        assert current.exit_code == exits.SUCCESS
+        hashes.append(str(current.payload["authorization_hash"]))
+
+    for mutate in (
+        lambda _theme, epic, _story: epic.update({"status": "done"}),
+        lambda theme, _epic, _story: theme.update({"status": "done"}),
+    ):
+        update_story_revision(root, mutate)
+        current = reconcile_test_packet(root, tmp_path, current)
+        assert current.exit_code == exits.SUCCESS
+        hashes.append(str(current.payload["authorization_hash"]))
+
+    assert len(set(hashes)) == len(hashes)
+    rewritten = yaml.safe_load(path.read_text(encoding="utf-8"))
+    assert rewritten["story"]["status"] == "done"
+    assert rewritten["evidence-snapshot"]["verification"] == ["unit passed"]
+    assert rewritten["evidence-current"]["verification"] == [
+        "unit passed",
+        "lint passed",
+        "integration passed",
+    ]
+    assert len(rewritten["reconciliations"]) == 6
+    verified = packet.verify_packet(
+        root,
+        packet_path=str(current.payload["packet"]),
+        allowed_implementation_root=(
+            tmp_path / "impl-1-implementation"
+        ).as_posix(),
+        expected_authorization_hash=hashes[-1],
+    )
+    assert verified.exit_code == exits.SUCCESS
+
+
+def test_packet_reconcile_blocks_done_without_complete_evidence(tmp_path: Path):
+    document = valid_backlog()
+    evidence = document["backlog"]["active-themes"][0]["epics"][0]["stories"][0][
+        "evidence"
+    ]
+    evidence["verification"] = []
+    evidence["review"] = []
+    evidence["gitflow"] = []
+    root = write_repository(tmp_path, document)
+    build, path = build_test_packet(root, tmp_path)
+
+    transition_fixture_backlog(
+        root,
+        "done",
+        parent_status="done",
+        completion_evidence=False,
+    )
+    result = reconcile_test_packet(root, tmp_path, build)
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    records = {finding["record"] for finding in result.payload["findings"]}
+    assert {
+        "evidence.verification",
+        "evidence.review",
+        "evidence.gitflow",
+    } <= records
+    assert yaml.safe_load(path.read_text(encoding="utf-8"))["story"]["status"] == "todo"
+
+
+def reconcile_completion_evidence(
+    tmp_path: Path,
+    *,
+    verification: list[str],
+    review: list[str],
+    gitflow: list[str],
+    waived_check: str | None = None,
+) -> packet.PacketResult:
+    document = valid_backlog()
+    story = document["backlog"]["active-themes"][0]["epics"][0]["stories"][0]
+    story["evidence"]["verification"] = []
+    story["evidence"]["review"] = []
+    story["evidence"]["gitflow"] = []
+    if waived_check is not None:
+        story["verification"]["waivers"].append(
+            {
+                "check": waived_check,
+                "authority": "architect",
+                "reviewer": "reviewer",
+                "rationale": "Governed fixture waiver",
+                "record": "TH3.E1.US1",
+            }
+        )
+    root = write_repository(tmp_path, document)
+    current, _path = build_test_packet(root, tmp_path)
+    transition_fixture_backlog(root, "in-progress")
+    current = reconcile_test_packet(root, tmp_path, current)
+
+    def complete(_theme, _epic, current_story):
+        current_story["status"] = "done"
+        current_story["evidence"]["verification"] = verification
+        current_story["evidence"]["review"] = review
+        current_story["evidence"]["gitflow"] = gitflow
+
+    update_story_revision(root, complete)
+    return reconcile_test_packet(root, tmp_path, current)
+
+
+@pytest.mark.parametrize(
+    "gitflow",
+    (
+        ["committed"],
+        ["MERGED"],
+        ["squash-merged"],
+        ["not-applicable: fixture has no delivery remote"],
+    ),
+)
+def test_completion_accepts_closed_positive_success_evidence(
+    tmp_path: Path,
+    gitflow: list[str],
+):
+    result = reconcile_completion_evidence(
+        tmp_path,
+        verification=["UNIT: PASSED", "lint passed", "Integration: passed"],
+        review=["bounded security review detail", "APPROVED"],
+        gitflow=gitflow,
+    )
+
+    assert result.exit_code == exits.SUCCESS
+
+
+@pytest.mark.parametrize(
+    "entry",
+    (
+        "unit failed",
+        "unit failure",
+        "unit error",
+        "unit skipped",
+        "unit not passed",
+        "unit tests passed",
+        "unit:passed",
+        "unit  passed",
+    ),
+)
+def test_completion_rejects_failure_shaped_or_noncanonical_verification(
+    tmp_path: Path,
+    entry: str,
+):
+    result = reconcile_completion_evidence(
+        tmp_path,
+        verification=[entry, "lint passed", "integration passed"],
+        review=["approved"],
+        gitflow=["merged"],
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "evidence.verification"
+        for finding in result.payload["findings"]
+    )
+
+
+def test_completion_accepts_failure_evidence_only_with_governed_check_waiver(
+    tmp_path: Path,
+):
+    result = reconcile_completion_evidence(
+        tmp_path,
+        verification=["unit failed", "lint passed", "integration passed"],
+        review=["approved"],
+        gitflow=["merged"],
+        waived_check="unit",
+    )
+
+    assert result.exit_code == exits.SUCCESS
+
+
+@pytest.mark.parametrize("entry", ("APPROVE", "approved"))
+def test_completion_accepts_canonical_and_legacy_review_approval(
+    tmp_path: Path,
+    entry: str,
+):
+    result = reconcile_completion_evidence(
+        tmp_path,
+        verification=["unit passed", "lint passed", "integration passed"],
+        review=[entry],
+        gitflow=["merged"],
+    )
+
+    assert result.exit_code == exits.SUCCESS
+
+
+@pytest.mark.parametrize(
+    "entry",
+    (
+        "REQUEST_CHANGES",
+        "rejected",
+        "review failed",
+        "conditionally approved",
+        "approved: not approved",
+        "approved: bounded detail",
+    ),
+)
+def test_completion_rejects_nonapproval_review_results(
+    tmp_path: Path,
+    entry: str,
+):
+    result = reconcile_completion_evidence(
+        tmp_path,
+        verification=["unit passed", "lint passed", "integration passed"],
+        review=[entry],
+        gitflow=["merged"],
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "evidence.review"
+        for finding in result.payload["findings"]
+    )
+
+
+@pytest.mark.parametrize(
+    "entry",
+    (
+        "not applicable",
+        "not-applicable",
+        "n/a",
+        "CI failed",
+        "not merged",
+        "merge succeeded",
+        "squash merge: succeeded",
+        "committed successfully",
+    ),
+)
+def test_completion_rejects_bare_not_applicable_or_failed_gitflow(
+    tmp_path: Path,
+    entry: str,
+):
+    result = reconcile_completion_evidence(
+        tmp_path,
+        verification=["unit passed", "lint passed", "integration passed"],
+        review=["approved"],
+        gitflow=[entry],
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "evidence.gitflow"
+        for finding in result.payload["findings"]
+    )
+
+
+def test_packet_reconcile_rejects_evidence_removal_or_replacement(tmp_path: Path):
+    root = write_repository(tmp_path)
+    build, path = build_test_packet(root, tmp_path)
+    backlog_path = root / backlog.BACKLOG_PATH
+    document = yaml.safe_load(backlog_path.read_text(encoding="utf-8"))
+    state = document["backlog"]
+    state["revision"] += 1
+    theme = state["active-themes"][0]
+    theme["status"] = "in-progress"
+    theme["epics"][0]["status"] = "in-progress"
+    story = theme["epics"][0]["stories"][0]
+    story["status"] = "in-progress"
+    story["evidence"]["review"] = ["replacement approval"]
+    backlog_path.write_text(
+        yaml.safe_dump(document, sort_keys=False),
+        encoding="utf-8",
+    )
+
+    result = reconcile_test_packet(root, tmp_path, build)
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "evidence.review"
+        and "removal, replacement, or reordering" in finding["message"]
+        for finding in result.payload["findings"]
+    )
+    assert yaml.safe_load(path.read_text(encoding="utf-8"))["story"]["status"] == "todo"
+
+
+@pytest.mark.parametrize("completed_parents", (("epic",), ("epic", "theme")))
+def test_packet_reconcile_rejects_story_and_parent_completion_in_one_revision(
+    tmp_path: Path,
+    completed_parents: tuple[str, ...],
+):
+    root = write_repository(tmp_path)
+    current, _path = build_test_packet(root, tmp_path)
+    transition_fixture_backlog(root, "in-progress")
+    current = reconcile_test_packet(root, tmp_path, current)
+
+    def combine_completion(theme, epic, story):
+        story["status"] = "done"
+        story["evidence"]["verification"].extend(
+            ["lint passed", "integration passed"]
+        )
+        if "epic" in completed_parents:
+            epic["status"] = "done"
+        if "theme" in completed_parents:
+            theme["status"] = "done"
+
+    update_story_revision(root, combine_completion)
+    result = reconcile_test_packet(root, tmp_path, current)
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "status-transition.completion"
+        and "story and parent completion" in finding["message"]
+        for finding in result.payload["findings"]
+    )
+
+
+def test_packet_reconcile_rejects_combined_epic_and_theme_completion(
+    tmp_path: Path,
+):
+    root = write_repository(tmp_path)
+    current, _path = build_test_packet(root, tmp_path)
+    transition_fixture_backlog(root, "in-progress")
+    current = reconcile_test_packet(root, tmp_path, current)
+    update_story_revision(
+        root,
+        lambda _theme, _epic, story: (
+            story.update({"status": "done"}),
+            story["evidence"]["verification"].extend(
+                ["lint passed", "integration passed"]
+            ),
+        ),
+    )
+    current = reconcile_test_packet(root, tmp_path, current)
+    assert current.exit_code == exits.SUCCESS
+
+    update_story_revision(
+        root,
+        lambda theme, epic, _story: (
+            epic.update({"status": "done"}),
+            theme.update({"status": "done"}),
+        ),
+    )
+    result = reconcile_test_packet(root, tmp_path, current)
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "status-transition.completion"
+        and "epic and theme completion require distinct" in finding["message"]
+        for finding in result.payload["findings"]
+    )
+
+
+def test_packet_reconcile_rejects_epic_done_with_unfinished_sibling_story(
+    tmp_path: Path,
+):
+    document = valid_backlog()
+    epic = document["backlog"]["active-themes"][0]["epics"][0]
+    sibling = copy.deepcopy(epic["stories"][0])
+    sibling.update(
+        {
+            "id": "TH3.E1.US2",
+            "title": "Unfinished sibling",
+            "status": "todo",
+            "file": "stories/US2.md",
+        }
+    )
+    epic["stories"].append(sibling)
+    root = write_repository(tmp_path, document)
+    (root / "stories/US2.md").write_text(
+        story_document("TH3.E1.US2"),
+        encoding="utf-8",
+    )
+    build, _path = build_test_packet(root, tmp_path)
+
+    transition_fixture_backlog(root, "done", parent_status="done")
+    result = reconcile_test_packet(root, tmp_path, build)
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "definition-of-done.epic"
+        and finding["details"]["unfinished"] == ["TH3.E1.US2"]
+        for finding in result.payload["findings"]
+    )
+
+
+def test_packet_reconcile_rejects_theme_done_with_unfinished_sibling_epic(
+    tmp_path: Path,
+):
+    document = valid_backlog()
+    theme = document["backlog"]["active-themes"][0]
+    sibling_epic = copy.deepcopy(theme["epics"][0])
+    sibling_epic.update({"id": "TH3.E2", "name": "Unfinished epic"})
+    sibling_story = sibling_epic["stories"][0]
+    sibling_story.update(
+        {
+            "id": "TH3.E2.US1",
+            "title": "Completed sibling story",
+            "status": "done",
+            "file": "stories/E2-US1.md",
+        }
+    )
+    theme["epics"].append(sibling_epic)
+    root = write_repository(tmp_path, document)
+    (root / "stories/E2-US1.md").write_text(
+        story_document("TH3.E2.US1"),
+        encoding="utf-8",
+    )
+    build, _path = build_test_packet(root, tmp_path)
+
+    transition_fixture_backlog(root, "done", parent_status="done")
+    result = reconcile_test_packet(root, tmp_path, build)
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert any(
+        finding["record"] == "definition-of-done.theme"
+        and finding["details"]["unfinished"] == ["TH3.E2"]
+        for finding in result.payload["findings"]
+    )
+
+
+@pytest.mark.parametrize("mutation", ("invalid-transition", "immutable-title"))
+def test_packet_reconcile_rejects_invalid_transition_or_immutable_change(
+    tmp_path: Path,
+    mutation: str,
+):
+    root = write_repository(tmp_path)
+    build, path = build_test_packet(root, tmp_path)
+    transition_fixture_backlog(
+        root,
+        "done" if mutation == "invalid-transition" else "in-progress",
+        parent_status=(
+            "done" if mutation == "invalid-transition" else "in-progress"
+        ),
+    )
+    if mutation == "immutable-title":
+        backlog_path = root / backlog.BACKLOG_PATH
+        document = yaml.safe_load(backlog_path.read_text(encoding="utf-8"))
+        document["backlog"]["active-themes"][0]["epics"][0]["stories"][0][
+            "title"
+        ] = "Changed after dispatch"
+        backlog_path.write_text(
+            yaml.safe_dump(document, sort_keys=False),
+            encoding="utf-8",
+        )
+
+    result = reconcile_test_packet(root, tmp_path, build)
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert result.payload["status"] == "reconciliation-refused"
+    assert any(
+        finding["record"]
+        == ("status-transition.story" if mutation == "invalid-transition" else "story")
+        for finding in result.payload["findings"]
+    )
+    assert yaml.safe_load(path.read_text(encoding="utf-8"))["story"]["status"] == "todo"
+
+
+@pytest.mark.parametrize(
+    ("replacement", "message"),
+    (
+        (
+            "  invariants: [INV-001]\n",
+            "",
+        ),
+        (
+            "  vision: [VO-001]\n",
+            "  vision: [PR-001]\n",
+        ),
+        (
+            '  - AC1: "Packet contract is enforced"\n',
+            '  - AC-1: "Malformed key"\n',
+        ),
+        (
+            '  - AC1: "Packet contract is enforced"\n',
+            '  - AC1: ""\n',
+        ),
+    ),
+)
+def test_packet_build_rejects_malformed_traceability_or_acceptance_criteria(
+    tmp_path: Path,
+    replacement: str,
+    message: str,
+):
+    root = write_repository(tmp_path)
+    source = story_document().replace(replacement, message)
+    (root / "stories/US1.md").write_text(source, encoding="utf-8")
+    allowed = tmp_path / "malformed-implementation"
+    implementation = allowed / "checkout"
+    implementation.mkdir(parents=True)
+
+    result = packet.build_packet(
+        root,
+        task="malformed-authority",
+        story_id=None,
+        mode="developer",
+        implementation_root=implementation.as_posix(),
+        allowed_implementation_root=allowed.as_posix(),
+        planning_roots=[root.as_posix()],
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert result.payload["status"] == "packet-refused"
+    assert (
+        "traceability" in result.payload["message"]
+        or "acceptance criteria" in result.payload["message"]
+    )
+
+
+@pytest.mark.parametrize(
+    ("mutation", "expected"),
+    (
+        (
+            lambda text: text.replace(
+                "type: standard\n",
+                "type: standard\npriority: urgent\n",
+            ),
+            "priority must be high, medium, or low",
+        ),
+        (
+            lambda text: text.replace(
+                "type: standard\n",
+                "type: standard\nsize: XXL\n",
+            ),
+            "size must be S, M, or L",
+        ),
+        (
+            lambda text: text.replace(
+                "type: standard\n",
+                "type: standard\nunexpected: value\n",
+            ),
+            "unknown=['unexpected']",
+        ),
+        (
+            lambda text: text.replace(
+                'title: "Schema story"',
+                'title: "Different title"',
+            ),
+            "title does not match",
+        ),
+        (
+            lambda text: text.replace(
+                "type: standard\n",
+                "type: standard\npriority: low\n",
+            ),
+            "priority does not match",
+        ),
+        (
+            lambda text: text.replace(
+                "depends-on: []",
+                "depends-on: [TH3.E1.US2]",
+            ),
+            "depends-on does not exactly match",
+        ),
+        (
+            lambda text: text.replace(
+                "agents: [developer]",
+                "agents: [developer, developer]",
+            ),
+            "unique agents",
+        ),
+        (
+            lambda text: text.replace(
+                "skills: [the-copilot-build-method]",
+                "skills: []",
+            ),
+            "unique skills",
+        ),
+    ),
+)
+def test_packet_build_rejects_strict_bdd_frontmatter_contract(
+    tmp_path: Path,
+    mutation,
+    expected: str,
+):
+    root = write_repository(tmp_path)
+    (root / "stories/US1.md").write_text(
+        mutation(story_document()),
+        encoding="utf-8",
+    )
+    allowed = tmp_path / "strict-frontmatter-implementation"
+    implementation = allowed / "checkout"
+    implementation.mkdir(parents=True)
+
+    result = packet.build_packet(
+        root,
+        task="strict-frontmatter",
+        story_id=None,
+        mode="developer",
+        implementation_root=implementation.as_posix(),
+        allowed_implementation_root=allowed.as_posix(),
+        planning_roots=[root.as_posix()],
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    assert expected in result.payload["message"]
+
+
+def test_packet_build_accepts_optional_frontmatter_matching_backlog(tmp_path: Path):
+    root = write_repository(tmp_path)
+    (root / "stories/US1.md").write_text(
+        story_document(priority="high", size="M"),
+        encoding="utf-8",
+    )
+    allowed = tmp_path / "matching-frontmatter-implementation"
+    implementation = allowed / "checkout"
+    implementation.mkdir(parents=True)
+
+    result = packet.build_packet(
+        root,
+        task="matching-frontmatter",
+        story_id=None,
+        mode="developer",
+        implementation_root=implementation.as_posix(),
+        allowed_implementation_root=allowed.as_posix(),
+        planning_roots=[root.as_posix()],
+    )
+
+    assert result.exit_code == exits.SUCCESS
+
+
+def test_packet_build_accepts_trivial_story_with_empty_exact_traceability(
+    tmp_path: Path,
+):
+    root = write_repository(tmp_path)
+    source = story_document(story_type="trivial")
+    for populated in (
+        "[VO-001]",
+        "[PR-001]",
+        "[ADR-004]",
+        "[INV-001]",
+    ):
+        source = source.replace(populated, "[]")
+    (root / "stories/US1.md").write_text(source, encoding="utf-8")
+    allowed = tmp_path / "trivial-implementation"
+    implementation = allowed / "checkout"
+    implementation.mkdir(parents=True)
+
+    result = packet.build_packet(
+        root,
+        task="trivial-authority",
+        story_id=None,
+        mode="developer",
+        implementation_root=implementation.as_posix(),
+        allowed_implementation_root=allowed.as_posix(),
+        planning_roots=[root.as_posix()],
+    )
+
+    assert result.exit_code == exits.SUCCESS
+
+
+def test_reconciliation_record_is_authorization_bound_and_schema_validated(
+    tmp_path: Path,
+):
+    root = write_repository(tmp_path)
+    build, path = build_test_packet(root, tmp_path)
+    transition_fixture_backlog(root, "in-progress")
+    reconciled = reconcile_test_packet(root, tmp_path, build)
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    document["reconciliations"][0]["reason"] = "manual"
+    document["authorization-hash"] = packet._authorization_hash(document)
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+
+    result = packet.verify_packet(
+        root,
+        packet_path=str(build.payload["packet"]),
+        allowed_implementation_root=(
+            tmp_path / "impl-1-implementation"
+        ).as_posix(),
+        expected_authorization_hash=str(reconciled.payload["authorization_hash"]),
+    )
+
+    assert result.exit_code == exits.VALIDATION_FAILURE
+    records = {finding["record"] for finding in result.payload["findings"]}
+    assert "authorization-hash" in records
+    assert "reconciliations[0].reason" in records
+
+
+@pytest.mark.parametrize(
+    ("native_yaml", "type_name"),
+    (
+        ("yaml-native: 2026-09-07\n", "date"),
+        ("yaml-native: !!set\n  ? forbidden\n", "set"),
+    ),
+)
+@pytest.mark.parametrize("action", ("verify", "preflight", "reconcile"))
+def test_packet_cli_rejects_yaml_native_values_as_one_json_result(
+    tmp_path: Path,
+    native_yaml: str,
+    type_name: str,
+    action: str,
+):
+    root = write_repository(tmp_path)
+    build, path = build_test_packet(root, tmp_path)
+    path.write_text(
+        path.read_text(encoding="utf-8") + native_yaml,
+        encoding="utf-8",
+    )
+    shutil.copytree(ROOT / "methodlib", root / "methodlib")
+    (root / "bin").mkdir()
+    shutil.copy2(ROOT / "bin/method", root / "bin/method")
+
+    completed = subprocess.run(
+        [
+            str(root / "bin/method"),
+            "packet",
+            action,
+            "--packet",
+            str(build.payload["packet"]),
+            "--allowed-implementation-root",
+            (tmp_path / "impl-1-implementation").as_posix(),
+            "--expected-authorization-hash",
+            str(build.payload["authorization_hash"]),
+        ],
+        cwd=root,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+    assert completed.returncode == exits.VALIDATION_FAILURE
+    assert len(completed.stdout.splitlines()) == 1
+    payload = json.loads(completed.stdout)
+    assert payload["status"] in {
+        "packet-invalid",
+        "preflight-refused",
+        "reconciliation-refused",
+    }
+    assert payload["findings"] == []
+    assert type_name in payload["message"]
+    assert "Traceback" not in completed.stderr
 
 
 def test_archive_ref_outside_canonical_root_cannot_supply_v1_or_dependencies(

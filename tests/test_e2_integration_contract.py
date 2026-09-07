@@ -91,9 +91,10 @@ def test_real_e2_release_gate_has_accepted_architecture_and_zero_trace_findings(
     assert planning["findings"] == []
     acceptance = planning["upstream_gates"][0]
     assert acceptance["actor"] == "Human: product owner"
-    assert acceptance["timestamp"] == "2026-09-06T21:41:37+01:00"
+    assert acceptance["timestamp"] == "2026-09-07T18:06:28+01:00"
     assert acceptance["scope"] == (
-        "VP3 architecture/ADR ownership and structured trace reconciliation"
+        "VP3 architecture packet dispatch, workspace authorization, "
+        "reconciliation, and Cockpit boundary"
     )
     assert acceptance["verdict"] == "Accepted"
     architecture_readme = ROOT / "docs/architecture/README.md"
