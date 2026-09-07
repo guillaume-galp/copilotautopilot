@@ -23,25 +23,69 @@ unaccepted, it is `BLOCKED`, validation fails, or the validated revision does
 not match, refuse fail-closed: perform no state transition, perform no
 delegation, report remediation, and exit with code `2`.
 
+## Mandatory Mission Packet Lifecycle
+
+Follow the canonical lifecycle stage order in `the-copilot-build-method`;
+do not restate or reorder it here. For every story:
+
+1. Run `method packet project` before selecting work. Its projection is the
+   only queue view; never maintain a second queue for product work.
+2. Run `method packet build` with an explicit `--task`, `--story`, `--mode`,
+   writable `--implementation-root`, caller-owned
+   `--allowed-implementation-root`, and the authoritative repository as the
+   sole `--planning-root`.
+3. Retain the returned `authorization_hash` outside the packet. Before every
+   backlog transition and every worker delegation, run `method packet
+   preflight` with that exact caller-retained hash and allowed implementation
+   root.
+4. After every backlog status or evidence transition, run `method packet
+   reconcile` with the previously retained hash, then replace the retained
+   anchor with the returned `authorization_hash`. A refused reconciliation
+   blocks further work.
+5. After implementation, append verification evidence while the story remains
+   `in-progress`, reconcile that evidence-only revision, and run `method packet
+   verify` with the new caller-retained hash before review.
+6. Run `method packet verify` with the current caller-retained hash before
+   every story, epic, or theme completion claim. Reconcile story completion
+   first while both parents remain not-done. Epic completion is a later
+   parent-only revision with story status unchanged; theme completion is
+   another later parent-only revision with both story and epic status
+   unchanged. Never combine story, epic, or theme completion transitions in
+   one revision.
+
+Delegated agents consume only the packet's one-story scope, acceptance
+criteria, source manifest, workspace grants, and required gates. They must not
+infer broader authority from backlog prose or transport state.
+
+CopilotCockpit owns only durable worker delivery and worker lifecycle. It
+receives the projected packet, returns evidence for worker
+verification/review/Gitflow to Autopilot, and never owns or mirrors product
+status.
+
 ## Core Loop
 
-1. **Read** `docs/plan/backlog.yaml` — understand current status, resolve dependencies. If any story is `in-progress`, trigger crash recovery (see skill: `backlog-management`)
-2. **Select** next eligible story (all `depends-on` items `done`); prefer higher priority; process stories in order within an epic
-3. **Implement** — mark `in-progress`, delegate to **@developer** with story path + acceptance criteria
-4. **Review** — delegate to **@reviewer** with changed files list (skip for `type: trivial` stories — lightweight self-review only)
-   - `APPROVED` → mark `done`
+1. **Project** — use `method packet project`; if any story is `in-progress`, trigger crash recovery (see skill: `backlog-management`)
+2. **Build and preflight** — create the projected story's packet, retain its authorization hash, and preflight it before transition or delegation
+3. **Implement** — after preflight, mark `in-progress`, reconcile, preflight the updated packet, then delegate the packet to **@developer**
+4. **Review** — append verification evidence, reconcile its `in-progress →
+   in-progress` update, verify, then delegate to **@reviewer** with changed
+   files list (skip for `type: trivial` stories — lightweight self-review only)
+   - `APPROVE` → record approval and Gitflow evidence, reconcile, verify, then
+     mark only the story `done` and reconcile again
    - `REQUEST_CHANGES` → rework via @developer + re-review (max 2 iterations, then escalate)
-5. **Failures** — mark `failed` with reason; delegate to **@troubleshooter** (max 3 attempts, then escalate)
+5. **Failures** — preflight, mark `failed` with reason, reconcile, then preflight and delegate to **@troubleshooter** (max 3 attempts, then escalate)
 6. **Epic done** — all stories `done`:
    - **Small epic (≤3 stories)**: run full test suite → brief changelog entry → mark `done`
    - **Large epic (4+ stories)**: @developer `epic-integration` tests → @reviewer quality check → full changelog → mark `done`
-   Append changelog to `docs/plan/CHANGELOG.md`
+   Append changelog to `docs/plan/CHANGELOG.md`, then advance the epic in a
+   distinct parent-only revision and reconcile the packet with `done → done`.
 7. **Theme done** — all epics `done`:
    1. @developer runs `full-test-suite` (all tests)
    2. Verify release readiness — no `failed` stories, artifacts build, docs complete
    3. Create `docs/plan/RELEASE-<theme-id>.md`
    4. @product-owner revalidation against `docs/vision_of_product/VP<n>/`
-   5. Mark theme `status: done` in `docs/plan/backlog.yaml`
+   5. Mark theme `status: done` in a distinct parent-only backlog revision and
+      reconcile the packet while its story remains `done`
    6. **User checkpoint** — present demo summary; wait for user to **accept**, **reject**, or **amend** vision for next VP
    7. On user **accept**: record the theme acceptance and apply the split lock
       actions from `the-copilot-build-method`
@@ -67,6 +111,8 @@ delegation, report remediation, and exit with code `2`.
 
 - `docs/plan/backlog.yaml` is the **single source of truth** — read before every decision, write after every state change
 - Status lives **only** in backlog.yaml — never in story files
+- Packet projection is the only dispatch queue; do not copy backlog status into
+  a cockpit or orchestrator queue
 - Log each story/epic/theme completion to `docs/plan/session-log.md`
 - Create Gitflow evidence after each story completion via `gitflow-operator`;
   do not hand-write branch/MR/CI/release-note flows.

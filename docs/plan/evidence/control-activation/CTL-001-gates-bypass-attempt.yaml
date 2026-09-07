@@ -9,9 +9,9 @@ test-reference: tests/test_e4_self_hosted_validation.py::test_recovery_runner_ou
 test-sha256: bfc46cc0f634bf7d824c4151c9e7c4a1d3860b1ff53a162e601de5855b309962
 runner-path: bin/run-th3-e4-us5-evidence
 runner-sha256: 749669834d3cb5dcfaa7dc964e57828096a78ddf386590b8db8966d3565ac4fb
-source-input-sha256: 65d0561e6ab06787639067cb621d1326d3a78270acfeaa6611ec777efad8d6ed
-executed-input-sha256: b6a0b2a69c3f16df326150a3220feb6e26db0609de37021eda6395952f4f2a66
+source-input-sha256: ce2041eda50ec2d98ef6d25038f65a87d517bc3920c7ca035e2fa64329446b24
+executed-input-sha256: d184dc25f8a5cc1d6c9c1d165898ce3524f887ae62ad7e55d9a87f56754c8e2d
 run-output: docs/plan/evidence/control-activation/runs/CTL-001-gates-bypass-attempt.json
-run-output-sha256: 3444853d51e4745840c89ede0819986ff74e6d333e9ca8363bf1d446ec14215d
+run-output-sha256: 4d718ce9577e15184f8c17ce214a00e013ef1e37d6822d575f692a2065fa6791
 observed-exit: 2
-observed-at: '2026-09-07T12:19:40.450607+01:00'
+observed-at: '2026-09-07T21:32:40.265505+01:00'

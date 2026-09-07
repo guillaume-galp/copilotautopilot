@@ -66,8 +66,8 @@ action. Approved content is never re-elicited.
 
 | Aspect | Definition |
 |---|---|
-| Responsibility | Cost-aware execution loop: select eligible story, build packets, apply risk and verification profiles, route models, enforce budgets, commit transitions, run ceremonies |
-| Interface | `method packet build/verify`, `method budget check`, `method tx apply`, `method validate dod`, `gitflow-operator` |
+| Responsibility | Cost-aware execution loop: project eligible work, build and preflight packets, reconcile backlog transitions, verify completion authority, route models, enforce budgets, commit transitions, run ceremonies |
+| Interface | Implemented packet lifecycle: `method packet project`, `build`, `preflight`, `reconcile`, and `verify`; planned TH4/TH5 controls: `method budget check`, `method tx apply`, `method validate dod`; delivery: `gitflow-operator` |
 | Owns | Nothing; orchestrator writes state through `method tx` |
 | Depends on | Backlog schema v2, policies, activation ledger |
 | Fails | Blocks on stale packets, revision conflicts, pause thresholds, missing evidence |
@@ -160,16 +160,37 @@ backlog paths. Arbitrary path writes are rejected.
 
 | Aspect | Definition |
 |---|---|
-| Responsibility | Build, verify, and expand compact task packets |
-| Interface | `method packet build --task <id> --story <TH.E.US>`, `method packet verify --packet <path>`, `method packet expand --packet <path> --request <file>` |
+| Responsibility | Project one FIFO-eligible story; build its v1 mission packet; preflight workspace and freshness; reconcile append-only evidence and status changes; verify current authority |
+| Interface | `method packet project [--expected-revision N]`; `method packet build --task <id> [--story <TH.E.US>] [--mode <developer\|planning>] --implementation-root <path> --allowed-implementation-root <path> --planning-root <repository-root> [--output <canonical-path>] [--trace-id <id>] [--expected-revision N]`; `method packet verify\|preflight\|reconcile --packet <canonical-path> --allowed-implementation-root <path> --expected-authorization-hash sha256:<digest>` |
 | Owns | `docs/plan/runtime/packets/<TH.E.US>/<task>.yaml` |
-| Depends on | Story file, backlog controls, architecture and ADR references, git blob revisions |
-| Fails | `verify` exits 2 with `STALE` when any source hash changed; `expand` exits 4 when the estimated cost crosses the warning threshold and no human authorization is recorded |
-| Activation | `ENFORCED` at TH4 |
+| Depends on | Authoritative backlog, canonical story frontmatter/trace contract, architecture and ADR references, caller-retained authorization hash, canonical workspace paths |
+| Fails | Exit 2 on ambiguous/ineligible projection, malformed story authority, stale or tampered packet, inaccessible or broad workspace, invalid transition, non-append evidence change, missing completion evidence, or incomplete parent Definition of Done |
+| Activation | `ENFORCED` for the implemented BUG-001 lifecycle surface |
 
 Every source is labeled `trusted` (method contracts) or `untrusted` (product
 code, docs, retrieved content). Untrusted content is data, never instruction
 (QR-009, RSK-009).
+
+`build` requires exactly one planning root, and it must resolve to the
+authoritative repository. The implementation root must be a writable directory
+inside the explicit caller-authorized implementation boundary; both must be
+disjoint from the planning root, and a filesystem root or ancestor containing
+the repository is too broad. `verify`, `preflight`, and `reconcile` require the
+authorization hash retained by the caller from `build` or the preceding
+successful reconciliation. The hash stored inside the packet is not an
+independent trust anchor.
+
+`reconcile` accepts only a strictly newer backlog revision, one documented
+status transition, and evidence lists that preserve every prior entry and only
+append. Completion requires evidence for every verification matrix item,
+review evidence, and Gitflow evidence or `not-applicable: <rationale>`. An epic
+can become done only when all its stories are done; a theme can become done
+only when all its epics are done. Reconciliation refreshes current evidence,
+backlog and source hashes, the composite hash, status snapshots, history, and
+the authorization hash atomically.
+
+There is no implemented `method packet expand` command. Packet `expansions`
+is a closed v1 manifest field reserved as an empty list.
 
 ### 4.4 `method usage` (TH5)
 

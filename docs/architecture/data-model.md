@@ -247,37 +247,101 @@ review, CI, release, and usage summaries; raw lines are removed (PR-214).
 Path: `docs/plan/runtime/packets/<TH.E.US>/<task-id>.yaml`
 
 ```yaml
-packet-version: 1
-packet-id: TH3.E1.US1/impl-1
-generated-at: "<ISO-8601>"
-generator: method/0.1.0
-story: TH3.E1.US1
-scope: "<one bounded responsibility>"
-acceptance-criteria: [AC-1, AC-2]
-traceability: {vision: [VO-004], requirements: [PR-109], adrs: [ADR-005], invariants: [INV-007]}
-dependencies: [TH3.E1.US0]
-controls:
-  risk-tier: R1
-  model-class: balanced
+mission-packet-version: 1
+packet-kind: backlog-dispatch-mission
+task: impl-1
+mode: developer
+trace-id: TH3.E1.US1:impl-1
+generated-at: "<ISO-8601 timestamp with offset>"
+story: {id: TH3.E1.US1, title: "<title>", status: todo, priority: medium, file: "<story.md>"}
+backlog: {path: docs/plan/backlog.yaml, revision: 7, sha256: "<64 hex>"}
+theme: {id: TH3, status: in-progress, locked: false, vision-ref: "<path>", discovery-ref: "<path>", requirements-ref: "<path>"}
+epic: {id: TH3.E1, status: in-progress, depends-on: []}
+dependencies: {theme: [], epic: [], story: []}
+risk: {"<authoritative backlog risk block>"}
+model-route: {"<authoritative backlog route block>"}
+verification: {"<authoritative backlog verification block>"}
+review-profile: standard
+evidence-requirements:
   verification: [lint, unit]
-  budgets: {target: null, warning: null, pause: null, unit: AIC}
+  review: {required: true, profile: standard}
+  gitflow: {required: true, not-applicable: "not-applicable: <rationale>"}
+evidence-snapshot: {packets: [], verification: [], review: [], gitflow: [], usage: []}
+evidence-current: {packets: [], verification: [], review: [], gitflow: [], usage: []}
+workspace:
+  planning-roots: [{path: /absolute/authoritative-repository, access: read-only}]
+  allowed-implementation-root: /absolute/implementation-boundary
+  implementation-root: /absolute/implementation-boundary/checkout
+  permitted-actions: [read, write-implementation, test, review]
+  mutation-scope: [/absolute/implementation-boundary/checkout]
+  denied-paths: [/absolute/authoritative-repository]
+scope: {story-id: TH3.E1.US1, story-file: "<story.md>", maximum-stories: 1, mutation: implementation-root-only}
+story-frontmatter: {"<validated scope, agents, skills, traceability, and acceptance criteria>"}
+traceability: {vision: [VO-004], requirements: [PR-109], adrs: [ADR-005], invariants: [INV-007]}
+required-skills: [the-copilot-build-method, backlog-management, bdd-stories, code-quality]
+required-gates: [lint, unit, review]
+acceptance-criteria: [{AC1: "<criterion>"}]
+expected-result-locations: {packets: [docs/plan/runtime/packets/TH3.E1.US1/], verification: docs/plan/runtime/, review: docs/plan/runtime/}
 sources:
   - path: docs/themes/TH3-.../US1-....md
     trust: untrusted
-    sha256: "..."
-    git-revision: "<blob sha>"
+    sha256: "<64 hex>"
+    git-revision: "<40 hex or null>"
   - path: .github/skills/bdd-stories/SKILL.md
     trust: trusted
-    sha256: "..."
-    git-revision: "<blob sha>"
-composite-hash: "sha256:<sha256 over sorted '<path>:<sha256>' lines>"
-required-report: {fields: [outcome, changes, verification-evidence, usage, open-questions]}
-expansions: []   # {question, reason, risk, source, estimated-aic, authority, record}
+    sha256: "<64 hex>"
+    git-revision: "<40 hex or null>"
+required-report: {fields: [outcome, changes, verification-evidence, review-evidence, usage, open-questions]}
+expansions: []
+integration-boundary:
+  autopilot-owns: [backlog eligibility, mission packet generation, post-review status proposals]
+  cockpit-owns: [durable delivery lifecycle, worker acknowledgement, runtime evidence return]
+  cockpit-must-not-maintain: independently editable product backlog status
+composite-hash: "sha256:<digest>"
+authorization-hash: "sha256:<digest>"
+reconciliations: []
 ```
 
-`method packet verify` recomputes `composite-hash`; any difference is `STALE`
-and forces regeneration (PR-110, INV-007). Expansion appends a source, bumps
-`packet-version`, and journals the approval.
+This is the closed v1 top-level field set: unknown or missing fields fail
+validation. `project` reads the sole backlog authority and returns one
+dependency-eligible FIFO story. `build` requires task, implementation root, allowed implementation root, and
+the authoritative repository as its single planning root. Mode defaults to
+`developer`, though orchestrated calls always pass it explicitly; story is
+optional only to accept the current projection.
+Developer mode permits mutations only in the implementation root. Planning
+mode permits `read` and `propose`, has an empty mutation scope, and denies the
+implementation root. Planning and implementation roots must be disjoint, and
+the allowed implementation root must not be a broad ancestor of the planning
+repository.
+
+Sources include the backlog, story, required skills, architecture Markdown,
+theme planning references, and referenced ADRs. Each regular contained source
+is hashed; `composite-hash` hashes sorted `<path>:<sha256>` lines. `verify`
+recomputes current backlog, source, composite, authority, and workspace
+bindings. `preflight` adds current read/write access checks. Both require
+`--allowed-implementation-root` and the `authorization_hash` retained
+externally by the caller when `build` or the previous `reconcile` returned;
+recomputing the packet's internal hash cannot replace that anchor.
+
+`evidence-requirements` is derived from the verification matrix, required
+review profile, and Gitflow completion rule; it is not copied from current
+backlog evidence. `evidence-snapshot` preserves evidence at build time and
+`evidence-current` tracks the latest reconciled state. `reconcile` accepts only
+a strictly newer backlog revision, documented status changes, and monotonic
+append-only evidence lists. A done story requires evidence for each
+verification matrix entry, non-empty review evidence, and Gitflow evidence or
+an explicit `not-applicable: <rationale>` entry. Epic done requires every
+sibling story done; theme done requires every epic done.
+
+A successful reconciliation atomically refreshes backlog metadata, statuses,
+current evidence, source and composite hashes, appends a bounded reconciliation
+record, and returns a new authorization hash for the caller to retain. The
+record contains from/to backlog revisions and hashes, complete from/to
+theme/epic/story status snapshots, timestamp, and
+`reason: status-transition`.
+
+There is no implemented `method packet expand` command. The v1 `expansions`
+field is required to remain an empty reserved list.
 
 ## 9. Usage sample
 
