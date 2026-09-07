@@ -1,0 +1,17 @@
+evidence-version: 2
+control-id: CTL-014
+evidence-kind: bypass-attempt
+validator-check: docs
+recovery-case: active-doc-stale-then-removed
+fixture-path: tests/fixtures/method_recovery/cases.yaml
+fixture-sha256: dee8bf7f13d43b5397daaac01492b6ec16c6809b1f1620ebaa2b798d969b859e
+test-reference: tests/test_e4_self_hosted_validation.py::test_recovery_runner_outputs_are_bound_and_consumed
+test-sha256: bfc46cc0f634bf7d824c4151c9e7c4a1d3860b1ff53a162e601de5855b309962
+runner-path: bin/run-th3-e4-us5-evidence
+runner-sha256: 749669834d3cb5dcfaa7dc964e57828096a78ddf386590b8db8966d3565ac4fb
+source-input-sha256: 65d0561e6ab06787639067cb621d1326d3a78270acfeaa6611ec777efad8d6ed
+executed-input-sha256: 5ad18f51cd6875b164f47e77cba7a072e31d4fcf13b952be2a7da6ce9106539e
+run-output: docs/plan/evidence/control-activation/runs/CTL-014-docs-bypass-attempt.json
+run-output-sha256: e3f25f779969a3e4de268ddb5d6edb38c8554dba11a17f61a33a42be488481ef
+observed-exit: 2
+observed-at: '2026-09-07T11:50:12.601971+01:00'

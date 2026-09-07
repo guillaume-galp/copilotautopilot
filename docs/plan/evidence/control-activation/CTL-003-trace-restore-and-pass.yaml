@@ -1,0 +1,17 @@
+evidence-version: 2
+control-id: CTL-003
+evidence-kind: restore-and-pass
+validator-check: trace
+recovery-case: story-trace-dangling-then-restored
+fixture-path: tests/fixtures/method_recovery/cases.yaml
+fixture-sha256: dee8bf7f13d43b5397daaac01492b6ec16c6809b1f1620ebaa2b798d969b859e
+test-reference: tests/test_e4_self_hosted_validation.py::test_recovery_runner_outputs_are_bound_and_consumed
+test-sha256: bfc46cc0f634bf7d824c4151c9e7c4a1d3860b1ff53a162e601de5855b309962
+runner-path: bin/run-th3-e4-us5-evidence
+runner-sha256: 749669834d3cb5dcfaa7dc964e57828096a78ddf386590b8db8966d3565ac4fb
+source-input-sha256: 65d0561e6ab06787639067cb621d1326d3a78270acfeaa6611ec777efad8d6ed
+executed-input-sha256: 65d0561e6ab06787639067cb621d1326d3a78270acfeaa6611ec777efad8d6ed
+run-output: docs/plan/evidence/control-activation/runs/CTL-003-trace-restore-and-pass.json
+run-output-sha256: 8159e9d675b4c2638d3c943d10ad753d9633f969277cabfdd5d6870a151e90c4
+observed-exit: 0
+observed-at: '2026-09-07T11:50:12.050950+01:00'

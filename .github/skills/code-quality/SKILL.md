@@ -5,6 +5,10 @@ description: 'Review checklist for correctness, security, architecture complianc
 
 # Code Quality Skill
 
+Use `the-copilot-build-method` as the canonical lifecycle, gate, authority, and
+split-lock contract; this skill defines review quality only and does not
+restate that contract.
+
 ## Review Checklist
 
 ### 1) Correctness

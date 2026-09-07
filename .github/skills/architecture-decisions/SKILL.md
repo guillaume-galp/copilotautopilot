@@ -12,6 +12,8 @@ Path: `docs/ADRs/ADR-<NNN>-<slug>.md`
 Required sections:
 - `# ADR-<NNN>: <Title>`
 - `## Status` (`Proposed|Accepted|Deprecated|Superseded by ADR-<NNN>`)
+- `## Replacement` when this ADR replaces an accepted ADR, containing exactly
+  `| Replaces | ADR-<NNN> |` in a `Field | Value` metadata table
 - `## Context`
 - `## Decision`
 - `## Consequences` (positive / negative / risks)
@@ -20,10 +22,13 @@ Required sections:
 ## ADR Lifecycle & Lock Rules
 
 - Proposed → Accepted → Deprecated/Superseded
-- If associated theme is locked:
-  - ADR body is immutable
-  - create new ADR to change decision
-  - only permitted old-ADR edit: `Status: Superseded by ADR-<NNN>`
+- Determine ADR body lock timing and the sole status-line supersession
+  exception from `the-copilot-build-method`; never infer it from a generic
+  association alone.
+- A locked ADR may move to `Superseded by ADR-<NNN>` only when the exact
+  accepted replacement ADR carries the structured `Replacement` metadata
+  naming it. Free-text, negated, conditional, or hypothetical prose is not a
+  replacement relation.
 
 ## Tech-Stack Evaluation (minimal rubric)
 

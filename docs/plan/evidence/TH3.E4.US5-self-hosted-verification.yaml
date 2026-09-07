@@ -1,0 +1,251 @@
+report-version: 2
+story: TH3.E4.US5
+theme: TH3
+generated-at: '2026-09-07T11:54:43.745647+01:00'
+theme-status: done
+theme-accepted: true
+theme-locked: true
+waiver:
+  id: WVR-001
+  status: consumed
+control-states:
+  CTL-001: ENFORCED
+  CTL-002: ENFORCED
+  CTL-003: ENFORCED
+  CTL-004: MANUAL
+  CTL-005: SPECIFIED
+  CTL-006: SPECIFIED
+  CTL-007: SPECIFIED
+  CTL-008: SPECIFIED
+  CTL-009: SPECIFIED
+  CTL-010: SPECIFIED
+  CTL-011: SPECIFIED
+  CTL-012: SPECIFIED
+  CTL-013: SPECIFIED
+  CTL-014: ENFORCED
+generator:
+  path: bin/run-th3-e4-us5-evidence
+  sha256: 749669834d3cb5dcfaa7dc964e57828096a78ddf386590b8db8966d3565ac4fb
+source-snapshot:
+  semantics: freshness boundary for implementation, tests, fixtures, recovery outputs,
+    ledger, promotion, and story
+  aggregate-sha256: e76bba463afc9afc9d44589de793b525510c84f16d6873d5d901910abccbf721
+  files:
+  - path: bin/method
+    sha256: fd0708f028b800234dfe74cf580dbdd5b099beaeff916fb40842a0f7a862e280
+  - path: bin/run-th3-e4-us5-evidence
+    sha256: 749669834d3cb5dcfaa7dc964e57828096a78ddf386590b8db8966d3565ac4fb
+  - path: docs/plan/activation-ledger.yaml
+    sha256: 693fb56fff06b8c93a0c5e478acf46abc98b2c062a48de994310187501e1d304
+  - path: docs/plan/control-promotions/TH3.E4.US5.md
+    sha256: 5c083574e622292a1c5fba6a5a2c2ffc8db1ba239d1b0a7acf30998e5b7c1453
+  - path: docs/plan/evidence/control-activation/CTL-001-gates-bypass-attempt.yaml
+    sha256: 491b426d599aa5d28e40addcaacd5073736a61b212786f5ce2786ddfc4ad8643
+  - path: docs/plan/evidence/control-activation/CTL-001-gates-restore-and-pass.yaml
+    sha256: a215b19601cf68f00028f8e4ebf7bff8354e9843c437fe08410d9d3b24d4d0c2
+  - path: docs/plan/evidence/control-activation/CTL-002-schema-bypass-attempt.yaml
+    sha256: 932ae58361e8770dfcb050c93fe043bbd021066d75d80296ea0a119dc33406a9
+  - path: docs/plan/evidence/control-activation/CTL-002-schema-restore-and-pass.yaml
+    sha256: 746e4fb1d2c18b02a9a2e3f9cf6e86b63411061999fe45379ab4699cf39a47fe
+  - path: docs/plan/evidence/control-activation/CTL-003-lock-bypass-attempt.yaml
+    sha256: 8244f1ef8ee5690b12a94611c8ecd5a7a315b463e967e4ccab8a4ecdd187b818
+  - path: docs/plan/evidence/control-activation/CTL-003-lock-restore-and-pass.yaml
+    sha256: 9a5b8dc7edd685b03864cff173742b05b36c1d2771e921f385ef899d07bad044
+  - path: docs/plan/evidence/control-activation/CTL-003-trace-bypass-attempt.yaml
+    sha256: 49c444fa8ad025890bff73eb966cae3a6932104dba9bda3e8394a6d75fc6108d
+  - path: docs/plan/evidence/control-activation/CTL-003-trace-restore-and-pass.yaml
+    sha256: e99fac9cd4d240a3b7b1d5d5da9716f4a4e6fc2411b06d7454d35f476bc034de
+  - path: docs/plan/evidence/control-activation/CTL-014-docs-bypass-attempt.yaml
+    sha256: ad0be7fe2c32186d24cffa18fc93b09b8b01b285dd309d8dddbe44674cf9e3f0
+  - path: docs/plan/evidence/control-activation/CTL-014-docs-restore-and-pass.yaml
+    sha256: dcda1fb2318865faaf654130dfe5ce28091d5506c3f0a082a798e8cbbaaecc52
+  - path: docs/plan/evidence/control-activation/runs/CTL-001-gates-bypass-attempt.json
+    sha256: 21acdfd9d653303cc4f0495a11f0a91fa9df07c37e50cf818b8adb69fc7464bb
+  - path: docs/plan/evidence/control-activation/runs/CTL-001-gates-restore-and-pass.json
+    sha256: 8291a24c52447a6f56bd5ade61259dae83e32818cf8185be3d21df42e62d1e0c
+  - path: docs/plan/evidence/control-activation/runs/CTL-002-schema-bypass-attempt.json
+    sha256: 549a033f0abb8b60fab224e04e689d55f11351a7e6cd3244550684bd41e81432
+  - path: docs/plan/evidence/control-activation/runs/CTL-002-schema-restore-and-pass.json
+    sha256: c6ec2e7ca1dc6f02efebf372703c1db5b6e3c06d4e401a0bc7795d6e0d3d179d
+  - path: docs/plan/evidence/control-activation/runs/CTL-003-lock-bypass-attempt.json
+    sha256: d028b23ad5641130dcea5ab0ec51043831f9bca5f2f68f0917b3f4655f17fd85
+  - path: docs/plan/evidence/control-activation/runs/CTL-003-lock-restore-and-pass.json
+    sha256: 07d4db86843fd58839db18e242e5a9560c4e719fa7a79020578d26730d870da9
+  - path: docs/plan/evidence/control-activation/runs/CTL-003-trace-bypass-attempt.json
+    sha256: a31516e7cde7c93e733ebf23248a437720a4766b4547f27325e4a64799fec3ff
+  - path: docs/plan/evidence/control-activation/runs/CTL-003-trace-restore-and-pass.json
+    sha256: 8159e9d675b4c2638d3c943d10ad753d9633f969277cabfdd5d6870a151e90c4
+  - path: docs/plan/evidence/control-activation/runs/CTL-014-docs-bypass-attempt.json
+    sha256: e3f25f779969a3e4de268ddb5d6edb38c8554dba11a17f61a33a42be488481ef
+  - path: docs/plan/evidence/control-activation/runs/CTL-014-docs-restore-and-pass.json
+    sha256: c83a9010baddd42280432e46ce57e299bed1b81bb54cf02779d0a81b1e768add
+  - path: docs/themes/TH3-discovery-requirements-foundation/epics/E4-activation-migration-integration/stories/US5-self-hosted-validation-run.md
+    sha256: 4d287b1bb406995b38bac5783f28e1338b2aca8e22f115c2d7044fdf3d37b941
+  - path: methodlib/__init__.py
+    sha256: 1d04922c370e2c572fdb36526bb1fe6c5f8ff70e11fe949883da43cc5a705e1c
+  - path: methodlib/activation.py
+    sha256: ff1f9cc3eef256ce9a16bb71f1fa7e0a5cfd436a164f0f48868dd024732ef72e
+  - path: methodlib/backlog.py
+    sha256: b2ca5b7c20f765496a9a9fd7389541f335a931aba6a5b87cadcf86be16ec7e56
+  - path: methodlib/cli.py
+    sha256: bceb6c239bbb9ac7fd7f2966b53d6c175776804625957bc9628a99dfadf86afa
+  - path: methodlib/docs.py
+    sha256: 03f76d65c8b98fb078a1865c92d4b0df3fa8d185b289c7b9f77bb79b5f05e073
+  - path: methodlib/doctor.py
+    sha256: a20050f4da4fe68ae3e9765f8ba413bbe97324a0ef8929b2f5f18e7cf0926673
+  - path: methodlib/exits.py
+    sha256: 93392420da388011b86bd28f0ea53c3b0068093143422fae1b6a49d9bb342da4
+  - path: methodlib/gates.py
+    sha256: 0042e57a81427162ffd6f5806e85cff978994e255f1f6cf4cb550186cc3cb083
+  - path: methodlib/lock.py
+    sha256: 8cc13aed9210e2db25ae286fe27797ab3f8031b205da93a66cf508c28c76dc7e
+  - path: methodlib/migrate.py
+    sha256: ddc8542a1ad53021b7fd7f25034789cb094073cbd5756bc15e8ffa09c5935e43
+  - path: methodlib/records.py
+    sha256: 238419c3167a50314b20e1fd6ee819adf2dd2dbf9eb8ba3c026af339dbd8b54e
+  - path: methodlib/recovery.py
+    sha256: fca488d8f8d4deee1594f26fa8bac5f700c6380ff775e6b397fcbe1ad05ef08a
+  - path: methodlib/self_hosted.py
+    sha256: e61c269f1bad5c1728f9e4e23ba83d090c52d013fb3ee9d2dbfcdc0fd7012996
+  - path: methodlib/trace.py
+    sha256: 8e090701df457b74134914ee924f769882d851e4af899e9c87136c5a8146f346
+  - path: tests/fixtures/method_recovery/cases.yaml
+    sha256: dee8bf7f13d43b5397daaac01492b6ec16c6809b1f1620ebaa2b798d969b859e
+  - path: tests/fixtures/method_validate_all/failing/checks.yaml
+    sha256: bbfd213d54f5705c72455e91a97fc6ab003ed39922fd9f596cd0a23e1c467d0d
+  - path: tests/fixtures/method_validate_all/network_guard/sitecustomize.py
+    sha256: dd48f465edfe478c2ab691a38b5ca7bd4b4dafd3b660e1436e0915b7d4fe92dd
+  - path: tests/fixtures/method_validate_all/passing/checks.yaml
+    sha256: 5aabb26b2aadfe495bb0ec75d553669efd0215d1c102fb82b9b89f67c4ba5d1a
+  - path: tests/test_artefact_templates_contract.py
+    sha256: a790cfe57d27414ef685eabd53a2946e47094d37dc7be1c2775603f54e0076dc
+  - path: tests/test_discover_skill_contract.py
+    sha256: 5eb897eaf73d14fb62cef3e389823d71ca40e11085114ef747c2313e5b76af9f
+  - path: tests/test_discovery_dossier_contract.py
+    sha256: 8eb5149cd3151c326be9b3ca372dec4beb2197e00e0d07f0ad132e698ca4df8a
+  - path: tests/test_discovery_facilitator_agent_contract.py
+    sha256: 7adaa7e7b7d86adc7489b38eae25ba2c535312b1b30490db59521975a3a26f8f
+  - path: tests/test_e1_integration_contract.py
+    sha256: 11de98e00ab8c4fdb7bee2e9d6b1ee012236ae8a70419be3d87536387a78c48b
+  - path: tests/test_e2_integration_contract.py
+    sha256: 67bd533b90dc11964c773cf3635cd4e298aac6fd8c9004418d4f1f4da8d7bcce
+  - path: tests/test_e3_integration_contract.py
+    sha256: 97583e9b9bea7474309292cd58829ef0a013a669c7ef6d524fa9204d431751a6
+  - path: tests/test_e4_integration_contract.py
+    sha256: ae870fc8a163b222c244d7f2a3114b34f2f761f727f3eb68f61f495d8ee687b2
+  - path: tests/test_e4_self_hosted_validation.py
+    sha256: bfc46cc0f634bf7d824c4151c9e7c4a1d3860b1ff53a162e601de5855b309962
+  - path: tests/test_gitflow_operator.py
+    sha256: eb3cf994eebb6c6d859fefaa5dca3f7cdd3603d58405dfe20b42789655b4f371
+  - path: tests/test_investigator_agent_contract.py
+    sha256: 8704ba74d67f5fdf5fee982f01b57b26a0e76a280f064ea34560be1ce2cb3a7a
+  - path: tests/test_lifecycle_contract.py
+    sha256: 06a8bc288d3dd1ad65df5507cf9b4a22cf9d32f5f0e411b27515e3b92cc421b9
+  - path: tests/test_lifecycle_documentation_migration.py
+    sha256: d5306b71bcde8c311e2415ae8368f2465f0f7f1282004823e55f81239f3568ae
+  - path: tests/test_method_activation.py
+    sha256: 215d0910d9a1e3b30f17a756e1e8a8f2a23f3d2caec19012a22e1564e3680beb
+  - path: tests/test_method_backlog.py
+    sha256: 19e43015d682403f734c66b28688dc5dfb8ee91de2aa32ea83c24f50eabf3358
+  - path: tests/test_method_cli.py
+    sha256: 05b07db115920ffdf680cc7e9e00a6418bafba3cd315ac888f72e0cab487c25c
+  - path: tests/test_method_docs.py
+    sha256: 6ec8fe3aa3258c6aaaffa86d89623b4297029e3c7bf75361744432da515476a1
+  - path: tests/test_method_gates.py
+    sha256: 268a3ee504a8a000e2059ba66f00edbc2fd27401ee13c1c043548e7622fda29c
+  - path: tests/test_method_lock.py
+    sha256: d0a06cc3616cbc34cf2b326920e53a7336126e5a19cb93181c1d6fdce738d1bb
+  - path: tests/test_method_migrate.py
+    sha256: bd8e4b58e8ae3d1e6af4d730bc2c2519acb5077679c3530bb0a955bb63e4fb4b
+  - path: tests/test_method_records.py
+    sha256: 223d8f96194c147304e47c96f40aaaed3b385885b3f674818c64ad03045ab0c8
+  - path: tests/test_method_trace.py
+    sha256: 55bfa001a16c9143af5c6aebdf44f3fac786250f8513975a947fdbb1243972df
+  - path: tests/test_plan_skill_contract.py
+    sha256: e1eb3e776913393ff8b7efbaa749cf04bcb3db563eeb4914fd91125b1900a316
+  - path: tests/test_product_requirements_contract.py
+    sha256: 28b6ab396316a98ea617c33e0bc9de544337b4abb700253c87fcedde5ceeaf46
+  - path: tests/test_requirements_facilitator_agent_contract.py
+    sha256: 4b95828e92241d45335ef6f01946758b2d538c6a64dfc271b94ec45d8aa8ac99
+  - path: tests/test_requirements_skill_contract.py
+    sha256: 8c952e327d333f31f07313d82fdb5da014c12bb0765d7748efdee07b501695f8
+  - path: tests/test_skill_gitflow_contract.py
+    sha256: 5fb132c14681ee61cec868f74f6f1fe13e8e055b65d996c8a8127e1697470a4f
+protected-snapshot:
+  semantics: immutable accepted TH1/TH2/TH3 theme, archive, and dependent ADR bytes
+    verified before report generation
+  scopes:
+  - docs/ADRs/ADR-001-gitflow-operator.md
+  - docs/ADRs/ADR-002-six-stage-gated-lifecycle.md
+  - docs/ADRs/ADR-003-markdown-records-and-local-validator.md
+  - docs/ADRs/ADR-004-backlog-schema-v2-and-transitions.md
+  - docs/ADRs/ADR-005-agent-packets-and-source-hashing.md
+  - docs/ADRs/ADR-006-risk-verification-and-model-routing.md
+  - docs/ADRs/ADR-007-usage-adapter-and-budget-enforcement.md
+  - docs/ADRs/ADR-008-multi-theme-lock-and-activation-ledger.md
+  - docs/plan/backlog-archive/TH1.yaml
+  - docs/plan/backlog-archive/TH2.yaml
+  - docs/plan/backlog-archive/TH3.yaml
+  - docs/themes/TH1-methodology-improvements
+  - docs/themes/TH2-gitflow-operator
+  - docs/themes/TH3-discovery-requirements-foundation
+  - docs/vision_of_product/VP1-mvp
+  - docs/vision_of_product/VP2-gitflow-operator
+  file-count: 79
+  aggregate-sha256: 9da8ae6697f017221dc4250f26681688fb9385fd1ce5cfe7884856f1f27cbd02
+  verified-by: protected-lock
+  verified-at: '2026-09-07T11:50:13.696738+01:00'
+bounded-snapshots:
+  backlog:
+    artifact: backlog-snapshot
+    observed-at: '2026-09-07T11:50:13.696738+01:00'
+    semantics: point-in-time copy used by this run; not an immutable baseline and
+      not compared with later orchestrator state
+  session-log:
+    semantics: 'omitted: orchestrator-owned mutable log; no immutable-baseline claim'
+artifacts:
+- id: protected-lock
+  kind: command-output
+  path: docs/plan/evidence/self-hosted-run/protected-lock.json
+  sha256: afa29274b018840d1a01b8cec0db84716122cc464dbe38ab7eac95e026c5e5cc
+- id: self-hosted
+  kind: command-output
+  path: docs/plan/evidence/self-hosted-run/self-hosted.json
+  sha256: 469fed1a7f27f3be0683410a50c290583d5578b8781ef06f03a9468374fec82e
+- id: loaded-validation
+  kind: command-output
+  path: docs/plan/evidence/self-hosted-run/loaded-validation.json
+  sha256: 72fe3bd201cd82dfe06d7d7c8237dd077db33285a081e92e06cefe38edd5e2d2
+- id: network-namespace
+  kind: network-proof
+  path: docs/plan/evidence/self-hosted-run/network-namespace.json
+  sha256: fcf2e6dce9b9923f7a9633ac323fbda694de49aaf43db056a2e7ef0378168913
+- id: full-pytest
+  kind: test-output
+  path: docs/plan/evidence/self-hosted-run/full-pytest.json
+  sha256: abf8e87dd5937a5039fa04be620ae376e2ae9caab9bf4b4944dcecfc00e383f2
+- id: backlog-snapshot
+  kind: bounded-snapshot
+  path: docs/plan/evidence/self-hosted-run/backlog-at-validation.yaml
+  sha256: 2fe8f9ce9ed542df7d70688f78f3fa026f2ecabcddc06dd49b8b037332259728
+verification:
+  self-hosted:
+    artifact: self-hosted
+    budget-seconds: 5
+  loaded:
+    artifact: loaded-validation
+    record-multiplier-threshold-exclusive: 3
+    budget-seconds: 5
+  network:
+    artifact: network-namespace
+    mechanism: bubblewrap --unshare-net
+    child-inclusive: true
+  recovery:
+    validator: method validate maturity
+    controls:
+    - CTL-001
+    - CTL-002
+    - CTL-003
+    - CTL-014
+  full-suite:
+    artifact: full-pytest

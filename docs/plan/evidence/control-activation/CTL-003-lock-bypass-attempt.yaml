@@ -1,0 +1,17 @@
+evidence-version: 2
+control-id: CTL-003
+evidence-kind: bypass-attempt
+validator-check: lock
+recovery-case: locked-story-edited-then-restored
+fixture-path: tests/fixtures/method_recovery/cases.yaml
+fixture-sha256: dee8bf7f13d43b5397daaac01492b6ec16c6809b1f1620ebaa2b798d969b859e
+test-reference: tests/test_e4_self_hosted_validation.py::test_recovery_runner_outputs_are_bound_and_consumed
+test-sha256: bfc46cc0f634bf7d824c4151c9e7c4a1d3860b1ff53a162e601de5855b309962
+runner-path: bin/run-th3-e4-us5-evidence
+runner-sha256: 749669834d3cb5dcfaa7dc964e57828096a78ddf386590b8db8966d3565ac4fb
+source-input-sha256: 65d0561e6ab06787639067cb621d1326d3a78270acfeaa6611ec777efad8d6ed
+executed-input-sha256: 1f4101a82cb54a587396c0e6154c02524fb8bf6e4e040688f0fd02391b8dfa28
+run-output: docs/plan/evidence/control-activation/runs/CTL-003-lock-bypass-attempt.json
+run-output-sha256: d028b23ad5641130dcea5ab0ec51043831f9bca5f2f68f0917b3f4655f17fd85
+observed-exit: 2
+observed-at: '2026-09-07T11:50:10.306761+01:00'

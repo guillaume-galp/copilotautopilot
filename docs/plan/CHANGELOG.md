@@ -1,5 +1,151 @@
 # Changelog
 
+## Epic TH3.E4 — Activation, migration, and lifecycle integration
+
+### Stories Completed
+- TH3.E4.US1: Activation ledger and validate maturity check
+- TH3.E4.US2: Migration assessment command and artefact
+- TH3.E4.US3: Lifecycle documentation migration to the six-stage lifecycle
+- TH3.E4.US4: TH3 usage-evidence waiver and honest acceptance reporting
+- TH3.E4.US5: TH3 self-hosted validation run
+- TH3.E4.US6: validate docs check and lifecycle documentation tests
+
+### Key Changes
+- Added a truthful activation ledger and fail-closed maturity validator with
+  human promotion provenance and machine-bound recovery evidence.
+- Added deterministic prospective migration assessment with protected-output
+  enforcement, bounded input traversal, and honest unknown legacy evidence.
+- Migrated active documentation to the canonical six-stage lifecycle and added
+  `validate docs` plus aggregate `validate all`.
+- Added scoped WVR-001 validation and honest usage/control reporting without
+  weakening acceptance, verification, review, or Gitflow requirements.
+- Self-hosted all six validators with retained corrupt/restore, load, full-suite,
+  protected-state, and process-wide network-isolation evidence.
+
+### Files Modified
+- `bin/method`
+- `bin/run-th3-e4-us5-evidence`
+- `methodlib/activation.py`
+- `methodlib/docs.py`
+- `methodlib/migrate.py`
+- `methodlib/recovery.py`
+- `methodlib/self_hosted.py`
+- `docs/plan/activation-ledger.yaml`
+- `docs/plan/migration-assessment.md`
+- `docs/plan/TH3.E4.US3-lifecycle-migration-inventory.md`
+- `docs/plan/control-promotions/`
+- `docs/plan/evidence/`
+- `docs/plan/waivers/TH3-usage-evidence.md`
+- `tests/test_method_activation.py`
+- `tests/test_method_docs.py`
+- `tests/test_method_migrate.py`
+- `tests/test_e4_self_hosted_validation.py`
+- `tests/test_e4_integration_contract.py`
+
+## Epic TH3.E3 — Interactive Discovery and requirements workflow
+
+### Stories Completed
+- TH3.E3.US1: discover interactive skill
+- TH3.E3.US2: discovery-facilitator agent
+- TH3.E3.US3: investigator agent with untrusted-evidence handling
+- TH3.E3.US4: requirements interactive skill
+- TH3.E3.US5: requirements-facilitator agent
+- TH3.E3.US6: plan stage gating and human architecture checkpoint
+
+### Key Changes
+- Added fail-closed interactive Discovery and requirements workflows with
+  resumable working state and retained human approval authority.
+- Added thin facilitator and investigator agents with bounded delegation,
+  evidence provenance, instruction-injection isolation, and secret redaction.
+- Added canonical handling for prospective `WAIVED` Discovery disposition
+  without prematurely opening the requirements gate.
+- Split planning into architecture and planning stages with independent gate
+  validation, architecture-only output, PRD-backed invariants, and append-only
+  schema-v2 theme allocation.
+- Preserved PRD ownership of `VO-###` records and Discovery ownership of
+  `DEF-###` records throughout the integrated trace flow.
+
+### Files Modified
+- `.github/skills/discover/SKILL.md`
+- `.github/skills/requirements/SKILL.md`
+- `.github/skills/plan/SKILL.md`
+- `.github/agents/discovery-facilitator.agent.md`
+- `.github/agents/investigator.agent.md`
+- `.github/agents/requirements-facilitator.agent.md`
+- `.github/agents/architect.agent.md`
+- `.github/agents/product-owner.agent.md`
+- `methodlib/gates.py`
+- `tests/test_*skill_contract.py`
+- `tests/test_*facilitator_agent_contract.py`
+- `tests/test_investigator_agent_contract.py`
+- `tests/test_plan_skill_contract.py`
+- `tests/test_e3_integration_contract.py`
+
+## Epic TH3.E2 — Local method CLI and TH3 contract validators
+
+### Stories Completed
+- TH3.E2.US1: method CLI foundation and methodlib core
+- TH3.E2.US2: Markdown record parser and ID index
+- TH3.E2.US3: validate schema check
+- TH3.E2.US4: validate gates check
+- TH3.E2.US5: validate lock check
+- TH3.E2.US6: validate trace check
+
+### Key Changes
+- Added the offline `method` CLI, shared exit codes, deterministic JSON framing,
+  and local capability diagnostics.
+- Added inert Markdown record parsing and schema, gate, lock, and trace
+  validators with fail-closed findings.
+- Preserved locked TH1/TH2 and legacy schema compatibility while enforcing
+  schema v2 for active work.
+- Reconciled PRD-owned VP3 Vision outcomes, Discovery-owned deferrals, and
+  structured architecture trace declarations.
+- Added VP-scoped transitive trace validation with progressive per-theme
+  downstream obligations.
+
+### Files Modified
+- `bin/method`
+- `methodlib/`
+- `.github/skills/backlog-management/SKILL.md`
+- `.github/skills/bdd-stories/SKILL.md`
+- `docs/architecture/README.md`
+- `docs/architecture/data-model.md`
+- `docs/ADRs/ADR-002-six-stage-gated-lifecycle.md`
+- `tests/test_method_*.py`
+- `tests/test_e2_integration_contract.py`
+
+## Epic TH3.E1 — Lifecycle contracts and structured artefact schemas
+
+### Stories Completed
+- TH3.E1.US1: Six-stage lifecycle and gate contract
+- TH3.E1.US2: Discovery dossier record schema
+- TH3.E1.US3: Product requirements record schema
+- TH3.E1.US4: Lifecycle artefact templates and gate records
+
+### Key Changes
+- Established one canonical six-stage lifecycle, fail-closed gate contract,
+  planning admission, and split multi-theme lock semantics.
+- Added prospective, append-only Discovery and product-requirements schemas
+  with attributable approvals, traceability, revisions, and ownership rules.
+- Added complete dossier, PRD, EXP, DR, PCR, gate, waiver, and working-state
+  templates with non-accepted placeholders.
+- Added integrated contract coverage for stage admission, schema ownership,
+  template alignment, append-only history, and legacy compatibility.
+
+### Files Modified
+- `.github/skills/the-copilot-build-method/`
+- `.github/skills/discovery-dossier/`
+- `.github/skills/product-requirements/`
+- `.github/skills/plan/SKILL.md`
+- `.github/agents/`
+- `docs/architecture/`
+- `docs/ADRs/ADR-002-six-stage-gated-lifecycle.md`
+- `tests/test_lifecycle_contract.py`
+- `tests/test_discovery_dossier_contract.py`
+- `tests/test_product_requirements_contract.py`
+- `tests/test_artefact_templates_contract.py`
+- `tests/test_e1_integration_contract.py`
+
 ## v0.8.0 — 2026-07-31
 
 ### Key Changes

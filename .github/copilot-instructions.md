@@ -2,13 +2,12 @@
 
 ## Purpose
 
-Template repo for autonomous product development with a 4-phase lifecycle:
-1. Vision (`kickstart` skill)
-2. Architecture (`plan` skill step 1)
-3. Planning (`plan` skill step 2)
-4. Autopilot execution (`autopilot` skill)
-
-Core lifecycle entrypoints are skills (`kickstart`, `plan`, `autopilot`); legacy prompt names (`/kickstart-vision`, `/plan-product`, `/run-autopilot`) are deprecated and should not be used.
+Template repo for autonomous product development. The authoritative stage
+order, entrypoints, artefacts, gates, authorities, and split lock scope are
+defined only by the `the-copilot-build-method` skill. The method has six
+stages exposed through five entrypoints; use that skill's canonical map rather
+than restating the stage sequence here. Legacy prompt names are deprecated;
+use the entrypoints named by the canonical skill.
 
 ## Core State (authoritative)
 
@@ -27,8 +26,8 @@ Core lifecycle entrypoints are skills (`kickstart`, `plan`, `autopilot`); legacy
 
 ## Skills Map
 
-- Lifecycle/conventions: `the-copilot-build-method`
-- Lifecycle entrypoints: `kickstart`, `plan`, `autopilot`
+- Lifecycle, entrypoints, gates, authority, and locks:
+  `the-copilot-build-method`
 - Story format: `bdd-stories`
 - Backlog rules: `backlog-management`
 - Review/security: `code-quality`
@@ -50,8 +49,8 @@ Graphify over grep-style search.
 - Never skip troubleshooter for failed stories.
 - Never skip code-quality review at epic boundary.
 - At theme boundary, move old templates from `.github/ISSUE_TEMPLATE/TH<n>-*.md` to `.github/ISSUE_TEMPLATE/archive/`.
-- If theme has `locked: true`, associated VP/theme/story artefacts and ADR bodies are immutable.
-  - Only allowed locked-ADR edit: update `Status:` to `Superseded by ADR-<NNN>` when creating a new ADR.
+- Apply the split lock and ADR supersession rules from
+  `the-copilot-build-method`; do not infer VP-level lock from one theme alone.
 
 ## Token-Efficient Execution Defaults (GPT-5.4+ / Sonnet 4.6+)
 

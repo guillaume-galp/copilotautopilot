@@ -1,12 +1,15 @@
 # The Autopilot Squad
 
 The Copilot Build Method is powered by a squad of specialized agents, each with a focused role in the product development lifecycle.
+The lifecycle stage order and stage-to-entrypoint mapping are owned only by
+the `the-copilot-build-method` skill; this file describes roles without
+redefining that contract.
 
 ## Squad Overview
 
 ```
                     ┌─────────────────┐
-                    │   ORCHESTRATOR   │  Phase 4: Local Autopilot Loop
+                    │   ORCHESTRATOR   │  Local delivery loop
                     │  (squad leader)  │
                     └────────┬────────┘
                              │ delegates to
@@ -18,45 +21,39 @@ The Copilot Build Method is powered by a squad of specialized agents, each with 
    └────────────┘      └────────────┘       └────────────┘
 
    ┌──────────┐     ┌───────────────┐
-   │ ARCHITECT │────►│ PRODUCT OWNER │  Phases 2-3: Design & Plan
+   │ ARCHITECT │────►│ PRODUCT OWNER │  Design and plan
    └──────────┘     └───────────────┘
 ```
 
 ## Agent Details
 
 ### Orchestrator
-- **Phase**: 4 (Local Autopilot Execution)
 - **Role**: Squad leader. Reads the backlog, sequences work, delegates to subagents, manages the full lifecycle loop. Generates changelogs at epic boundaries and release notes at theme boundaries.
 - **Skills**: `the-copilot-build-method`, `backlog-management`
 - **Delegates to**: All other agents
 - **Invocable**: By user (via `/run-autopilot`)
 
 ### Product Owner
-- **Phase**: 3 (Planning)
 - **Role**: Transforms product vision into themes, epics, and BDD user stories. Builds the backlog. Generates one GitHub issue template per epic (`.github/ISSUE_TEMPLATE/TH<n>-E<m>-<slug>.md`). Revalidates vision at theme completion.
 - **Skills**: `the-copilot-build-method`, `bdd-stories`, `backlog-management`
 - **Invocable**: By user or orchestrator
 
 ### Architect
-- **Phase**: 2 (Architecture)
 - **Role**: Analyzes product vision and produces system architecture, tech stack decisions, and ADRs.
 - **Skills**: `the-copilot-build-method`, `architecture-decisions`
 - **Invocable**: By user (via `/plan-product`)
 
 ### Developer
-- **Phase**: 4 (Local Autopilot Execution)
 - **Role**: Implements AND tests exactly one user story per session. Writes production code, test files, runs builds and tests.
 - **Skills**: `the-copilot-build-method`, `bdd-stories`
 - **Invocable**: Subagent only (orchestrator delegates)
 
 ### Reviewer
-- **Phase**: 4 (Local Autopilot Execution)
 - **Role**: Code review for correctness, security (OWASP Top 10), architecture compliance, and conventions.
 - **Skills**: `the-copilot-build-method`, `code-quality`
 - **Invocable**: Subagent only (orchestrator delegates)
 
 ### Troubleshooter
-- **Phase**: 4 (Failure Recovery)
 - **Role**: Diagnoses and fixes failed stories. Root-cause analysis, minimal fix, verification.
 - **Skills**: `the-copilot-build-method`, `bdd-stories`, `code-quality`
 - **Invocable**: Subagent only (orchestrator delegates)
@@ -93,12 +90,8 @@ The Copilot Build Method is powered by a squad of specialized agents, each with 
 **git CLI** — `git status/diff/log/blame/commit`: file diffs, commit history, making commits  
 **gh CLI** — `gh run view/list`, `gh pr list`: CI log retrieval, PR status, issue management
 
-## Lifecycle Prompts
+## Lifecycle Entrypoints
 
-| Prompt | Agent(s) | Phase |
-|:---|:---|:---|
-| `/kickstart-vision` | ask (interactive) | 1 |
-| `/plan-product` | architect → product-owner | 2-3 |
-| `/run-autopilot` | orchestrator → all | 4 (local) |
-| `/review` | reviewer | 4 (ad-hoc) |
-| `/troubleshoot` | troubleshooter | 4 (ad-hoc) |
+Use the active entrypoints and agent assignments named in the canonical
+`the-copilot-build-method` lifecycle table. Historical slash-command prompt
+names are deprecated and are not lifecycle authorities.

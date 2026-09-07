@@ -5,6 +5,10 @@ description: "Mandatory Gitflow tool contract for autopilot skills: branch from 
 
 # Gitflow Operator Skill
 
+Use `the-copilot-build-method` as the canonical lifecycle, gate, authority, and
+split-lock contract; this skill defines delivery Gitflow only and does not
+restate that contract.
+
 ## Scope
 
 Use this skill whenever an autopilot delivery needs Git operations: branch,
