@@ -9,16 +9,16 @@
 | Status | Accepted |
 | Date | 2026-09-05 |
 
-## Acceptance
+## Approval
 
 | Field | Value |
 |---|---|
 | Actor | Human: product owner |
-| Timestamp | 2026-09-06T21:41:37+01:00 |
-| Scope | VP3 architecture/ADR ownership and structured trace reconciliation |
+| Timestamp | 2026-09-07T18:06:28+01:00 |
+| Scope | VP3 architecture packet dispatch, workspace authorization, reconciliation, and Cockpit boundary |
 | Verdict | Accepted |
-| Rationale | No product, lifecycle, or technical decision changed. |
-| Source revision | sha256:3a28033557297230549656619a28d46ecd9c5e1a2a245f39a8991c5fca7b2ece |
+| Rationale | BUG-001 closes the missing executable backlog projection and mission workspace contract with caller-bound authorization, fail-closed preflight, lifecycle reconciliation, evidence and Definition of Done enforcement, and aligned orchestrator documentation. |
+| Source revision | sha256:fe8aef4134fa0a9d89c6254fa04982c9f03a254af02cc7e947f78928640a6a53 |
 
 ## Structured trace declaration
 

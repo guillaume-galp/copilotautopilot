@@ -30,7 +30,7 @@ methodlib/
   trace.py                     traceability graph resolution
   backlog.py                   schema v2 load, validate, closed op vocabulary
   txn.py                       lock, prepare, atomic replace, journal, recover
-  packets.py                   manifest build, composite hashing, verify, expand
+  packet.py                    project/build/preflight/reconcile/verify lifecycle
   usage.py                     adapter chain and confidence labeling
   budget.py                    nested scopes, thresholds, overshoot, dispositions
   activation.py                control maturity ledger checks
@@ -49,7 +49,7 @@ tests/
   test_method_trace.py         dangling and missing traceability
   test_method_backlog.py       schema v1/v2 coexistence and op vocabulary
   test_method_txn.py           conflict, abort, recovery, ordering
-  test_method_packets.py       composite hash, staleness, expansion authority
+  test_method_backlog.py       backlog schema and packet lifecycle contracts
   test_method_usage.py         measured/estimated/unknown, never zero
   test_method_budget.py        target/warning/pause, overshoot, route fallback
   test_method_activation.py    maturity promotion evidence
@@ -70,9 +70,23 @@ bin/method validate all --json
 bin/method validate gates --vp VP3 --stage architecture
 bin/method migrate assess
 
-bin/method packet build --story TH4.E1.US1 --task impl-1
-bin/method packet verify --packet docs/plan/runtime/packets/TH4.E1.US1/impl-1.yaml
-bin/method packet expand --packet <path> --request expansion.yaml
+bin/method packet project --expected-revision 7
+bin/method packet build --task impl-1 --story TH4.E1.US1 --mode developer \
+  --implementation-root /work/implementation/checkout \
+  --allowed-implementation-root /work/implementation \
+  --planning-root /work/authoritative-repository --expected-revision 7
+bin/method packet preflight \
+  --packet docs/plan/runtime/packets/TH4.E1.US1/impl-1.yaml \
+  --allowed-implementation-root /work/implementation \
+  --expected-authorization-hash sha256:<digest-returned-by-build>
+bin/method packet reconcile \
+  --packet docs/plan/runtime/packets/TH4.E1.US1/impl-1.yaml \
+  --allowed-implementation-root /work/implementation \
+  --expected-authorization-hash sha256:<previous-digest>
+bin/method packet verify \
+  --packet docs/plan/runtime/packets/TH4.E1.US1/impl-1.yaml \
+  --allowed-implementation-root /work/implementation \
+  --expected-authorization-hash sha256:<current-digest>
 
 bin/method usage sample --scope TH5.E1.US1 --baseline
 bin/method budget check --scope TH5.E1.US1 --class reasoning
@@ -82,6 +96,20 @@ bin/method tx apply --expected-revision 7 --ops ops.yaml --actor orchestrator
 bin/method tx recover
 bin/method report theme --id TH5 --growth
 ```
+
+The packet command implements only `project`, `build`, `preflight`,
+`reconcile`, and `verify`; there is no implemented `expand` action. Relative
+packet paths are canonical repository paths. Workspace arguments resolve to
+existing directories. The planning root is exactly the authoritative
+repository, while the writable implementation root is contained by a
+caller-selected allowed implementation root that neither overlaps nor contains
+the planning repository.
+
+The caller retains the `authorization_hash` returned by `build` and each
+successful `reconcile`; the packet's copy cannot authorize itself. Use that
+external value for `preflight`, `reconcile`, and `verify`. Reconcile after
+every backlog status or evidence transition, and verify before review or
+completion.
 
 ## Exit codes
 

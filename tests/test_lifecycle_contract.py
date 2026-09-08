@@ -1,8 +1,12 @@
 import re
+import sys
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from methodlib import cli  # noqa: E402
 CONTRACT = (
     ROOT / ".github" / "skills" / "the-copilot-build-method" / "SKILL.md"
 )
@@ -232,6 +236,70 @@ def test_active_entrypoints_validate_their_gates_before_actions():
     assert "perform no state transition" in normalized_admission
     assert "perform no delegation" in normalized_admission
     assert "exit with code `2`" in normalized_admission
+
+
+def test_autopilot_and_orchestrator_require_the_complete_packet_lifecycle():
+    paths = (
+        ROOT / ".github/agents/orchestrator.agent.md",
+        ROOT / ".github/skills/autopilot/SKILL.md",
+    )
+    for path in paths:
+        text = path.read_text(encoding="utf-8")
+        normalized = " ".join(text.split())
+        for action in ("project", "build", "preflight", "reconcile", "verify"):
+            assert f"method packet {action}" in normalized, (path, action)
+        assert "caller-retained" in normalized
+        assert "After every backlog status or evidence transition" in normalized
+        assert "only the packet" in normalized
+        assert "second queue" in normalized
+        assert "Cockpit" in normalized
+        assert "durable worker" in normalized
+        assert "returns evidence" in normalized
+        assert "canonical lifecycle stage order" in normalized
+        assert "verification evidence" in normalized
+        assert "in-progress" in normalized
+        assert "parent-only revision" in normalized
+        assert "Never combine story, epic, or theme completion transitions" in normalized
+        assert "done" in normalized
+
+
+def test_architecture_packet_examples_match_the_implemented_cli():
+    components = (ROOT / "docs/architecture/components.md").read_text(
+        encoding="utf-8"
+    )
+    data_model = (ROOT / "docs/architecture/data-model.md").read_text(
+        encoding="utf-8"
+    )
+    setup = (ROOT / "docs/architecture/project-setup.md").read_text(
+        encoding="utf-8"
+    )
+    architecture = "\n".join((components, data_model, setup))
+
+    assert cli.PACKET_ACTIONS == (
+        "project",
+        "build",
+        "verify",
+        "preflight",
+        "reconcile",
+    )
+    for action in cli.PACKET_ACTIONS:
+        assert f"bin/method packet {action}" in setup
+    for option in (
+        "--task",
+        "--mode",
+        "--implementation-root",
+        "--allowed-implementation-root",
+        "--planning-root",
+        "--packet",
+        "--expected-authorization-hash",
+    ):
+        assert option in setup
+    assert "mission-packet-version: 1" in data_model
+    assert "evidence-requirements:" in data_model
+    assert "evidence-snapshot:" in data_model
+    assert "evidence-current:" in data_model
+    assert "There is no implemented `method packet expand` command" in architecture
+    assert "bin/method packet expand" not in architecture
 
 
 def test_multi_theme_lock_scope_keeps_shared_vp_artefacts_revisable():

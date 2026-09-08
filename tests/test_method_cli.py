@@ -18,12 +18,12 @@ from methodlib import cli, doctor, exits  # noqa: E402
 METHOD = ROOT / "bin" / "method"
 EXPECTED_RESERVED_COMMANDS = (
     "tx",
-    "packet",
     "usage",
     "budget",
     "report",
 )
-EXPECTED_COMMANDS = ("validate", "doctor", *EXPECTED_RESERVED_COMMANDS, "migrate")
+EXPECTED_COMMANDS = ("validate", "doctor", "packet", *EXPECTED_RESERVED_COMMANDS, "migrate")
+EXPECTED_PACKET_ACTIONS = ("project", "build", "verify", "preflight", "reconcile")
 EXPECTED_VALIDATE_CHECKS = (
     "all",
     "gates",
@@ -171,6 +171,49 @@ def test_later_commands_are_reserved_and_use_blocked_exit(command: str):
     assert report["command"] == command
     assert report["status"] == "reserved"
     assert "not implemented" in result.stderr
+
+
+def test_packet_command_is_executable_not_reserved():
+    result = run_method("packet", "project", "--json")
+
+    assert result.returncode in {exits.SUCCESS, exits.VALIDATION_FAILURE}
+    report = one_json_object(result.stdout)
+    assert report["command"] == "packet"
+    assert report["status"] != "reserved"
+
+
+def test_packet_action_constant_and_help_include_reconcile():
+    result = run_method("packet", "--help")
+
+    assert result.returncode == exits.SUCCESS
+    assert cli.PACKET_ACTIONS == EXPECTED_PACKET_ACTIONS
+    assert "reconcile" in result.stderr
+
+
+def test_packet_build_cli_requires_explicit_workspace_roots():
+    result = run_method("packet", "build", "--task", "impl-1")
+
+    assert result.returncode == exits.USAGE_ERROR
+    report = one_json_object(result.stdout)
+    assert report["status"] == "usage-error"
+    for option in (
+        "--implementation-root",
+        "--allowed-implementation-root",
+        "--planning-root",
+    ):
+        assert option in report["message"]
+
+
+@pytest.mark.parametrize("action", ("verify", "preflight", "reconcile"))
+def test_packet_validation_requires_caller_allowed_implementation_root(
+    action: str,
+):
+    result = run_method("packet", action, "--packet", "packet.yaml")
+
+    assert result.returncode == exits.USAGE_ERROR
+    report = one_json_object(result.stdout)
+    assert report["status"] == "usage-error"
+    assert "--allowed-implementation-root" in report["message"]
 
 
 @pytest.mark.parametrize(
