@@ -772,6 +772,8 @@ def _resolved_archive_path(root: Path, reference: object) -> Path | None:
 
 def _version_for_theme(theme: Mapping[object, object], *, archived: bool) -> int | None:
     version = theme.get("schema-version")
+    if version == 3:
+        return 3
     if version == 2:
         return 2
     if version == 1:
@@ -781,7 +783,7 @@ def _version_for_theme(theme: Mapping[object, object], *, archived: bool) -> int
     return None
 
 
-def _validate_v2_archive_state(
+def _validate_versioned_archive_state(
     validator: SchemaValidator,
     theme: Mapping[object, object],
     path: str,
@@ -789,13 +791,13 @@ def _validate_v2_archive_state(
     if theme.get("locked") is not True:
         validator.add(
             f"{path}.locked",
-            "version 2 archived theme must declare locked: true",
+            f"version {theme.get('schema-version')} archived theme must declare locked: true",
             f"Set {path}.locked to true before archiving the theme.",
         )
     if theme.get("status") != "done":
         validator.add(
             f"{path}.status",
-            "version 2 archived theme must have status: done",
+            f"version {theme.get('schema-version')} archived theme must have status: done",
             f"Set {path}.status to done before archiving the theme.",
         )
 
@@ -818,8 +820,8 @@ def _validate_theme_identity(
     if version is None:
         validator.add(
             f"{path}.schema-version",
-            "new or unlocked theme requires schema-version: 2",
-            f"Set {path}.schema-version to 2 and add every required v2 block.",
+            "new or unlocked theme requires schema-version: 2 (legacy) or schema-version: 3",
+            f"Set {path}.schema-version to 3 for new work; preserve existing version 2 themes.",
         )
         return None
     validator.validate(theme, f"theme-v{version}", path)
@@ -905,6 +907,8 @@ def _validate_id_relations(
         "story",
         check_cycles=check_cycles,
     )
+    if check_cycles and any(theme.get("schema-version") == 3 for _, theme, _ in theme_items):
+        _executable_dependencies(validator, theme_items)
 
     for theme_id, theme, theme_path in theme_items:
         epics = theme.get("epics")
@@ -925,6 +929,14 @@ def _validate_id_relations(
             stories = epic.get("stories")
             if not isinstance(stories, list):
                 continue
+            if theme.get("schema-version") == 3 and epic.get("status") == "done":
+                for si, story in enumerate(stories):
+                    if isinstance(story, Mapping) and story.get("status") != "done":
+                        validator.add(
+                            f"{epic_path}.stories[{si}].status",
+                            "done epic requires every acceptance child to be done",
+                            "Complete the declared acceptance scope before marking the epic done.",
+                        )
             normalized_epic = (
                 epic_id if isinstance(epic_id, str) and epic_id.startswith("TH")
                 else f"{theme_id}.{epic_id}"
@@ -940,6 +952,76 @@ def _validate_id_relations(
                             f"story ID {story_id!r} does not belong to {normalized_epic}",
                             f"Use a story ID beginning `{normalized_epic}.US`.",
                         )
+
+
+def _executable_dependencies(
+    validator: SchemaValidator,
+    themes: Sequence[tuple[str, Mapping[object, object], str]],
+) -> None:
+    """Check the dispatch graph after optional children collapse into epics."""
+
+    theme_units: dict[str, set[str]] = {}
+    epic_units: dict[str, set[str]] = {}
+    story_units: dict[str, str] = {}
+    units: dict[str, tuple[Mapping[object, object], Mapping[object, object], str]] = {}
+    for theme_id, theme, theme_path in themes:
+        theme_units[theme_id] = set()
+        epics = theme.get("epics")
+        if not isinstance(epics, list):
+            continue
+        for index, epic in enumerate(epics):
+            if not isinstance(epic, Mapping) or not isinstance(epic.get("id"), str):
+                continue
+            epic_id = epic["id"]
+            if V1_EPIC_ID.fullmatch(epic_id) and not epic_id.startswith("TH"):
+                epic_id = f"{theme_id}.{epic_id}"
+            path = f"{theme_path}.epics[{index}]"
+            children = epic.get("stories", [])
+            children = children if isinstance(children, list) else []
+            child_entries = [
+                child for child in children
+                if isinstance(child, Mapping) and isinstance(child.get("id"), str)
+            ]
+            if theme.get("schema-version") == 3:
+                epic_units[epic_id] = {epic_id}
+                units[epic_id] = (theme, epic, path)
+                for child in child_entries:
+                    story_units[child["id"]] = epic_id
+            else:
+                epic_units[epic_id] = {child["id"] for child in child_entries}
+                for child in child_entries:
+                    identifier = child["id"]
+                    units[identifier] = (theme, epic, path)
+                    story_units[identifier] = identifier
+            theme_units[theme_id].update(epic_units[epic_id])
+
+    graph: list[tuple[str, Mapping[object, object], str]] = []
+    for identifier, (theme, epic, path) in units.items():
+        dependencies: set[str] = set()
+        for dependency in _dependency_strings(theme):
+            dependencies.update(theme_units.get(dependency, ()))
+        for dependency in _dependency_strings(epic):
+            if V1_EPIC_ID.fullmatch(dependency) and not dependency.startswith("TH"):
+                dependency = f"{theme.get('id')}.{dependency}"
+            dependencies.update(epic_units.get(dependency, ()))
+        children = epic.get("stories", [])
+        for child in children if isinstance(children, list) else []:
+            if not isinstance(child, Mapping):
+                continue
+            if theme.get("schema-version") != 3 and child.get("id") != identifier:
+                continue
+            for dependency in _dependency_strings(child):
+                target = story_units.get(dependency)
+                # Internal child edges order acceptance work, not epic dispatch.
+                if target is not None and target != identifier:
+                    dependencies.add(target)
+        graph.append((identifier, {"depends-on": sorted(dependencies)}, path))
+    _dependencies(validator, graph, set(units), "executable-unit", check_cycles=True)
+
+
+def _dependency_strings(item: Mapping[object, object]) -> tuple[str, ...]:
+    value = item.get("depends-on")
+    return tuple(entry for entry in value if isinstance(entry, str)) if isinstance(value, list) else ()
 
 
 def _duplicates(
@@ -1046,7 +1128,7 @@ def _validate_story_files(
     *,
     path_prefix: str = "backlog.active-themes",
 ) -> None:
-    stories: list[tuple[Mapping[object, object], str]] = []
+    files: list[tuple[Mapping[object, object], str, str]] = []
     for theme_index, theme in enumerate(themes):
         theme_path = (
             path_prefix
@@ -1056,18 +1138,24 @@ def _validate_story_files(
         if not isinstance(theme, Mapping) or not isinstance(theme.get("epics"), list):
             continue
         for epic_index, epic in enumerate(theme["epics"]):
-            if not isinstance(epic, Mapping) or not isinstance(epic.get("stories"), list):
+            if not isinstance(epic, Mapping):
+                continue
+            epic_path = f"{theme_path}.epics[{epic_index}]"
+            if theme.get("schema-version") == 3:
+                files.append((epic, epic_path, "epic"))
+            if not isinstance(epic.get("stories"), list):
                 continue
             for story_index, story in enumerate(epic["stories"]):
                 if isinstance(story, Mapping):
-                    stories.append(
+                    files.append(
                         (
                             story,
-                            f"{theme_path}.epics[{epic_index}].stories[{story_index}]",
+                            f"{epic_path}.stories[{story_index}]",
+                            "story",
                         )
                     )
-    for story, path in stories:
-        value = story.get("file")
+    for item, path, kind in files:
+        value = item.get("file")
         if not isinstance(value, str):
             continue
         if not validator._is_repository_path(value):
@@ -1082,8 +1170,8 @@ def _validate_story_files(
         if not regular:
             validator.add(
                 f"{path}.file",
-                f"story path {value!r} is missing, not a regular file, or leaves the repository",
-                "Set file to an existing regular story path inside the repository.",
+                f"{kind} path {value!r} is missing, not a regular file, or leaves the repository",
+                f"Set file to an existing regular {kind} path inside the repository.",
             )
 
 
@@ -1186,8 +1274,8 @@ def _archive_snapshot(
                 "version 1 archive snapshot must be locked",
                 "Restore the historical snapshot with locked: true.",
             )
-        if version == 2:
-            _validate_v2_archive_state(archive_validator, theme, "theme")
+        if version in (2, 3):
+            _validate_versioned_archive_state(archive_validator, theme, "theme")
     return archive_validator.findings
 
 
@@ -1229,7 +1317,7 @@ def _repository_dependency_index(
         ):
             continue
         version = _version_for_theme(theme, archived=True)
-        if version is None or (version == 2 and theme.get("status") != "done"):
+        if version is None or (version in (2, 3) and theme.get("status") != "done"):
             continue
         collections.append(([theme], "theme"))
 
@@ -1264,10 +1352,10 @@ def _validate_archive_index(
                 f"theme ID {identifier!r} appears in both active and archived themes",
                 "Keep a theme in exactly one backlog collection.",
             )
-        if summary.get("schema-version") == 2 and summary.get("status") != "done":
+        if summary.get("schema-version") in (2, 3) and summary.get("status") != "done":
             validator.add(
                 f"{path}.status",
-                "version 2 archived theme must have status: done",
+                f"version {summary.get('schema-version')} archived theme must have status: done",
                 f"Set {path}.status to done before archiving the theme.",
             )
 

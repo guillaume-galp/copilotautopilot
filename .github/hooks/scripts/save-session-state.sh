@@ -5,20 +5,41 @@ set -euo pipefail
 TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 LOG_FILE="docs/plan/session-log.md"
 
-# Ensure the log file directory exists
-mkdir -p "$(dirname "$LOG_FILE")"
+# Parse structure rather than indentation; optional children are not delivery jobs.
+SNAPSHOT=$(python3 - <<'PY'
+from collections import Counter
+from pathlib import Path
 
-# Count story-level statuses only (lines indented with 14+ spaces are story-level)
-if [ -f docs/plan/backlog.yaml ]; then
-    TODO=$(grep -E '^\s{14,}status: todo' docs/plan/backlog.yaml 2>/dev/null | wc -l)
-    IN_PROGRESS=$(grep -E '^\s{14,}status: in-progress' docs/plan/backlog.yaml 2>/dev/null | wc -l)
-    DONE=$(grep -E '^\s{14,}status: done' docs/plan/backlog.yaml 2>/dev/null | wc -l)
-    FAILED=$(grep -E '^\s{14,}status: failed' docs/plan/backlog.yaml 2>/dev/null | wc -l)
-    echo "### Session ended: ${TIMESTAMP}" >> "$LOG_FILE"
-    echo "- Todo: ${TODO} | In-progress: ${IN_PROGRESS} | Done: ${DONE} | Failed: ${FAILED}" >> "$LOG_FILE"
-    echo "" >> "$LOG_FILE"
-else
-    echo "### Session ended: ${TIMESTAMP}" >> "$LOG_FILE"
-    echo "- No backlog file found" >> "$LOG_FILE"
-    echo "" >> "$LOG_FILE"
-fi
+import yaml
+
+path = Path("docs/plan/backlog.yaml")
+if not path.exists():
+    print("- No backlog file found")
+else:
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    backlog = document["backlog"]
+    themes = backlog["active-themes"]
+    if not isinstance(themes, list):
+        raise ValueError("backlog.active-themes must be a list")
+    counts = {"Epics": Counter(), "Legacy stories": Counter()}
+    statuses = ("todo", "in-progress", "blocked", "failed", "done")
+    for theme in themes:
+        version = theme.get("schema-version", 1)
+        if version not in (1, 2, 3):
+            raise ValueError(f"unsupported theme schema-version: {version}")
+        for epic in theme["epics"]:
+            kind = "Epics" if version == 3 else "Legacy stories"
+            units = [epic] if version == 3 else epic["stories"]
+            for unit in units:
+                status = unit["status"]
+                if status not in statuses:
+                    raise ValueError(f"unknown delivery status: {status}")
+                counts[kind][status] += 1
+    for kind, values in counts.items():
+        summary = " | ".join(f"{status}: {values[status]}" for status in statuses)
+        print(f"- {kind}: {summary}")
+PY
+)
+
+mkdir -p "$(dirname "$LOG_FILE")"
+printf '### Session ended: %s\n%s\n\n' "$TIMESTAMP" "$SNAPSHOT" >> "$LOG_FILE"

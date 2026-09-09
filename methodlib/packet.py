@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import copy
 import json
 import math
 import os
@@ -17,6 +18,7 @@ import yaml
 from methodlib import exits, trace
 from methodlib.backlog import (
     BACKLOG_PATH,
+    EPIC_ID,
     MAX_YAML_BYTES,
     STORY_ID,
     UniqueKeyLoader,
@@ -139,6 +141,23 @@ PACKET_FIELDS = {
     "authorization-hash",
     "reconciliations",
 }
+EPIC_PACKET_FIELDS = {"work-item", "acceptance-children", "backlog-snapshot"}
+
+
+def _epic_packet(packet: Mapping[object, object]) -> bool:
+    return "work-item" in packet
+
+
+def _unit_key(packet: Mapping[object, object]) -> str:
+    return "work-item" if _epic_packet(packet) else "story"
+
+
+def _unit(packet: Mapping[object, object]) -> object:
+    return packet.get(_unit_key(packet))
+
+
+def _parent_levels(packet: Mapping[object, object]) -> tuple[str, ...]:
+    return ("theme",) if _epic_packet(packet) else ("theme", "epic")
 
 
 @dataclass(frozen=True)
@@ -160,6 +179,14 @@ class StoryCandidate:
     @property
     def story_id(self) -> str:
         return str(self.story["id"])
+
+    @property
+    def epic_first(self) -> bool:
+        return self.theme.get("schema-version") == 3
+
+    @property
+    def unit_key(self) -> str:
+        return "work-item" if self.epic_first else "story"
 
 
 @dataclass(frozen=True)
@@ -184,7 +211,6 @@ class StoryAuthority:
 
 
 EVIDENCE_KEYS = ("packets", "verification", "review", "gitflow", "usage")
-AC_PATTERN = re.compile(r"AC[1-9][0-9]*")
 NOT_APPLICABLE_EVIDENCE = re.compile(
     r"not-applicable: (?P<rationale>\S(?:.{0,254}\S)?)",
     re.IGNORECASE,
@@ -246,7 +272,7 @@ def project_next(
     *,
     expected_revision: int | None = None,
 ) -> PacketResult:
-    """Project exactly one next dispatchable story from the active backlog."""
+    """Project one executable epic, or a legacy story, from the active backlog."""
 
     root = _repository_root(repository_root)
     if root is None:
@@ -278,7 +304,7 @@ def project_next(
         if candidate is None:
             return _failed(
                 "projection-refused",
-                "no dispatchable story found",
+                "no dispatchable work item found",
                 "Resolve the listed status, lock, or dependency blockers.",
                 refusals,
                 backlog=backlog,
@@ -315,7 +341,8 @@ def build_packet(
     repository_root: PathValue,
     *,
     task: str,
-    story_id: str | None,
+    story_id: str | None = None,
+    epic_id: str | None = None,
     mode: str,
     implementation_root: str,
     allowed_implementation_root: str,
@@ -327,10 +354,22 @@ def build_packet(
     """Build a packet while framing every filesystem race as one JSON result."""
 
     try:
+        if story_id is not None and STORY_ID.fullmatch(story_id) is None:
+            return _failed(
+                "packet-refused", "legacy story selector requires TH<n>.E<m>.US<l>",
+                "Use --epic for an executable epic.",
+            )
+        if epic_id is not None and (
+            story_id is not None or EPIC_ID.fullmatch(epic_id) is None
+        ):
+            return _failed(
+                "packet-refused", "select exactly one canonical epic or legacy story",
+                "Use --epic TH<n>.E<m> or --story TH<n>.E<m>.US<l>.",
+            )
         return _build_packet_impl(
             repository_root,
             task=task,
-            story_id=story_id,
+            story_id=epic_id or story_id,
             mode=mode,
             implementation_root=implementation_root,
             allowed_implementation_root=allowed_implementation_root,
@@ -369,7 +408,7 @@ def _build_packet_impl(
     trace_id: str | None = None,
     expected_revision: int | None = None,
 ) -> PacketResult:
-    """Build one validated mission packet for a dependency-eligible story."""
+    """Build one validated mission packet for a dependency-eligible work item."""
 
     root = _repository_root(repository_root)
     if root is None:
@@ -384,7 +423,9 @@ def _build_packet_impl(
             "task must match [A-Za-z0-9][A-Za-z0-9._-]{0,79}",
             "Use a short stable task identifier.",
         )
-    if story_id is not None and STORY_ID.fullmatch(story_id) is None:
+    if story_id is not None and not (
+        STORY_ID.fullmatch(story_id) or EPIC_ID.fullmatch(story_id)
+    ):
         return _failed(
             "packet-refused",
             "story must have the form TH<n>.E<m>.US<l>",
@@ -420,12 +461,20 @@ def _build_packet_impl(
     if selected is None:
         return _failed(
             "packet-refused",
-            "story is not dispatchable",
-            "Select the projected story or resolve its blockers.",
+            "work item is not dispatchable",
+            "Select the projected epic or legacy story, or resolve its blockers.",
             refusals,
             backlog=backlog,
             root=root,
         )
+    if selected.epic_first:
+        trace_result = trace.validate_repository(root)
+        if not trace_result.valid:
+            return _failed(
+                "packet-refused", "epic trace does not resolve accepted sources",
+                "Resolve every declared trace reference before dispatch.",
+                list(trace_result.findings),
+            )
 
     try:
         authority = _story_authority(
@@ -492,9 +541,10 @@ def _build_packet_impl(
             "Use docs/plan/runtime/packets/<story-id>/<task>.yaml exactly.",
         )
     try:
+        serialized = _serialize_packet(packet)
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_text(
-            yaml.dump(packet, Dumper=PacketDumper, sort_keys=False),
+            serialized,
             encoding="utf-8",
         )
     except OSError as error:
@@ -511,7 +561,7 @@ def _build_packet_impl(
             "action": "build",
             "status": "ok",
             "packet": _display(destination, root),
-            "story": selected.story_id,
+            selected.unit_key: selected.story_id,
             "backlog_revision": backlog["revision"],
             "backlog_sha256": cast(Mapping[str, object], packet["backlog"])[
                 "sha256"
@@ -597,7 +647,7 @@ def verify_packet(
             "command": "packet",
             "action": "verify",
             "status": status,
-            "story": _story_value(packet),
+            _unit_key(packet): _story_value(packet),
             "findings": findings,
         },
         diagnostics,
@@ -660,6 +710,13 @@ def preflight_packet(
                 expected_allowed_root=expected_allowed,
             )
         )
+        if _epic_packet(packet) and _nested(packet, "work-item", "status") not in {
+            "todo", "in-progress",
+        }:
+            findings.append(_finding(
+                "packet", "epic-status", "epic is not dispatchable",
+                "Recover failed/blocked epics explicitly; do not redispatch completed epics.",
+            ))
     except (
         OSError,
         UnicodeError,
@@ -686,7 +743,7 @@ def preflight_packet(
             "command": "packet",
             "action": "preflight",
             "status": status,
-            "story": _story_value(packet),
+            _unit_key(packet): _story_value(packet),
             "findings": findings,
         },
         diagnostics,
@@ -786,7 +843,7 @@ def reconcile_packet(
         old_backlog = cast(Mapping[object, object], old_packet["backlog"])
         old_theme = cast(Mapping[object, object], old_packet["theme"])
         old_epic = cast(Mapping[object, object], old_packet["epic"])
-        old_story = cast(Mapping[object, object], old_packet["story"])
+        old_story = cast(Mapping[object, object], _unit(old_packet))
         current_hash = _sha256_file(root / BACKLOG_PATH)
         record = {
             "from-revision": old_backlog["revision"],
@@ -811,7 +868,7 @@ def reconcile_packet(
         sources = _authoritative_sources(root, candidate, authority)
         updated.update(
             {
-                "story": _story_payload(candidate),
+                candidate.unit_key: _story_payload(candidate),
                 "backlog": {
                     "path": BACKLOG_PATH.as_posix(),
                     "revision": current_backlog["revision"],
@@ -831,6 +888,8 @@ def reconcile_packet(
                 "reconciliations": reconciliations,
             }
         )
+        if candidate.epic_first:
+            updated["backlog-snapshot"] = copy.deepcopy(current_backlog)
         updated["authorization-hash"] = _authorization_hash(updated)
         destination = _safe_packet_path(root, packet_path)
         if destination is None:
@@ -858,7 +917,7 @@ def reconcile_packet(
             "action": "reconcile",
             "status": "ok",
             "packet": packet_path,
-            "story": candidate.story_id,
+            candidate.unit_key: candidate.story_id,
             "backlog_revision": current_backlog["revision"],
             "backlog_sha256": current_hash,
             "authorization_hash": updated["authorization-hash"],
@@ -919,10 +978,23 @@ def _next_candidate(
     candidates, refusals = _candidate_status(root, backlog)
     if not candidates:
         return None, refusals
+    recovering = [
+        finding for finding in refusals
+        if finding.get("record") == "epic-recovery-required"
+    ]
+    if recovering:
+        return None, recovering
+    ongoing = [
+        candidate for candidate in candidates
+        if candidate.epic_first and candidate.story.get("status") == "in-progress"
+    ]
+    if ongoing:
+        candidates = ongoing
     candidates.sort(
         key=lambda candidate: (
             PRIORITY_ORDER.get(str(candidate.story.get("priority", "medium")), 1),
             _story_number(candidate.story_id),
+            0 if candidate.epic_first else 1,
             candidate.theme_index,
             candidate.epic_index,
             candidate.story_index,
@@ -935,10 +1007,12 @@ def _next_candidate(
         if (
             PRIORITY_ORDER.get(str(candidate.story.get("priority", "medium")), 1),
             _story_number(candidate.story_id),
+            candidate.epic_first,
         )
         == (
             PRIORITY_ORDER.get(str(best.story.get("priority", "medium")), 1),
             _story_number(best.story_id),
+            best.epic_first,
         )
     ]
     if len(ties) > 1:
@@ -947,8 +1021,8 @@ def _next_candidate(
                 "backlog",
                 "ambiguous-projection",
                 (
-                    "multiple dependency-eligible stories share the same "
-                    "priority and FIFO number"
+                    "multiple dependency-eligible work items of the same kind "
+                    "share the same priority and FIFO number"
                 ),
                 "Add an explicit dependency or adjust priority before dispatch.",
                 {"stories": [candidate.story_id for candidate in ties]},
@@ -996,7 +1070,9 @@ def _find_current_story(
     backlog: Mapping[object, object],
     story_id: object,
 ) -> tuple[StoryCandidate | None, list[Finding]]:
-    if not isinstance(story_id, str) or STORY_ID.fullmatch(story_id) is None:
+    if not isinstance(story_id, str) or not (
+        STORY_ID.fullmatch(story_id) or EPIC_ID.fullmatch(story_id)
+    ):
         return None, [
             _finding(
                 BACKLOG_PATH.as_posix(),
@@ -1016,6 +1092,12 @@ def _find_current_story(
                 continue
             for epic_index, epic in enumerate(epics):
                 if not isinstance(epic, Mapping):
+                    continue
+                if theme.get("schema-version") == 3:
+                    if epic.get("id") == story_id:
+                        matches.append(StoryCandidate(
+                            theme, epic, epic, theme_index, epic_index, -1
+                        ))
                     continue
                 stories = epic.get("stories")
                 if not isinstance(stories, list):
@@ -1122,6 +1204,12 @@ def _candidate_status(
                         "Move the epic to todo or in-progress before dispatch.",
                     )
                 )
+                if theme.get("schema-version") == 3:
+                    refusals.append(_finding(
+                        BACKLOG_PATH.as_posix(), "epic-recovery-required",
+                        f"epic {epic_id} requires explicit recovery",
+                        "Resolve the failure or blocker and transition to in-progress.",
+                    ))
                 continue
             missing_epic_dependencies = [
                 dependency
@@ -1139,6 +1227,27 @@ def _candidate_status(
                         {"depends-on": missing_epic_dependencies},
                     )
                 )
+                continue
+            if theme.get("schema-version") == 3:
+                children = epic.get("stories", [])
+                internal = {child["id"] for child in children}
+                unmet = [
+                    dependency
+                    for child in children
+                    for dependency in _strings(child.get("depends-on"))
+                    if dependency not in internal and dependency not in completion.stories
+                ]
+                if unmet:
+                    refusals.append(_finding(
+                        BACKLOG_PATH.as_posix(), str(epic_id),
+                        "external acceptance-child dependencies are not done",
+                        "Complete dependencies outside this epic before dispatch.",
+                        {"depends-on": unmet},
+                    ))
+                    continue
+                candidates.append(StoryCandidate(
+                    theme, epic, epic, theme_index, epic_index, -1
+                ))
                 continue
             stories = epic.get("stories")
             if not isinstance(stories, list):
@@ -1321,7 +1430,7 @@ def _strings(value: object) -> tuple[str, ...]:
 
 def _story_number(identifier: str) -> int:
     try:
-        return int(identifier.rsplit(".US", 1)[1])
+        return int(re.split(r"\.(?:US|E)", identifier)[-1])
     except (IndexError, ValueError):
         return 0
 
@@ -1338,7 +1447,7 @@ def _projection_payload(
             "revision": backlog["revision"],
             "sha256": _sha256_file(root / BACKLOG_PATH),
         },
-        "story": _story_payload(candidate),
+        candidate.unit_key: _story_payload(candidate),
         "theme": {
             "id": candidate.theme["id"],
             "status": candidate.theme["status"],
@@ -1370,7 +1479,7 @@ def _projection_payload(
 def _story_payload(candidate: StoryCandidate) -> dict[str, object]:
     return {
         "id": candidate.story["id"],
-        "title": candidate.story["title"],
+        "title": candidate.story.get("title", candidate.story.get("name")),
         "status": candidate.story["status"],
         "priority": candidate.story.get("priority", "medium"),
         "file": candidate.story["file"],
@@ -1396,7 +1505,7 @@ def _packet_payload(
         "mode": mode,
         "trace-id": trace_id,
         "generated-at": datetime.now().astimezone().isoformat(timespec="seconds"),
-        "story": _story_payload(candidate),
+        candidate.unit_key: _story_payload(candidate),
         "backlog": {
             "path": BACKLOG_PATH.as_posix(),
             "revision": backlog["revision"],
@@ -1443,6 +1552,8 @@ def _packet_payload(
         "reconciliations": [],
         "integration-boundary": _integration_boundary(),
     }
+    if candidate.epic_first:
+        packet.update(_epic_authority_payload(root, backlog, candidate))
     packet["composite-hash"] = _composite_hash(sources)
     packet["authorization-hash"] = _authorization_hash(
         cast(Mapping[object, object], packet)
@@ -1480,11 +1591,46 @@ def _story_frontmatter_payload(authority: StoryAuthority) -> dict[str, object]:
 
 
 def _scope(candidate: StoryCandidate, mode: str | None) -> dict[str, object]:
+    if candidate.epic_first:
+        return {
+            "epic-id": candidate.story_id,
+            "epic-file": candidate.story["file"],
+            "maximum-epics": 1,
+            "optional-children": [
+                {"id": child["id"], "file": child["file"]}
+                for child in candidate.epic.get("stories", [])
+            ],
+            "child-dispatch": "none",
+            "mutation": "implementation-root-only" if mode == "developer" else "none",
+        }
     return {
         "story-id": candidate.story_id,
         "story-file": candidate.story["file"],
         "maximum-stories": 1,
         "mutation": "implementation-root-only" if mode == "developer" else "none",
+    }
+
+
+def _epic_authority_payload(
+    root: Path,
+    backlog: Mapping[object, object],
+    candidate: StoryCandidate,
+) -> dict[str, object]:
+    children = []
+    for child in candidate.epic.get("stories", []):
+        authority = _story_authority(
+            root, str(child["file"]), expected_story=child, acceptance_child=True
+        )
+        children.append({
+            "id": child["id"], "file": child["file"],
+            "acceptance-criteria": list(authority.acceptance_criteria),
+            "traceability": {key: list(value) for key, value in authority.traceability.items()},
+            "depends-on": list(authority.dependencies),
+        })
+    return {
+        "work-item": _story_payload(candidate),
+        "acceptance-children": children,
+        "backlog-snapshot": copy.deepcopy(backlog),
     }
 
 
@@ -1514,17 +1660,31 @@ def _evidence_requirements(
         if isinstance(verification, Mapping)
         else []
     )
+    review: dict[str, object] = {
+        "required": True,
+        "profile": story.get("review-profile"),
+    }
+    if EPIC_ID.fullmatch(str(story.get("id"))) is not None:
+        review["accepted-approval-tokens"] = sorted(_epic_review_tokens(story))
     return {
         "verification": matrix,
-        "review": {
-            "required": True,
-            "profile": story.get("review-profile"),
-        },
+        "review": review,
         "gitflow": {
             "required": True,
             "not-applicable": "not-applicable: <rationale>",
         },
     }
+
+
+def _epic_review_tokens(epic: Mapping[object, object]) -> frozenset[str]:
+    if (
+        epic.get("review-profile") == "standard"
+        and _nested(epic, "risk", "tier") in {"R0", "R1"}
+    ):
+        return frozenset({
+            "independent approved", "native review approved", "self-review approved",
+        })
+    return frozenset({"independent approved"})
 
 
 def _evidence_snapshot(
@@ -1595,6 +1755,25 @@ def _authoritative_sources(
         )
     }
     untrusted = {BACKLOG_PATH.as_posix(), str(candidate.story["file"])}
+    if candidate.epic_first:
+        document = yaml.load(
+            (root / BACKLOG_PATH).read_text(encoding="utf-8"), Loader=StrictPacketLoader
+        )
+        for summary in document["backlog"]["archived-themes"]:
+            archive = _archive_path(root, summary.get("archive-ref"))
+            if archive is None:
+                raise ValueError("epic dependency archive is missing or unsafe")
+            untrusted.add(archive.relative_to(root).as_posix())
+        for child in candidate.epic.get("stories", []):
+            child_authority = _story_authority(
+                root, str(child["file"]), expected_story=child, acceptance_child=True
+            )
+            untrusted.add(str(child["file"]))
+            for adr in child_authority.traceability.get("adrs", ()):
+                matches = sorted((root / "docs/ADRs").glob(f"{adr}-*.md"))
+                if len(matches) != 1 or _safe_regular_markdown(root, matches[0]) is None:
+                    raise ValueError(f"child traceability ADR {adr!r} is missing or ambiguous")
+                untrusted.add(matches[0].relative_to(root).as_posix())
     for field in ("vision-ref", "discovery-ref", "requirements-ref"):
         reference = candidate.theme.get(field)
         if not isinstance(reference, str) or not reference:
@@ -1705,6 +1884,7 @@ def _story_authority(
     relative: str,
     *,
     expected_story: Mapping[object, object],
+    acceptance_child: bool = False,
 ) -> StoryAuthority:
     path = _source_path(root, relative)
     if path is None:
@@ -1732,6 +1912,17 @@ def _story_authority(
         ) from error
     if not isinstance(frontmatter, Mapping):
         raise ValueError("story frontmatter root must be a mapping")
+    epic_first = EPIC_ID.fullmatch(str(expected_story.get("id"))) is not None
+    if epic_first or acceptance_child:
+        frontmatter = dict(frontmatter)
+        frontmatter.setdefault("agents", ["developer"])
+        frontmatter.setdefault("skills", ["bdd-stories"])
+        frontmatter.setdefault("depends-on", list(_strings(expected_story.get("depends-on"))))
+        if acceptance_child:
+            frontmatter.setdefault("type", "standard")
+            frontmatter.setdefault("traceability", {
+                key: [] for key in ("vision", "requirements", "adrs", "invariants")
+            })
     domain_error = _json_domain_error(frontmatter)
     if domain_error is not None:
         raise ValueError(f"story frontmatter is outside the JSON domain: {domain_error}")
@@ -1753,7 +1944,7 @@ def _story_authority(
     title = frontmatter.get("title")
     if not isinstance(title, str) or not title.strip():
         raise ValueError("story frontmatter requires a non-empty title")
-    if title != expected_story.get("title"):
+    if title != expected_story.get("title", expected_story.get("name")):
         raise ValueError(
             "story frontmatter title does not match its authoritative backlog story"
         )
@@ -1774,30 +1965,7 @@ def _story_authority(
     size = frontmatter.get("size")
     if size is not None and size not in {"S", "M", "L"}:
         raise ValueError("story frontmatter size must be S, M, or L")
-    criteria = frontmatter.get("acceptance-criteria")
-    if not isinstance(criteria, list) or not criteria:
-        raise ValueError(
-            "story frontmatter requires a non-empty acceptance-criteria list"
-        )
-    criterion_ids: set[str] = set()
-    for item in criteria:
-        if not isinstance(item, Mapping) or len(item) != 1:
-            raise ValueError(
-                "each acceptance criterion must be a single-entry mapping"
-            )
-        key, value = next(iter(item.items()))
-        if (
-            not isinstance(key, str)
-            or AC_PATTERN.fullmatch(key) is None
-            or key in criterion_ids
-            or not isinstance(value, str)
-            or not value.strip()
-        ):
-            raise ValueError(
-                "acceptance criteria require unique canonical AC<number> keys "
-                "and non-empty string values"
-            )
-        criterion_ids.add(key)
+    criteria = trace.acceptance_criteria(frontmatter.get("acceptance-criteria"))
     agents = frontmatter.get("agents")
     if (
         not isinstance(agents, list)
@@ -1823,7 +1991,7 @@ def _story_authority(
         not isinstance(dependencies, list)
         or any(
             not isinstance(dependency, str)
-            or STORY_ID.fullmatch(dependency) is None
+            or (EPIC_ID if epic_first else STORY_ID).fullmatch(dependency) is None
             for dependency in dependencies
         )
         or len(set(dependencies)) != len(dependencies)
@@ -1857,7 +2025,10 @@ def _story_authority(
             raise ValueError(
                 "story frontmatter traceability values must be unique string lists"
             )
-        if story_type in required_types and not values:
+        if (
+            story_type in required_types and not values and not acceptance_child
+            and (not epic_first or key == "requirements")
+        ):
             raise ValueError(
                 f"{story_type} story traceability.{key} must contain at least "
                 "one record ID"
@@ -1934,6 +2105,10 @@ def _authorization_hash(packet: Mapping[object, object]) -> str:
         "composite-hash": packet.get("composite-hash"),
         "reconciliations": packet.get("reconciliations"),
     }
+    if _epic_packet(packet):
+        authorization.update({
+            key: packet.get(key) for key in EPIC_PACKET_FIELDS
+        })
     encoded = json.dumps(
         authorization,
         ensure_ascii=False,
@@ -2133,6 +2308,8 @@ def _packet_destination(
         return None
     candidate = root / canonical
     try:
+        if _has_symlink_component(root, candidate):
+            return None
         resolved = candidate.resolve(strict=False)
         resolved.relative_to(root.resolve(strict=True))
         resolved.relative_to((root / DEFAULT_RUNTIME_DIRECTORY).resolve(strict=False))
@@ -2141,9 +2318,17 @@ def _packet_destination(
     return candidate
 
 
+def _serialize_packet(document: Mapping[object, object]) -> str:
+    serialized = yaml.dump(dict(document), Dumper=PacketDumper, sort_keys=False)
+    if len(serialized.encode("utf-8")) > MAX_PACKET_BYTES:
+        raise ValueError(f"serialized packet exceeds the {MAX_PACKET_BYTES}-byte safety limit")
+    return serialized
+
+
 def _atomic_write_packet(path: Path, document: Mapping[object, object]) -> None:
     """Durably replace a packet without exposing a partially written manifest."""
 
+    serialized = _serialize_packet(document)
     temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
     descriptor: int | None = None
     try:
@@ -2154,13 +2339,7 @@ def _atomic_write_packet(path: Path, document: Mapping[object, object]) -> None:
         )
         with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
             descriptor = None
-            handle.write(
-                yaml.dump(
-                    dict(document),
-                    Dumper=PacketDumper,
-                    sort_keys=False,
-                )
-            )
+            handle.write(serialized)
             handle.flush()
             os.fsync(handle.fileno())
         os.replace(temporary, path)
@@ -2268,6 +2447,8 @@ def _safe_packet_path(root: Path, value: str) -> Path | None:
         if pure.is_absolute() or "." in pure.parts or ".." in pure.parts:
             return None
         candidate = root.joinpath(*pure.parts)
+        if _has_symlink_component(root, candidate):
+            return None
         resolved = candidate.resolve(strict=True)
         resolved.relative_to(root.resolve(strict=True))
         if not resolved.is_file() or resolved.is_symlink():
@@ -2289,7 +2470,7 @@ def _packet_findings(
     packet_path: str,
 ) -> list[Finding]:
     findings: list[Finding] = []
-    story_for_path = packet.get("story")
+    story_for_path = _unit(packet)
     expected_location = (
         DEFAULT_RUNTIME_DIRECTORY
         / str(story_for_path.get("id"))
@@ -2311,7 +2492,11 @@ def _packet_findings(
             )
         )
     packet_keys = {key for key in packet if isinstance(key, str)}
-    for missing_field in sorted(PACKET_FIELDS - packet_keys):
+    fields = (
+        (PACKET_FIELDS - {"story"}) | EPIC_PACKET_FIELDS
+        if _epic_packet(packet) else PACKET_FIELDS
+    )
+    for missing_field in sorted(fields - packet_keys):
         findings.append(
             _finding(
                 "packet",
@@ -2320,7 +2505,7 @@ def _packet_findings(
                 "Regenerate the packet with the current method runtime.",
             )
         )
-    unknown_keys = [key for key in packet if key not in PACKET_FIELDS]
+    unknown_keys = [key for key in packet if key not in fields]
     for unknown_field in sorted(unknown_keys, key=str):
         findings.append(
             _finding(
@@ -2412,17 +2597,20 @@ def _packet_findings(
                 "authorization-hash",
                 "authorization-bearing packet fields were changed or are unbound",
                 "Regenerate the packet; do not modify its authorization grant.",
-                {"bound-fields": list(AUTHORIZATION_FIELDS)},
+                {"bound-fields": [
+                    *AUTHORIZATION_FIELDS,
+                    *(sorted(EPIC_PACKET_FIELDS) if _epic_packet(packet) else []),
+                ]},
                 stale=True,
             )
         )
     findings.extend(_reconciliation_schema_findings(packet))
     findings.extend(_packet_evidence_findings(packet))
-    story = packet.get("story")
+    story = _unit(packet)
     if (
         not isinstance(story, Mapping)
         or not isinstance(story.get("id"), str)
-        or STORY_ID.fullmatch(story["id"]) is None
+        or (EPIC_ID if _epic_packet(packet) else STORY_ID).fullmatch(story["id"]) is None
     ):
         findings.append(
             _finding(
@@ -2519,6 +2707,11 @@ def _packet_findings(
                 expected_mode=expected_mode,
             )
         )
+        if candidate.epic_first:
+            findings.extend(_epic_runtime_findings(root, current_backlog, candidate))
+            if candidate.story.get("status") == "done":
+                findings.extend(_evidence_reconciliation_findings(packet, candidate.story))
+            findings.extend(trace.validate_repository(root).findings)
     sources = packet.get("sources")
     if not isinstance(sources, list) or not sources:
         findings.append(
@@ -2606,7 +2799,7 @@ def _authoritative_findings(
     story_file = str(candidate.story["file"])
     sources = _authoritative_sources(root, candidate, authority)
     expected: dict[str, object] = {
-        "story": _story_payload(candidate),
+        candidate.unit_key: _story_payload(candidate),
         "backlog": {
             "path": BACKLOG_PATH.as_posix(),
             "revision": backlog.get("revision"),
@@ -2650,6 +2843,8 @@ def _authoritative_findings(
         "composite-hash": _composite_hash(sources),
     }
     findings: list[Finding] = []
+    if candidate.epic_first:
+        expected.update(_epic_authority_payload(root, backlog, candidate))
     if expected_mode is None:
         findings.append(
             _finding(
@@ -2720,6 +2915,9 @@ def _reconcile_old_packet_findings(
             authority=authority,
         )
     )
+    if candidate.epic_first:
+        findings.extend(_epic_backlog_delta_findings(packet, backlog, candidate))
+        findings.extend(_epic_runtime_findings(root, backlog, candidate))
 
     packet_backlog = packet.get("backlog")
     old_revision = (
@@ -2768,7 +2966,7 @@ def _reconcile_old_packet_findings(
         documented_story_transition = story_transition in STORY_STATUS_TRANSITIONS
         evidence_added = _has_append_only_evidence_addition(packet, candidate.story)
         valid_parent_changes = []
-        for level in ("theme", "epic"):
+        for level in _parent_levels(packet):
             transition = (old_status[level], new_status[level])
             allowed = transition[0] == transition[1] or (
                 transition in PARENT_STATUS_TRANSITIONS
@@ -2940,6 +3138,90 @@ def _has_append_only_evidence_addition(
     return added
 
 
+def _epic_runtime_findings(
+    root: Path,
+    backlog: Mapping[object, object],
+    candidate: StoryCandidate,
+) -> list[Finding]:
+    completion, findings = _completion_index(root, backlog)
+    if completion is None:
+        return findings
+    children = candidate.epic.get("stories", [])
+    internal = {child["id"] for child in children}
+    unmet = [
+        dependency for dependency in _strings(candidate.theme.get("depends-on"))
+        if dependency not in completion.themes
+    ] + [
+        dependency for dependency in _strings(candidate.epic.get("depends-on"))
+        if dependency not in completion.epics
+    ] + [
+        dependency for child in children
+        for dependency in _strings(child.get("depends-on"))
+        if dependency not in internal and dependency not in completion.stories
+    ]
+    if candidate.theme.get("locked") is True:
+        return [_finding(
+            BACKLOG_PATH.as_posix(), candidate.story_id,
+            "epic belongs to a locked theme",
+            "Preserve the accepted theme; plan new work in a new theme.",
+            {"theme": candidate.theme["id"], "locked": True},
+        )]
+    if unmet:
+        return [_finding(
+            BACKLOG_PATH.as_posix(), candidate.story_id,
+            "epic external dependencies are unfinished",
+            "Complete the named external dependencies before dispatch.",
+            {"depends-on": unmet},
+        )]
+    return []
+
+
+def _epic_backlog_delta_findings(
+    packet: Mapping[object, object],
+    backlog: Mapping[object, object],
+    candidate: StoryCandidate,
+) -> list[Finding]:
+    """Permit only this epic's lifecycle delta, not unrelated backlog edits."""
+
+    previous = packet.get("backlog-snapshot")
+    if not isinstance(previous, Mapping):
+        return [_finding(
+            "packet", "backlog-snapshot", "epic backlog snapshot is missing",
+            "Build an anchored epic packet before changing lifecycle state.",
+        )]
+    expected = copy.deepcopy(dict(previous))
+    expected["revision"] = backlog.get("revision")
+    expected["last-updated"] = backlog.get("last-updated")
+    themes = expected.get("active-themes")
+    if isinstance(themes, list):
+        for theme in themes:
+            if not isinstance(theme, dict) or theme.get("id") != candidate.theme.get("id"):
+                continue
+            theme["status"] = candidate.theme.get("status")
+            for epic in theme.get("epics", []):
+                if not isinstance(epic, dict) or epic.get("id") != candidate.story_id:
+                    continue
+                epic["status"] = candidate.epic.get("status")
+                epic["evidence"] = copy.deepcopy(candidate.epic.get("evidence"))
+                current_children = {
+                    child["id"]: child for child in candidate.epic.get("stories", [])
+                }
+                if candidate.epic.get("status") == "done":
+                    for child in epic.get("stories", []):
+                        current_child = current_children.get(child.get("id"))
+                        if current_child is not None and current_child.get("status") == "done":
+                            child["status"] = "done"
+    if expected != backlog:
+        return [_finding(
+            BACKLOG_PATH.as_posix(), "backlog-snapshot",
+            "revision changes data outside the authorized epic lifecycle scope",
+            "Reconcile only epic status/evidence and atomic child completion; "
+            "build fresh authority for other edits.",
+            stale=True,
+        )]
+    return []
+
+
 def _is_expected_reconciliation_staleness(
     finding: Finding,
     packet: Mapping[object, object],
@@ -2977,7 +3259,7 @@ def _immutable_reconciliation_findings(
 ) -> list[Finding]:
     expected_mode = _authorized_mode(authority.agents)
     expected_story = _story_payload(candidate)
-    actual_story = packet.get("story")
+    actual_story = _unit(packet)
     expected_theme = {
         "id": candidate.theme["id"],
         "locked": candidate.theme["locked"],
@@ -3090,6 +3372,9 @@ def _immutable_reconciliation_findings(
         ("required-report", packet.get("required-report"), _required_report()),
     ]
     findings: list[Finding] = []
+    if candidate.epic_first:
+        children = _epic_authority_payload(root, {}, candidate)["acceptance-children"]
+        comparisons.append(("acceptance-children", packet.get("acceptance-children"), children))
     for field, actual, expected in comparisons:
         if actual != expected:
             findings.append(
@@ -3172,7 +3457,7 @@ def _packet_status_snapshot(
     containers = {
         "theme": packet.get("theme"),
         "epic": packet.get("epic"),
-        "story": packet.get("story"),
+        "story": _unit(packet),
     }
     if any(not isinstance(value, Mapping) for value in containers.values()):
         return None
@@ -3344,17 +3629,18 @@ def _evidence_reconciliation_findings(
                     )
                 )
         review = current["review"]
-        if not any(
-            entry.strip().casefold() in REVIEW_APPROVAL_TOKENS for entry in review
-        ):
+        epic_first = EPIC_ID.fullmatch(str(current_story.get("id"))) is not None
+        tokens = REVIEW_APPROVAL_TOKENS
+        if epic_first:
+            tokens = _epic_review_tokens(current_story)
+        if not any(entry.strip().casefold() in tokens for entry in review):
             findings.append(
                 _finding(
                     BACKLOG_PATH.as_posix(),
                     "evidence.review",
-                    "done requires an exact approve or approved review token",
+                    "done requires an exact review approval token",
                     (
-                        "Append canonical 'APPROVE' (or legacy 'approved') as "
-                        "its own evidence entry; keep review detail separate."
+                        f"Append one of {sorted(tokens)} as its own evidence entry."
                     ),
                 )
             )
@@ -3581,7 +3867,10 @@ def _reconciliation_schema_findings(
         if isinstance(from_status, Mapping) and isinstance(to_status, Mapping):
             for field, allowed_values in (
                 ("theme", {"todo", "in-progress", "done"}),
-                ("epic", {"todo", "in-progress", "done"}),
+                ("epic", (
+                    {"todo", "in-progress", "done", "failed", "blocked"}
+                    if _epic_packet(packet) else {"todo", "in-progress", "done"}
+                )),
                 (
                     "story",
                     {"todo", "in-progress", "blocked", "failed", "done"},
@@ -3616,7 +3905,7 @@ def _reconciliation_schema_findings(
                         "Restore a transition from the documented status machine.",
                     )
                 )
-            for level in ("theme", "epic"):
+            for level in _parent_levels(packet):
                 parent_transition = (
                     from_status.get(level),
                     to_status.get(level),
@@ -3651,7 +3940,7 @@ def _reconciliation_schema_findings(
                     )
             parent_completions = [
                 level
-                for level in ("theme", "epic")
+                for level in _parent_levels(packet)
                 if (
                     from_status.get(level) != "done"
                     and to_status.get(level) == "done"
@@ -3721,7 +4010,7 @@ def _reconciliation_schema_findings(
             has_parent_event = "parent-completion" in cast(str, reason).split("+")
             parent_completed = any(
                 from_status.get(level) != "done" and to_status.get(level) == "done"
-                for level in ("theme", "epic")
+                for level in _parent_levels(packet)
             )
             if has_status_event != (story_transition in STORY_STATUS_TRANSITIONS):
                 findings.append(
@@ -4276,7 +4565,7 @@ def _display(path: Path, root: Path) -> str:
 
 
 def _story_value(packet: Mapping[object, object]) -> object:
-    story = packet.get("story")
+    story = _unit(packet)
     return story.get("id") if isinstance(story, Mapping) else None
 
 

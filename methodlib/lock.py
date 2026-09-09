@@ -614,6 +614,10 @@ def _story_paths(theme: Mapping[str, object]) -> tuple[str, ...]:
     for epic in epics:
         if not isinstance(epic, dict):
             continue
+        if theme.get("schema-version") == 3:
+            path = epic.get("file")
+            if isinstance(path, str) and _valid_relative_path(path):
+                paths.append(path)
         stories = epic.get("stories", [])
         if not isinstance(stories, list):
             continue
@@ -1890,7 +1894,8 @@ def validate_repository(
             archive_evidence = archive_revision
         declared_stories = set(_story_paths(theme or {}))
         baseline_stories = {
-            path for path in theme_files if "/stories/" in path
+            path for path in theme_files
+            if "/stories/" in path or (theme or {}).get("schema-version") == 3
         }
         for path in sorted(declared_stories - baseline_stories):
             findings.append(

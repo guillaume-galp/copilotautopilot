@@ -147,11 +147,13 @@ Only after the planning gate opens:
    repurpose an existing theme.
 3. Before creating the new theme, archive the previous completed theme's issue
    templates as required by `backlog-management`.
-4. Delegate creation of the new theme, epics, BDD stories, issue templates, and
-   backlog entry to `@product-owner`. Every new theme declares
-   `schema-version: 2`; every unlocked theme touched by planning must already
-   declare `schema-version: 2` and satisfy the complete v2 contract. Never
-   migrate or edit a locked historical theme.
+4. Delegate creation of the new theme, executable epic specifications,
+   optional BDD stories, issue templates, and backlog entry to
+   `@product-owner`. Every new theme declares `schema-version: 3` using
+   `backlog-management`. Each epic is one bounded agent assignment with its
+   own acceptance criteria; stories are optional, not prerequisites to
+   execution. Preserve admitted version 1/2 work as legacy compatibility
+   input; never silently migrate it or edit a locked historical theme.
 5. After all proposed planning writes and before issuing or changing a
    planning-admission record, run exactly:
 
@@ -175,7 +177,7 @@ Report:
 - resolved VP, invocation mode, and whether accepted stage 1 was skipped;
 - each exact gate/schema command, exit status, and findings;
 - architecture and ADR files created or changed, plus human-checkpoint state;
-- themes, epics, stories, and templates created in stage 2;
+- themes, executable epics, optional stories, and templates created in stage 2;
 - previous greatest theme ID, allocated append-only theme ID, and schema
   version;
 - dependency overview and recommended execution order; and

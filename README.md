@@ -46,12 +46,13 @@ skill; this table is a reader-oriented summary.
 4. **Create architecture and delivery plans with `plan`**
    - Stage 1 produces `docs/architecture/` and `docs/ADRs/`, then stops for
      human architecture acceptance
-   - Stage 2 creates themes, epics, stories, issue templates, and the backlog
+   - Stage 2 creates themes, executable epic specifications, optional stories,
+     issue templates, and the backlog
      only after the architecture gate opens
 
 5. **Launch delivery with `autopilot`**
    - Run the `autopilot` skill in Copilot Chat in "Autopilot" mode
-   - Orchestrator executes stories locally: implement → test → review
+   - One owner executes each bounded epic locally: implement → test → quality assessment
    - Session state persists in `docs/plan/backlog.yaml` — resume anytime
 
 ## Recommended MCP & CLI Tools
@@ -83,11 +84,11 @@ The agent squad uses a set of MCP servers and CLI tools. Configure them once for
 | **investigator** | Returns evidence for one bounded Discovery question | Discovery |
 | **requirements-facilitator** | Drafts measurable, traceable requirements | PRD finalization |
 | **architect** | Produces architecture, tech stack, and ADRs | Architecture |
-| **product-owner** | Produces themes, epics, BDD stories, and planning admission | Planning |
+| **product-owner** | Produces themes, executable epics, optional BDD stories, and planning admission | Planning |
 | **orchestrator** | Sequences delivery and manages runtime state | Autopilot |
-| **developer** | Implements and tests one user story per session | Autopilot |
-| **reviewer** | Reviews correctness, security, and conventions | Autopilot |
-| **troubleshooter** | Diagnoses and fixes failed stories | Autopilot |
+| **developer** | Owns one bounded epic through implementation, testing, and local repair | Autopilot |
+| **reviewer** | Provides independent epic review when required; native review may fulfil this role | Autopilot |
+| **troubleshooter** | Diagnoses unresolved epic failures after bounded owner repair | Autopilot |
 
 ## Directory Structure
 
@@ -98,7 +99,7 @@ docs/
 ├── requirements/         # Approved PRDs and change records
 ├── architecture/         # System design + tech stack
 ├── ADRs/                 # Architecture Decision Records
-├── themes/               # TH<n>/epics/E<m>/stories/US<l>.md
+├── themes/               # TH<n>/epics/E<m>/README.md + optional stories/
 └── plan/
     ├── backlog.yaml      # Runtime state (active themes + archive index)
     ├── backlog-archive/  # Completed theme snapshots (TH<n>.yaml)
@@ -121,10 +122,52 @@ docs/
 ## Key Conventions
 
 - **VP<n> ↔ TH<n>**: Vision phases map 1:N to implementation themes
-- **1 story = 1 developer session**: Stories are sized for single-agent execution
+- **Epic-first execution**: One bounded epic per developer assignment; optional
+  stories are acceptance slices, not separate agent jobs
 - **Backlog is truth**: `docs/plan/backlog.yaml` is the runtime source the orchestrator trusts
-- **Hybrid BDD**: Stories contain acceptance criteria + Given/When/Then scenarios
+- **Behavioral acceptance**: Epic specifications own measurable criteria and
+  relevant examples; Given/When/Then is used where it clarifies behavior
 - **Language-agnostic**: Architect agent chooses tech stack based on your vision
+
+## Epic-First Delivery
+
+New themes use `schema-version: 3` from `backlog-management`. Each epic has an
+executable specification at
+`docs/themes/TH<n>-<slug>/epics/E<m>-<slug>/README.md`; an epic with no stories
+is valid. The `bdd-stories` skill owns this format and optional child stories.
+Split work when the outcome cannot be safely implemented and reviewed as one
+bounded change, not merely because it contains several technical tasks.
+
+`method packet project` selects the next eligible delivery unit.
+`method packet build --epic TH<n>.E<m>` grants exactly that epic, including
+declared child acceptance scope. The owner performs implementation,
+integration checks, and local repairs in context. Verification, quality
+assessment, and Gitflow evidence are recorded at epic scope, without
+per-story review or merge-request cycles. Required independent review can use
+the native review capability instead of an additional custom-agent pass.
+
+Existing version 1/2 themes and `--story` packets retain their legacy behavior.
+Accepted history is not migrated; a story packet never implicitly authorizes
+an entire epic. See the canonical method for risk-based review, recovery,
+completion, and human acceptance rules.
+
+The accepted VP3 architecture and ADRs remain unchanged as the historical
+baseline. The prospective epic-first delivery contract is owned by the updated
+`the-copilot-build-method`, `backlog-management`, and `bdd-stories` skills.
+
+For an admitted v3 theme, build its projected epic packet with:
+
+```bash
+bin/method packet build --task implement-epic --epic TH4.E1 --mode developer \
+  --implementation-root /work/implementation/checkout \
+  --allowed-implementation-root /work/implementation \
+  --planning-root /work/authoritative-repository
+```
+
+Retain the returned `authorization_hash` outside the packet and use it with
+`packet preflight`, `reconcile`, and `verify` as described by `autopilot`.
+The implementation checkout and authoritative planning repository must be
+disjoint.
 
 ## Using as a Template
 

@@ -173,6 +173,19 @@ def test_later_commands_are_reserved_and_use_blocked_exit(command: str):
     assert "not implemented" in result.stderr
 
 
+def test_epic_selector_is_advertised_and_excludes_legacy_story():
+    help_result = run_method("packet", "build", "--help")
+    assert help_result.returncode == exits.SUCCESS
+    assert "--epic" in help_result.stderr
+    result = run_method(
+        "packet", "build", "--task", "delivery", "--epic", "TH9.E1",
+        "--story", "TH9.E1.US1", "--implementation-root", ".",
+        "--allowed-implementation-root", ".",
+    )
+    assert result.returncode == exits.USAGE_ERROR
+    assert one_json_object(result.stdout)["status"] == "usage-error"
+
+
 def test_packet_command_is_executable_not_reserved():
     result = run_method("packet", "project", "--json")
 

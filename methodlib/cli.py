@@ -403,6 +403,7 @@ def _packet_command(
             repository_root,
             task=arguments.task,
             story_id=arguments.story,
+            epic_id=arguments.epic,
             mode=arguments.mode,
             implementation_root=arguments.implementation_root,
             allowed_implementation_root=arguments.allowed_implementation_root,
@@ -539,7 +540,7 @@ def build_parser() -> MethodArgumentParser:
     )
     project = packet_actions.add_parser(
         "project",
-        help="project the next dependency-eligible backlog story",
+        help="project the next executable epic or legacy story",
     )
     project.add_argument(
         "--expected-revision",
@@ -555,13 +556,15 @@ def build_parser() -> MethodArgumentParser:
 
     build = packet_actions.add_parser(
         "build",
-        help="build one mission packet for the projected story",
+        help="build one mission packet for the projected epic or legacy story",
     )
     build.add_argument("--task", required=True, help="bounded task identifier")
-    build.add_argument(
+    selector = build.add_mutually_exclusive_group()
+    selector.add_argument(
         "--story",
-        help="fully-qualified story ID; omitted means use the current projection",
+        help="legacy v1/v2 story ID; omitted selectors use the current projection",
     )
+    selector.add_argument("--epic", help="schema-v3 executable epic ID (TH<n>.E<m>)")
     build.add_argument(
         "--mode",
         choices=("developer", "planning"),
