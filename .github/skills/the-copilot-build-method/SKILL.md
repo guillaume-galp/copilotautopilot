@@ -18,8 +18,8 @@ restate the lifecycle sequence.
 | Discovery | `discover` | `docs/discovery/VP<n>-<slug>/` Discovery dossier | Vision sketch exists | `READY` or `READY_WITH_DEFERRALS` readiness verdict accepted | human |
 | PRD finalization | `requirements` | `docs/requirements/VP<n>-<slug>/PRD.md` | Human-accepted Discovery readiness verdict | PRD `Approved` | human |
 | Architecture | `plan` stage 1 | `docs/architecture/` and `docs/ADRs/` | Human-accepted Discovery readiness verdict and human-approved PRD | Architecture `Accepted` | human |
-| Planning | `plan` stage 2 | `docs/themes/TH<n>-<slug>/`, its story files, issue templates, `docs/themes/TH<n>-<slug>/planning-admission.md`, and the theme state in `docs/plan/backlog.yaml` | Human-accepted architecture | `Accepted` planning-admission record issued by the product owner at `docs/themes/TH<n>-<slug>/planning-admission.md`, with its exact source revision passing the validator | product owner plus validator |
-| Autopilot | `autopilot` | Product changes and their verification, review, Gitflow, and runtime evidence; runtime status in `docs/plan/backlog.yaml` | The planning-admission record is `Accepted` and its exact source revision passes the validator | Applicable story, epic, and theme Definition of Done | orchestrator and reviewer for delivery evidence; human for theme acceptance |
+| Planning | `plan` stage 2 | `docs/themes/TH<n>-<slug>/`, its epic specifications and optional story files, issue templates, `docs/themes/TH<n>-<slug>/planning-admission.md`, and the theme state in `docs/plan/backlog.yaml` | Human-accepted architecture | `Accepted` planning-admission record issued by the product owner at `docs/themes/TH<n>-<slug>/planning-admission.md`, with its exact source revision passing the validator | product owner plus validator |
+| Autopilot | `autopilot` | Product changes and their verification, review, Gitflow, and runtime evidence; runtime status in `docs/plan/backlog.yaml` | The planning-admission record is `Accepted` and its exact source revision passes the validator | Applicable epic and theme Definition of Done, including optional child acceptance coverage | orchestrator and epic owner for delivery evidence, independent reviewer when required; human for theme acceptance |
 
 `plan` stage 1 therefore has two upstream product gates: an accepted Discovery
 readiness verdict and an approved PRD. A human is the acceptance authority for
@@ -133,8 +133,12 @@ At the applicable gate, the block is removed or `Status` is changed to
 
 - Follow the canonical lifecycle and validate its gates before stage work.
 - `docs/plan/backlog.yaml` is authoritative orchestration state.
-- 1 story per developer session.
-- Failed story must go through troubleshooter.
+- One bounded epic per developer assignment; retain the same owner through
+  implementation, testing, and local repair. Resume from durable evidence
+  rather than treating one context window as a delivery boundary.
+- Stories are optional acceptance subdivisions, not separate agent jobs.
+- Escalate unresolved failures to the troubleshooter after bounded local
+  repair, not on every failed test.
 - Ceremonies happen at epic/theme boundaries.
 - Current autopilot skills MUST use `gitflow-operator` for branch, commit,
   merge-request, CI, squash-merge, and release-note operations.
@@ -146,16 +150,41 @@ At the applicable gate, the block is removed or `Status` is changed to
 
 ## Definition of Done
 
-### Story
-- compile/lint/tests pass as applicable
-- acceptance criteria verified
-- relevant docs updated
-- review completed (lightweight for trivial stories)
+### Atomic Work Unit
+
+A bounded epic is the default unit of planning, delegation, verification,
+review, and Gitflow delivery. It has one coherent outcome, explicit non-goals,
+measurable acceptance criteria, and a reviewable change set. Split oversized
+epics before admission when independent releases, authority boundaries,
+migration stages, or review complexity require separate delivery units.
+
+New themes use the epic-first schema from `backlog-management`. The epic
+specification follows `bdd-stories`; no synthetic story is required to make
+an epic executable. Optional stories preserve useful personas or acceptance
+slices. The epic owner handles their internal sequencing in one assignment.
+Stories do not require individual agent handoffs, reviews, or merge requests.
+
+Existing version 1/2 backlogs and story-scoped packets remain legacy
+compatibility inputs. Do not rewrite accepted history or silently widen a
+legacy story packet into epic authority; new epic execution requires an
+explicitly admitted epic-scoped contract.
 
 ### Epic
-- all stories done
-- small epic (≤3): full epic tests + brief changelog
-- large epic (4+): integration checks + reviewer quality pass + detailed changelog
+- All epic acceptance criteria and any optional child criteria are covered;
+  all retained child stories are done before or with epic completion.
+- Applicable build/lint, targeted tests, and integration checks pass against
+  the delivered change; relevant documentation is updated.
+- Quality assessment covers the integrated epic once, not once per child
+  followed by another epic review. For R0/R1 with `standard` review profile,
+  the owner may record self-review. R2/R3 or `adversarial`/`critical` profiles
+  require explicit independent approval, using native review capabilities or
+  a reviewer agent. A capability being available is not evidence it ran.
+- Record verification, review, and Gitflow evidence at epic scope; produce
+  one brief changelog entry. Rework only invalidates evidence affected by
+  the changes; obtain fresh approval when the reviewed implementation changes.
+- A failed check stays with the owner for bounded diagnosis and repair.
+  After two unsuccessful repair attempts, or immediately when blocked by
+  missing expertise or authority, escalate to the troubleshooter or human.
 
 ### Theme
 - all epics done
@@ -225,9 +254,9 @@ When delivery work needs Gitflow, use the `gitflow-operator` command surface
 instead of hand-writing ad hoc Git instructions:
 
 ```bash
-bin/gitflow-operator --repo <repo> --item-id <story-or-delivery-id> status
-bin/gitflow-operator --repo <repo> --item-id <story-or-delivery-id> branch-from-develop --branch feature/<slug>
-bin/gitflow-operator --repo <repo> --item-id <story-or-delivery-id> prepare-release-notes --summary "<summary>"
+bin/gitflow-operator --repo <repo> --item-id <epic-id> status
+bin/gitflow-operator --repo <repo> --item-id <epic-id> branch-from-develop --branch feature/<slug>
+bin/gitflow-operator --repo <repo> --item-id <epic-id> prepare-release-notes --summary "<summary>"
 ```
 
 If Gitflow is not applicable, record a not-applicable rationale.

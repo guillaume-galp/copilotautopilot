@@ -321,7 +321,7 @@ def test_product_owner_independently_revalidates_planning_gate_and_fails_closed(
     assert "perform no writes" in process
 
 
-def test_ac5_theme_allocation_is_append_only_and_schema_v2():
+def test_theme_allocation_is_append_only_and_new_themes_are_epic_first():
     plan = normalized(
         section(PLAN.read_text(), "## Stage 2 Numbering, Schema, and Admission")
     )
@@ -336,9 +336,11 @@ def test_ac5_theme_allocation_is_append_only_and_schema_v2():
         "repurpose an existing theme",
     ):
         assert prohibited in plan
-    assert "Every new theme declares `schema-version: 2`" in plan
-    assert "every unlocked theme touched by planning" in plan
-    assert "declares `schema-version: 2`" in product_owner
+    assert "Every new theme declares `schema-version: 3`" in plan
+    assert "stories are optional, not prerequisites to execution" in plan
+    assert "Preserve admitted version 1/2 work as legacy compatibility input" in plan
+    assert "declares `schema-version: 3`" in product_owner
+    assert "never manufacture a placeholder US1" in product_owner
 
 
 def test_product_owner_uses_canonical_theme_directory_for_all_planning_paths():
@@ -364,8 +366,8 @@ def test_product_owner_archives_completed_templates_before_any_new_theme_write()
     allocate = process.index("Allocate the theme number")
     archive = process.index("Archive completed-theme templates first")
     create_theme = process.index("Create the theme")
-    create_epics = process.index("Break into epics")
-    create_stories = process.index("Write user stories")
+    create_epics = process.index("Write executable epics")
+    create_stories = process.index("Add stories only when useful")
     create_templates = process.index("Generate issue templates")
 
     assert allocate < archive

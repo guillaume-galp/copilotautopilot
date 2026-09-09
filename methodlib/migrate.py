@@ -744,12 +744,16 @@ def _architecture_presence(
 
 
 def _stories(scope: Scope) -> tuple[Mapping[str, object], ...]:
+    """Return executable units (legacy stories or prospective epics)."""
     result: list[Mapping[str, object]] = []
     epics = scope.data.get("epics")
     if not isinstance(epics, list):
         return ()
     for epic in epics:
         if not isinstance(epic, Mapping):
+            continue
+        if scope.data.get("schema-version") == 3:
+            result.append(epic)
             continue
         stories = epic.get("stories")
         if isinstance(stories, list):

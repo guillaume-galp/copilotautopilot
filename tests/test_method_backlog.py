@@ -545,6 +545,11 @@ def test_skill_status_vocabulary_is_independently_pinned_to_validator(
             "epic": ["todo", "in-progress", "done"],
             "story": ["todo", "in-progress", "blocked", "failed", "done"],
         },
+        "v3": {
+            "theme": ["todo", "in-progress", "done"],
+            "epic": ["todo", "in-progress", "blocked", "failed", "done"],
+            "story": ["todo", "in-progress", "blocked", "failed", "done"],
+        },
     }
 
     for level, location in (
@@ -620,6 +625,18 @@ def test_every_documented_key_is_exercised_by_an_accepted_fixture(tmp_path: Path
     }
 
     assert backlog.validate_repository(root).valid
+    from test_epic_backlog import epic_repository, v3_backlog, v3_child
+
+    prospective = v3_backlog()
+    theme_v3 = prospective["backlog"]["active-themes"][0]
+    epic_v3 = theme_v3["epics"][0]
+    child_v3 = {**v3_child(), "priority": "medium"}
+    epic_v3["stories"] = [child_v3]
+    prospective_root = epic_repository(tmp_path / "v3", prospective)
+    assert backlog.validate_repository(prospective_root).valid
+    objects.update({
+        "theme-v3": theme_v3, "epic-v3": epic_v3, "story-v3": child_v3,
+    })
     assert set(objects) == set(contract["schemas"])
     for name, value in objects.items():
         documented = set(contract["schemas"][name]["properties"])

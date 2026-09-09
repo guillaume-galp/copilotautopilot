@@ -9,9 +9,9 @@ test-reference: tests/test_e4_self_hosted_validation.py::test_recovery_runner_ou
 test-sha256: bfc46cc0f634bf7d824c4151c9e7c4a1d3860b1ff53a162e601de5855b309962
 runner-path: bin/run-th3-e4-us5-evidence
 runner-sha256: 749669834d3cb5dcfaa7dc964e57828096a78ddf386590b8db8966d3565ac4fb
-source-input-sha256: ce2041eda50ec2d98ef6d25038f65a87d517bc3920c7ca035e2fa64329446b24
-executed-input-sha256: 34e2785dbc080c9157970b1eafc28c28a87aadad46696308aa78a2fc3ec47b97
+source-input-sha256: c2e4414729cdfbf1cb43f3ecc71e3fed2b2045f47366fda7bd54ffc26d56f563
+executed-input-sha256: 012146f37b091f19044c52e7a1448c4641244aea43389f55f9406f1a5333b41c
 run-output: docs/plan/evidence/control-activation/runs/CTL-003-trace-bypass-attempt.json
-run-output-sha256: 6f2a85879549a87ad626498ef6870b999598830fcc2e400b710de49a102f622f
+run-output-sha256: 0c8c3f403175a179d5c8747cf2ccbbb873f5cc57f7776f42591eba120c255f10
 observed-exit: 2
-observed-at: '2026-09-07T21:32:43.263063+01:00'
+observed-at: '2026-09-09T10:31:55.358827+01:00'
