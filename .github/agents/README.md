@@ -17,7 +17,7 @@ redefining that contract.
         │                    │                    │
    ┌────▼──────┐       ┌─────▼─────┐       ┌─────▼──────┐
    │ DEVELOPER  │◄─────│  REVIEWER  │       │TROUBLESHOOT│
-   │(impl+test) │      │            │       │            │  Per-story cycle
+   │(impl+test) │      │            │       │            │  Per-epic assignment
    └────────────┘      └────────────┘       └────────────┘
 
    ┌──────────┐     ┌───────────────┐
@@ -28,33 +28,33 @@ redefining that contract.
 ## Agent Details
 
 ### Orchestrator
-- **Role**: Squad leader. Reads the backlog, sequences work, delegates to subagents, manages the full lifecycle loop. Generates changelogs at epic boundaries and release notes at theme boundaries.
+- **Role**: Reads the backlog, sequences bounded epics, and manages durable delivery state. Retains one implementation owner per epic; records aggregate evidence and changelogs, then release notes at theme boundaries.
 - **Skills**: `the-copilot-build-method`, `backlog-management`
 - **Delegates to**: All other agents
-- **Invocable**: By user (via `/run-autopilot`)
+- **Invocable**: By user through the `autopilot` skill
 
 ### Product Owner
-- **Role**: Transforms product vision into themes, epics, and BDD user stories. Builds the backlog. Generates one GitHub issue template per epic (`.github/ISSUE_TEMPLATE/TH<n>-E<m>-<slug>.md`). Revalidates vision at theme completion.
+- **Role**: Transforms accepted inputs into themes, executable epic specifications, and optional BDD child stories. Builds the epic-first backlog and epic issue templates. Revalidates vision at theme completion.
 - **Skills**: `the-copilot-build-method`, `bdd-stories`, `backlog-management`
 - **Invocable**: By user or orchestrator
 
 ### Architect
 - **Role**: Analyzes product vision and produces system architecture, tech stack decisions, and ADRs.
 - **Skills**: `the-copilot-build-method`, `architecture-decisions`
-- **Invocable**: By user (via `/plan-product`)
+- **Invocable**: By user through the `plan` skill
 
 ### Developer
-- **Role**: Implements AND tests exactly one user story per session. Writes production code, test files, runs builds and tests.
+- **Role**: Owns one bounded epic through implementation, tests, and local repair. Optional stories are internal acceptance slices, not separate assignments. A resumed session continues the same epic scope.
 - **Skills**: `the-copilot-build-method`, `bdd-stories`
 - **Invocable**: Subagent only (orchestrator delegates)
 
 ### Reviewer
-- **Role**: Code review for correctness, security (OWASP Top 10), architecture compliance, and conventions.
+- **Role**: Independent integrated epic review when the canonical risk/profile policy requires it. Native review may fulfil this role; do not require duplicate native and custom-agent passes.
 - **Skills**: `the-copilot-build-method`, `code-quality`
 - **Invocable**: Subagent only (orchestrator delegates)
 
 ### Troubleshooter
-- **Role**: Diagnoses and fixes failed stories. Root-cause analysis, minimal fix, verification.
+- **Role**: Diagnoses unresolved epic failures after bounded owner repair. Root-cause analysis, minimal fix, verification; not a mandatory handoff for every failed test.
 - **Skills**: `the-copilot-build-method`, `bdd-stories`, `code-quality`
 - **Invocable**: Subagent only (orchestrator delegates)
 

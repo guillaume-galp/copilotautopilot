@@ -97,7 +97,7 @@ def test_six_stage_map_defines_entrypoint_artefact_gates_and_authority():
         "Planning": [
             "`plan` stage 2",
             (
-                "`docs/themes/TH<n>-<slug>/`, its story files, issue "
+                "`docs/themes/TH<n>-<slug>/`, its epic specifications and optional story files, issue "
                 "templates, "
                 "`docs/themes/TH<n>-<slug>/planning-admission.md`, and the "
                 "theme state in `docs/plan/backlog.yaml`"
@@ -122,9 +122,9 @@ def test_six_stage_map_defines_entrypoint_artefact_gates_and_authority():
                 "The planning-admission record is `Accepted` and its exact "
                 "source revision passes the validator"
             ),
-            "Applicable story, epic, and theme Definition of Done",
+            "Applicable epic and theme Definition of Done, including optional child acceptance coverage",
             (
-                "orchestrator and reviewer for delivery evidence; human for "
+                "orchestrator and epic owner for delivery evidence, independent reviewer when required; human for "
                 "theme acceptance"
             ),
         ],
@@ -259,7 +259,10 @@ def test_autopilot_and_orchestrator_require_the_complete_packet_lifecycle():
         assert "verification evidence" in normalized
         assert "in-progress" in normalized
         assert "parent-only revision" in normalized
-        assert "Never combine story, epic, or theme completion transitions" in normalized
+        assert "Never combine epic and theme completion" in normalized
+        assert "--epic" in normalized
+        assert "optional children" in normalized
+        assert "legacy" in normalized
         assert "done" in normalized
 
 

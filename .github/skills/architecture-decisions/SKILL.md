@@ -61,6 +61,9 @@ Rules:
 ## Commit Convention
 
 Use qualified IDs:
-- `feat(TH1.E1.US1): ...`
-- `fix(TH1.E2.US3): ...`
-- `docs(TH1.E3.US1): ...`
+- `feat(TH4.E1): ...`
+- `fix(TH4.E2): ...`
+- `docs(TH4.E3): ...`
+
+Use epic IDs for new delivery assignments. Historical story-scoped commits
+retain their original IDs.

@@ -1,5 +1,5 @@
 ---
-description: "Diagnose and fix failing build/test/story with minimal validated changes."
+description: "Diagnose and fix an epic's unresolved build/test failures after bounded owner repair."
 agent: "troubleshooter"
 tools: [read, edit, search, execute, github/github-mcp-server/default]
 ---
@@ -10,8 +10,8 @@ tools: [read, edit, search, execute, github/github-mcp-server/default]
 
 ## Context Gathering
 
-1. if story path provided, read expected behavior
-2. check backlog for `status: failed` stories
+1. read the epic packet, expected behavior, and prior repair attempts
+2. check backlog for failed or blocked epics (legacy story requests retain their original scope)
 3. reproduce failure via existing project command(s)
 
 ## Diagnosis Flow

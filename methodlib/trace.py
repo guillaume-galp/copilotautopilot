@@ -74,6 +74,7 @@ GRAPH_STAGE = {
     "PCR": 3,
     "ADR": 4,
     "component": 4,
+    "epic": 5,
     "story": 5,
     "evidence": 6,
 }
@@ -95,8 +96,11 @@ ARCHITECTURE_RECORD_PREFIXES = frozenset(
 )
 RESERVED_PACKET_PATTERN = re.compile(
     r"docs/plan/runtime/packets/"
-    r"(?P<story>TH[1-9][0-9]*\.E[1-9][0-9]*\.US[1-9][0-9]*)/"
+    r"(?P<story>TH[1-9][0-9]*\.E[1-9][0-9]*(?:\.US[1-9][0-9]*)?)/"
 )
+EPIC_ID_PATTERN = re.compile(r"TH[1-9][0-9]*\.E[1-9][0-9]*")
+AC_PATTERN = re.compile(r"AC[1-9][0-9]*")
+STORY_ID_PATTERN = re.compile(r"TH[1-9][0-9]*\.E[1-9][0-9]*\.US[1-9][0-9]*")
 EXP_FILE_PATTERN = re.compile(
     r"(?P<id>EXP-(?:00[1-9]|0[1-9][0-9]|[1-9][0-9]{2}))"
     r"-[a-z0-9]+(?:-[a-z0-9]+)*\.md"
@@ -276,6 +280,8 @@ class StorySource:
     error: str | None = None
     label: str | None = None
     theme: str | None = None
+    kind: str = "story"
+    optional_child: bool = False
 
 
 @dataclass(frozen=True)
@@ -465,6 +471,36 @@ def load_contract(repository_root: PathValue) -> dict[str, object]:
     return loaded
 
 
+def acceptance_criteria(value: object) -> list[dict[str, str]]:
+    """Validate the same acceptance contract at admission and packet build."""
+    if not isinstance(value, list) or not value:
+        raise ContractError(
+            "story frontmatter requires a non-empty acceptance-criteria list"
+        )
+    identifiers: set[str] = set()
+    criteria: list[dict[str, str]] = []
+    for item in value:
+        if not isinstance(item, Mapping) or len(item) != 1:
+            raise ContractError(
+                "each acceptance criterion must be a single-entry mapping"
+            )
+        key, description = next(iter(item.items()))
+        if (
+            not isinstance(key, str)
+            or AC_PATTERN.fullmatch(key) is None
+            or key in identifiers
+            or not isinstance(description, str)
+            or not description.strip()
+        ):
+            raise ContractError(
+                "acceptance criteria require unique canonical AC<number> keys "
+                "and non-empty string values"
+            )
+        identifiers.add(key)
+        criteria.append({key: description})
+    return criteria
+
+
 def _frontmatter(text: str) -> object:
     lines = text.splitlines()
     if not lines or lines[0].strip() != "---":
@@ -551,7 +587,7 @@ def _story_sources_from_backlog(
         )
     themes = list(active_themes)
     for summary in archived_themes:
-        if not isinstance(summary, Mapping) or summary.get("schema-version") != 2:
+        if not isinstance(summary, Mapping) or summary.get("schema-version") not in (2, 3):
             continue
         archive = _safe_story_path(root, summary.get("archive-ref"))
         if archive is None:
@@ -683,8 +719,13 @@ def _story_sources_from_backlog(
                 )
             )
             continue
+        epic_execution = theme.get("schema-version") == 3
         for epic in epics:
-            stories = epic.get("stories") if isinstance(epic, Mapping) else None
+            stories = (
+                epic.get("stories", [] if epic_execution else None)
+                if isinstance(epic, Mapping)
+                else None
+            )
             if not isinstance(stories, list):
                 findings.append(
                     _finding(
@@ -694,15 +735,21 @@ def _story_sources_from_backlog(
                         remediation="Repair the malformed epic entry.",
                     )
                 )
-                continue
-            for story in stories:
+                stories = []
+            entries = (
+                [(epic, "epic", False)]
+                + [(story, "story", True) for story in stories]
+                if epic_execution
+                else [(story, "story", False) for story in stories]
+            )
+            for story, kind, optional_child in entries:
                 if not isinstance(story, Mapping):
                     findings.append(
                         _finding(
                             file=BACKLOG_PATH.as_posix(),
                             record=theme_id,
-                            message="backlog story entry must be a mapping",
-                            remediation="Replace the malformed story entry.",
+                            message=f"backlog {kind} entry must be a mapping",
+                            remediation=f"Replace the malformed {kind} entry.",
                         )
                     )
                     continue
@@ -714,8 +761,8 @@ def _story_sources_from_backlog(
                         _finding(
                             file=BACKLOG_PATH.as_posix(),
                             record=theme_id,
-                            message="backlog story entry has no string ID",
-                            remediation="Declare the canonical story ID.",
+                            message=f"backlog {kind} entry has no string ID",
+                            remediation=f"Declare the canonical {kind} ID.",
                         )
                     )
                 elif expected_id in listed_ids:
@@ -723,8 +770,8 @@ def _story_sources_from_backlog(
                         _finding(
                             file=BACKLOG_PATH.as_posix(),
                             record=expected_id,
-                            message="story ID is listed more than once in the backlog",
-                            remediation="Keep exactly one backlog entry per story.",
+                            message=f"{kind} ID is listed more than once in the backlog",
+                            remediation=f"Keep exactly one backlog entry per {kind}.",
                         )
                     )
                 else:
@@ -740,11 +787,13 @@ def _story_sources_from_backlog(
                             {},
                             story.get("status") if isinstance(story.get("status"), str) else None,
                             (
-                                "declared story path is not a regular contained "
+                                f"declared {kind} path is not a regular contained "
                                 "repository file"
                             ),
                             raw_path,
                             theme_id,
+                            kind,
+                            optional_child,
                         )
                     )
                     continue
@@ -753,27 +802,36 @@ def _story_sources_from_backlog(
                         _finding(
                             file=_display(source, root),
                             record=expected_id,
-                            message="story file is listed more than once in the backlog",
+                            message=f"{kind} file is listed more than once in the backlog",
                             remediation="Keep exactly one backlog entry for this file.",
                         )
                     )
                 listed_paths.add(source)
+                if kind == "epic" and source.name != "README.md":
+                    findings.append(
+                        _finding(
+                            file=_display(source, root),
+                            record=expected_id,
+                            message="executable epic file must be README.md",
+                            remediation="Point the epic to its acceptance-spec README.md.",
+                        )
+                    )
                 if theme_root is not None and not _within(source, theme_root):
                     findings.append(
                         _finding(
                             file=_display(source, root),
                             record=expected_id,
-                            message=f"listed story is outside unlocked theme root {theme_id}",
+                            message=f"listed {kind} is outside unlocked theme root {theme_id}",
                             remediation="Point the backlog entry into its owning theme root.",
                         )
                     )
-                evidence = story.get("evidence")
+                evidence = story.get("evidence", {} if optional_child else None)
                 if not isinstance(evidence, Mapping):
                     findings.append(
                         _finding(
                             file=BACKLOG_PATH.as_posix(),
                             record=expected_id,
-                            message="story evidence must be a mapping",
+                            message=f"{kind} evidence must be a mapping",
                             remediation=(
                                 "Declare exactly the evidence keys "
                                 + ", ".join(EVIDENCE_KEYS)
@@ -789,6 +847,8 @@ def _story_sources_from_backlog(
                         evidence if isinstance(evidence, Mapping) else {},
                         story.get("status") if isinstance(story.get("status"), str) else None,
                         theme=theme_id,
+                        kind=kind,
+                        optional_child=optional_child,
                     )
                 )
         if theme_root is not None:
@@ -796,17 +856,32 @@ def _story_sources_from_backlog(
                 candidate
                 for candidate in _walk_story_files(theme_root, root)
             }
+            if epic_execution:
+                inventory.update(
+                    candidate
+                    for candidate in theme_root.glob("epics/*/README.md")
+                    if _contained_regular_file(candidate, root)
+                )
             for unlisted in sorted(inventory - listed_paths):
+                kind = (
+                    "epic"
+                    if epic_execution and unlisted.parent.name != "stories"
+                    else "story"
+                )
                 findings.append(
                     _finding(
                         file=_display(unlisted, root),
                         record=None,
-                        message=f"story file under unlocked {theme_id} root is not listed in backlog",
-                        remediation="List the story file exactly once in the active theme.",
+                        message=f"{kind} file under unlocked {theme_id} root is not listed in backlog",
+                        remediation=f"List the {kind} file exactly once in the active theme.",
                     )
                 )
                 sources.append(
-                    StorySource(unlisted, None, scope, {}, theme=theme_id)
+                    StorySource(
+                        unlisted, None, scope, {}, theme=theme_id,
+                        kind=kind,
+                        optional_child=epic_execution and kind == "story",
+                    )
                 )
             for absent in sorted(
                 item for item in listed_paths if _within(item, theme_root)
@@ -1454,6 +1529,15 @@ def _story_nodes(
             "acceptance-criteria": list,
             "depends-on": list,
         }
+        if source.kind == "epic":
+            required_frontmatter = {
+                key: value for key, value in required_frontmatter.items()
+                if key not in {"agents", "skills", "depends-on"}
+            }
+        if source.optional_child:
+            required_frontmatter = {
+                "id": str, "title": str, "acceptance-criteria": list,
+            }
         for field, expected_type in required_frontmatter.items():
             if field not in data or not isinstance(data.get(field), expected_type):
                 findings.append(
@@ -1466,16 +1550,32 @@ def _story_nodes(
                         remediation="Restore the required bdd-stories frontmatter schema.",
                     )
                 )
-        identifier = data.get("id")
-        if not isinstance(identifier, str) or not re.fullmatch(
-            r"TH[1-9][0-9]*\.E[1-9][0-9]*\.US[1-9][0-9]*", identifier
+        if (
+            (source.kind == "epic" or source.optional_child)
+            and isinstance(data.get("acceptance-criteria"), list)
         ):
+            try:
+                acceptance_criteria(data["acceptance-criteria"])
+            except ContractError as error:
+                findings.append(_finding(
+                    file=label,
+                    record=data.get("id") if isinstance(data.get("id"), str) else None,
+                    message=str(error),
+                    remediation="Declare nonempty, uniquely identified AC mappings.",
+                ))
+        identifier = data.get("id")
+        identity_pattern = EPIC_ID_PATTERN if source.kind == "epic" else STORY_ID_PATTERN
+        if not isinstance(identifier, str) or identity_pattern.fullmatch(identifier) is None:
             findings.append(
                 _finding(
                     file=label,
                     record=None,
-                    message="story has no canonical TH<n>.E<m>.US<l> frontmatter ID",
-                    remediation="Add the canonical story ID to frontmatter.",
+                    message=(
+                        "epic has no canonical TH<n>.E<m> frontmatter ID"
+                        if source.kind == "epic"
+                        else "story has no canonical TH<n>.E<m>.US<l> frontmatter ID"
+                    ),
+                    remediation=f"Add the canonical {source.kind} ID to frontmatter.",
                 )
             )
             continue
@@ -1486,23 +1586,28 @@ def _story_nodes(
                     record=identifier,
                     message=(
                         f"frontmatter ID {identifier} does not match declared "
-                        f"story ID {source.expected_id}"
+                        f"{source.kind} ID {source.expected_id}"
                     ),
                     remediation="Make the authoritative story ID match its backlog entry.",
                 )
             )
         story_type = data.get("type")
-        if story_type not in required_types | empty_types:
+        if not source.optional_child and (
+            not isinstance(story_type, str)
+            or story_type not in required_types | empty_types
+        ):
             findings.append(
                 _finding(
                     file=label,
                     record=identifier,
-                    message=f"story type {story_type!r} is outside the traceability contract",
+                    message=f"{source.kind} type {story_type!r} is outside the traceability contract",
                     remediation="Use standard, spike, or trivial as defined by bdd-stories.",
                 )
             )
             continue
         traceability = data.get(contract["frontmatter-key"])
+        if source.optional_child and contract["frontmatter-key"] not in data:
+            traceability = {key: [] for key in expected_keys}
         if not isinstance(traceability, Mapping):
             findings.append(
                 _finding(
@@ -1544,13 +1649,18 @@ def _story_nodes(
                     )
                 )
                 continue
-            if story_type in required_types and not value:
+            requires_reference = (
+                not source.optional_child
+                and story_type in required_types
+                and (source.kind != "epic" or key == "requirements")
+            )
+            if requires_reference and not value:
                 findings.append(
                     _finding(
                         file=label,
                         record=identifier,
                         message=(
-                            f"{story_type} story traceability.{key} must contain "
+                            f"{story_type} {source.kind} traceability.{key} must contain "
                             "at least one record ID"
                         ),
                         remediation=f"Add an applicable {key} record ID.",
@@ -1587,11 +1697,11 @@ def _story_nodes(
         nodes.append(
             Node(
                 identifier,
-                "story",
+                source.kind,
                 label,
                 identifier,
                 source.scope,
-                story_type in required_types,
+                not source.optional_child and story_type in required_types,
             )
         )
         declaration_key = _node_key(source.scope, identifier)
@@ -1947,9 +2057,8 @@ def _architecture_trace_declaration(
         )
         malformed.extend(
             item for item in values["stories"]
-            if re.fullmatch(
-                r"TH[1-9][0-9]*\.E[1-9][0-9]*\.US[1-9][0-9]*", item
-            ) is None
+            if STORY_ID_PATTERN.fullmatch(item) is None
+            and EPIC_ID_PATTERN.fullmatch(item) is None
         )
         if (
             not values["records"]
@@ -2017,6 +2126,8 @@ def _evidence_nodes_and_edges(
     edges: list[Edge] = []
     findings: list[Finding] = []
     for source in story_sources:
+        if source.optional_child:
+            continue
         story_key = _node_key(source.scope, source.expected_id or "")
         story = stories.get(story_key)
         if story is None:
@@ -2196,10 +2307,10 @@ def _evidence_nodes_and_edges(
                             _finding(
                                 file=BACKLOG_PATH.as_posix(),
                                 record=source.expected_id,
-                                message="packet evidence path does not match its story",
+                                message=f"packet evidence path does not match its {source.kind}",
                                 remediation=(
-                                    "Use docs/plan/runtime/packets/<story-id>/ "
-                                    "for that story."
+                                    f"Use docs/plan/runtime/packets/<{source.kind}-id>/ "
+                                    f"for that {source.kind}."
                                 ),
                             )
                         )
@@ -2629,7 +2740,7 @@ def _validate_repository(repository_root: PathValue) -> ValidationResult:
                 node = _resolve(index, architecture_scope, identifier)
                 if (
                     node is None
-                    or node.kind != "story"
+                    or node.kind not in {"story", "epic"}
                     or not identifier.startswith(mapping.theme + ".")
                 ):
                     findings.append(
@@ -2729,7 +2840,8 @@ def _validate_repository(repository_root: PathValue) -> ValidationResult:
                 mapping for mapping in mappings if mapping.theme in active_themes
             ]
             if active_mappings and not any(
-                identifier.startswith("TH") and ".US" in identifier
+                (target := _resolve(index, node.scope, identifier)) is not None
+                and target.kind in {"story", "epic"}
                 for identifier in downstream
             ):
                 findings.append(
