@@ -22,7 +22,7 @@ EXPECTED_RESERVED_COMMANDS = (
     "budget",
     "report",
 )
-EXPECTED_COMMANDS = ("validate", "doctor", "packet", *EXPECTED_RESERVED_COMMANDS, "migrate")
+EXPECTED_COMMANDS = ("validate", "doctor", "packet", *EXPECTED_RESERVED_COMMANDS, "migrate", "lane")
 EXPECTED_PACKET_ACTIONS = ("project", "build", "verify", "preflight", "reconcile")
 EXPECTED_VALIDATE_CHECKS = (
     "all",

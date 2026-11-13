@@ -18,8 +18,8 @@ from methodlib import activation, cli, exits, recovery  # noqa: E402
 LEDGER = ROOT / activation.LEDGER_PATH
 PROMOTION = {
     "actor": "Human: designer",
-    "timestamp": "2026-09-07T03:06:55+01:00",
-    "record": "docs/plan/control-promotions/TH3.E4.US5.md",
+    "timestamp": "2026-11-13T11:59:51Z",
+    "record": "docs/plan/control-promotions/delivery-delivery-lanes.md",
 }
 
 
@@ -27,6 +27,25 @@ def ledger_document() -> dict[str, object]:
     document = yaml.safe_load(LEDGER.read_text(encoding="utf-8"))
     assert isinstance(document, dict)
     return document
+
+
+def test_delivery_renewal_record_preserves_legacy_identity_and_authority(tmp_path: Path):
+    for reference in (
+        PROMOTION["record"],
+        "docs/plan/control-promotions/TH3.E4.US5.md",
+    ):
+        copy_file(tmp_path, reference)
+        parsed, error = activation._parse_promotion_record(tmp_path, reference)
+        assert error is None and parsed is not None
+    path = tmp_path / PROMOTION["record"]
+    original = path.read_text()
+    for malformed in (
+        original.replace("Human: designer", "Agent: developer"),
+        original.replace("| Record | delivery-delivery-lanes |", "| Record | different |"),
+    ):
+        path.write_text(malformed)
+        parsed, error = activation._parse_promotion_record(tmp_path, PROMOTION["record"])
+        assert parsed is None and error
 
 
 def control(document: dict[str, object], identifier: str) -> dict[str, object]:
@@ -61,6 +80,7 @@ def write_repository(
         "docs/plan/backlog-archive/TH2.yaml",
         "docs/plan/control-promotions/TH3.E4.US1.md",
         "docs/plan/control-promotions/TH3.E4.US5.md",
+        PROMOTION["record"],
         activation.TH3_USAGE_WAIVER_PATH.as_posix(),
         "docs/requirements/VP3-discovery-led-cost-aware-methodology/PRD.md",
         "methodlib/activation.py",
@@ -973,7 +993,7 @@ def test_adversarial_finding_1_promotion_record_must_resolve_and_match_ledger(
                 "| Actor | Human: release owner |",
             ),
             "timestamp": (
-                "| Timestamp | 2026-09-07T03:06:55+01:00 |",
+                f"| Timestamp | {PROMOTION['timestamp']} |",
                 "| Timestamp | 2026-09-07T02:17:56+01:00 |",
             ),
             "control": (

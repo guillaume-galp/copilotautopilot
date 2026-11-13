@@ -6,12 +6,12 @@ recovery-case: active-doc-stale-then-removed
 fixture-path: tests/fixtures/method_recovery/cases.yaml
 fixture-sha256: dee8bf7f13d43b5397daaac01492b6ec16c6809b1f1620ebaa2b798d969b859e
 test-reference: tests/test_e4_self_hosted_validation.py::test_recovery_runner_outputs_are_bound_and_consumed
-test-sha256: bfc46cc0f634bf7d824c4151c9e7c4a1d3860b1ff53a162e601de5855b309962
+test-sha256: b586f295055cb648aeb1672b0fac76fe6ca2c463bce2ebfdc2502c77df047678
 runner-path: bin/run-th3-e4-us5-evidence
 runner-sha256: 749669834d3cb5dcfaa7dc964e57828096a78ddf386590b8db8966d3565ac4fb
-source-input-sha256: c2e4414729cdfbf1cb43f3ecc71e3fed2b2045f47366fda7bd54ffc26d56f563
-executed-input-sha256: e0c975dd2871be2a630096d0dcdcd8264a41b12090938bc05cc8104858ea8ed0
+source-input-sha256: f7ff738a37097ff80c038629e14cfe938b606756576fda0fdee97133dc385e4b
+executed-input-sha256: 34f8cb7f0088d7c4b1826a613787207389d647fb5e5b8d885241689aceb93a66
 run-output: docs/plan/evidence/control-activation/runs/CTL-014-docs-bypass-attempt.json
-run-output-sha256: 3f74b5e9568c7f382741341189c46992f9d5095732b05589630b0505bfeac6dc
+run-output-sha256: 203160b579f8474337fc3388a245783c919e25325e0f294f7e97bf89bb68729e
 observed-exit: 2
-observed-at: '2026-09-09T10:31:56.428888+01:00'
+observed-at: '2026-11-13T12:05:59.690713+00:00'

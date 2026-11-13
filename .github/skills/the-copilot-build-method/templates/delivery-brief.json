@@ -1,0 +1,12 @@
+{
+  "task": "<bounded-task-id>",
+  "owner": "<retained-owner>",
+  "outcome": "<measurable-outcome>",
+  "scope": ["<repository-relative-path>"],
+  "acceptance": ["<criterion>"],
+  "checks": ["<targeted-check-name>"],
+  "kind": "fix",
+  "design": "unknown",
+  "certainty": "unknown",
+  "risk": "R1"
+}

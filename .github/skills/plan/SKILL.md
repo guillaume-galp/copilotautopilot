@@ -11,6 +11,13 @@ description: 'Run gated architecture and delivery-planning stages from an accept
 lifecycle, gate-record, authority, and split-lock contracts owned by
 `the-copilot-build-method`; it does not define another lifecycle.
 
+Resolve the canonical delivery lane first. Routine Direct maintenance and
+Managed implementation of an established design use `autopilot`'s local lane
+route, not synthetic product planning. This skill's gates apply when actual
+product/design stage work is requested or required. Reuse valid accepted
+evidence; new/changed consequential decisions still need their human gates.
+Never use lane selection to evade a previously refused stage/admission gate.
+
 ## Agents and Canonical Contracts
 
 - Stage 1 delegates only to `@architect`, using

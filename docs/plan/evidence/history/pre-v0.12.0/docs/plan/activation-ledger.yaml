@@ -1,0 +1,190 @@
+ledger-version: 1
+controls:
+  - id: CTL-001
+    name: Six-stage gate enforcement and Discovery dispositions
+    requirements: [PR-001, PR-002, PR-006, PR-010]
+    state: ENFORCED
+    effective-point: "method validate gates at Discovery, Requirements, Architecture, and Planning entry"
+    limitations:
+      - "The local validator enforces recorded entry gates; interactive orchestration of all six stages remains human-operated in TH3."
+    evidence:
+      - docs/ADRs/ADR-002-six-stage-gated-lifecycle.md
+      - docs/plan/evidence/control-activation/CTL-001-gates-bypass-attempt.yaml
+      - docs/plan/evidence/control-activation/CTL-001-gates-restore-and-pass.yaml
+    proposed-by: product-owner
+    promoted-by:
+      actor: "Human: designer"
+      timestamp: "2026-09-07T03:06:55+01:00"
+      record: docs/plan/control-promotions/TH3.E4.US5.md
+  - id: CTL-002
+    name: Discovery dossier and PRD record schema
+    requirements: [PR-003, PR-004, PR-008, PR-009]
+    state: ENFORCED
+    effective-point: "method validate schema plus the gate and trace record parsers"
+    limitations:
+      - "Schema validation is local and repository-scoped; it does not validate future TH4 packet or policy formats."
+    evidence:
+      - docs/architecture/data-model.md
+      - docs/ADRs/ADR-003-markdown-records-and-local-validator.md
+      - docs/plan/evidence/control-activation/CTL-002-schema-bypass-attempt.yaml
+      - docs/plan/evidence/control-activation/CTL-002-schema-restore-and-pass.yaml
+    proposed-by: product-owner
+    promoted-by:
+      actor: "Human: designer"
+      timestamp: "2026-09-07T03:06:55+01:00"
+      record: docs/plan/control-promotions/TH3.E4.US5.md
+  - id: CTL-003
+    name: Lock scope and consequential traceability
+    requirements: [PR-011, PR-012]
+    state: ENFORCED
+    effective-point: "method validate lock and method validate trace"
+    limitations:
+      - "Open VP3 shared artefacts remain revisable under ADR-008 until every mapped theme is accepted."
+    evidence:
+      - docs/ADRs/ADR-008-multi-theme-lock-and-activation-ledger.md
+      - docs/plan/evidence/control-activation/CTL-003-lock-bypass-attempt.yaml
+      - docs/plan/evidence/control-activation/CTL-003-lock-restore-and-pass.yaml
+      - docs/plan/evidence/control-activation/CTL-003-trace-bypass-attempt.yaml
+      - docs/plan/evidence/control-activation/CTL-003-trace-restore-and-pass.yaml
+    proposed-by: product-owner
+    promoted-by:
+      actor: "Human: designer"
+      timestamp: "2026-09-07T03:06:55+01:00"
+      record: docs/plan/control-promotions/TH3.E4.US5.md
+  - id: CTL-004
+    name: Control activation ledger
+    requirements: [PR-013]
+    state: MANUAL
+    effective-point: "human promotion in this ledger at theme boundaries, checked by method validate maturity"
+    limitations:
+      - "A human still decides and records promotions; the validator checks evidence and repository support but does not make promotion decisions."
+    evidence:
+      - docs/ADRs/ADR-008-multi-theme-lock-and-activation-ledger.md
+      - methodlib/activation.py
+      - tests/test_method_activation.py
+    proposed-by: product-owner
+    promoted-by:
+      actor: "Human: designer"
+      timestamp: "2026-09-06T23:19:56+01:00"
+      record: docs/plan/control-promotions/TH3.E4.US1.md
+  - id: CTL-005
+    name: Risk tiers, verification profiles, and review profiles
+    requirements: [PR-101, PR-102, PR-106, PR-107]
+    state: SPECIFIED
+    effective-point: "docs/plan/backlog.yaml story risk and verification declarations"
+    limitations:
+      - "TH3 declares tiers and profiles by hand. Architect validation, reviewer escalation, and enforcement are TH4 scope."
+    evidence:
+      - docs/ADRs/ADR-006-risk-verification-and-model-routing.md
+    proposed-by: product-owner
+    promoted-by: null
+  - id: CTL-006
+    name: Provider-neutral model capability routing
+    requirements: [PR-104, PR-105, PR-213]
+    state: SPECIFIED
+    effective-point: "docs/plan/backlog.yaml story model-route declarations"
+    limitations:
+      - "docs/plan/policy/model-policy.yaml does not exist yet; the backlog policy reference is null until TH4."
+    evidence:
+      - docs/ADRs/ADR-006-risk-verification-and-model-routing.md
+    proposed-by: product-owner
+    promoted-by: null
+  - id: CTL-007
+    name: Agent packets and source staleness
+    requirements: [PR-109, PR-110, PR-111, PR-112]
+    state: SPECIFIED
+    effective-point: "docs/architecture/data-model.md packet manifest"
+    limitations:
+      - "No packets are generated in TH3. Story evidence.packets paths are reserved placeholders. TH4 scope."
+    evidence:
+      - docs/ADRs/ADR-005-agent-packets-and-source-hashing.md
+    proposed-by: product-owner
+    promoted-by: null
+  - id: CTL-008
+    name: Backlog schema v2 controls
+    requirements: [PR-113, PR-115]
+    state: SPECIFIED
+    effective-point: "docs/plan/backlog.yaml schema-version 2"
+    limitations:
+      - "TH3 authors schema v2 by hand and validates its shape only. Runtime control enforcement over these fields is TH4 scope."
+    evidence:
+      - docs/ADRs/ADR-004-backlog-schema-v2-and-transitions.md
+    proposed-by: product-owner
+    promoted-by: null
+  - id: CTL-009
+    name: Revisioned transitions and recovery
+    requirements: [PR-208, PR-209]
+    state: SPECIFIED
+    effective-point: "ADR-004 transition protocol"
+    limitations:
+      - "method tx is not implemented. Backlog writes in TH3 follow the manual read-modify-write protocol and bump revision by hand."
+    evidence:
+      - docs/ADRs/ADR-004-backlog-schema-v2-and-transitions.md
+    proposed-by: product-owner
+    promoted-by: null
+  - id: CTL-010
+    name: Usage measurement
+    requirements: [PR-201, PR-202]
+    state: SPECIFIED
+    effective-point: "ADR-007 adapter chain"
+    limitations:
+      - "No usage instrumentation exists in TH3 or TH4. All story usage values are null with confidence unknown and are never reported as zero."
+      - "QR-013 is satisfied for TH3 by docs/plan/waivers/TH3-usage-evidence.md, which expires at TH3 acceptance or earlier instrumentation and cannot be reused by TH4."
+    evidence:
+      - docs/plan/waivers/TH3-usage-evidence.md
+      - docs/ADRs/ADR-007-usage-adapter-and-budget-enforcement.md
+    proposed-by: product-owner
+    promoted-by: null
+  - id: CTL-011
+    name: Budget thresholds, pause, and dispositions
+    requirements: [PR-203, PR-205, PR-206, PR-207]
+    state: SPECIFIED
+    effective-point: "ADR-007 nested soft-cap budgets"
+    limitations:
+      - "docs/plan/policy/budget-policy.yaml does not exist yet; all budgets are null meaning unset and report-only. TH5 scope."
+    evidence:
+      - docs/ADRs/ADR-007-usage-adapter-and-budget-enforcement.md
+    proposed-by: product-owner
+    promoted-by: null
+  - id: CTL-012
+    name: Theme report and policy calibration
+    requirements: [PR-211, PR-212]
+    state: SPECIFIED
+    effective-point: "ADR-007 theme scorecard"
+    limitations:
+      - "method report is not implemented. TH3 acceptance reporting is prose plus this ledger. TH5 scope."
+    evidence:
+      - docs/ADRs/ADR-007-usage-adapter-and-budget-enforcement.md
+    proposed-by: product-owner
+    promoted-by: null
+  - id: CTL-013
+    name: Migration assessment
+    requirements: [PR-014]
+    state: SPECIFIED
+    effective-point: "method migrate assess writes docs/plan/migration-assessment.md"
+    limitations:
+      - "Assessment is evidence-based and prospective; absent historical Discovery, verification, and usage remain unknown."
+    evidence:
+      - docs/plan/migration-assessment.md
+      - methodlib/migrate.py
+      - tests/test_method_migrate.py
+    proposed-by: product-owner
+    promoted-by: null
+  - id: CTL-014
+    name: Lifecycle documentation consistency
+    requirements: [PR-015, QR-012]
+    state: ENFORCED
+    effective-point: "method validate docs over active workspace, skill, agent, and test documentation"
+    limitations:
+      - "The validator intentionally excludes locked TH1/TH2 history, architecture history, archived agents and issue templates, and generated skill templates."
+    evidence:
+      - docs/architecture/README.md
+      - methodlib/docs.py
+      - tests/test_method_docs.py
+      - docs/plan/evidence/control-activation/CTL-014-docs-bypass-attempt.yaml
+      - docs/plan/evidence/control-activation/CTL-014-docs-restore-and-pass.yaml
+    proposed-by: product-owner
+    promoted-by:
+      actor: "Human: designer"
+      timestamp: "2026-09-07T03:06:55+01:00"
+      record: docs/plan/control-promotions/TH3.E4.US5.md

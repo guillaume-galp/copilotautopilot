@@ -15,6 +15,14 @@ description: 'Run orchestrator to execute backlog in dependency order with recov
 
 ## Pre-flight
 
+First select the delivery lane from `the-copilot-build-method`. For new
+unadmitted Direct/Managed work, use `method lane assess` and `start`, retain
+the returned revision, then `preflight` before implementation/resumption.
+Use one owner with the compact scope/acceptance/check brief; do not invoke
+Vision, Discovery, PRD or planning merely to satisfy a packet requirement.
+The checks below and the Mandatory Packet Contract apply to **admitted work
+and Governed packet execution**, not to the lighter local route.
+
 Verify:
 1. the canonical lifecycle stage order and Autopilot admission gate in
    `the-copilot-build-method` permit execution
@@ -56,6 +64,17 @@ schema. Version 1/2 state and story packets retain their legacy protocol;
 `--story` is a compatibility selector, never authority to implement siblings.
 
 ## Execution
+
+Direct/Managed: the retained owner implements within scope, runs `method lane
+check` for every declared targeted/integration check and acceptance criterion,
+records real risk-scaled review via `method lane review`, then uses `complete`
+for implementation completion only. Failures stay with the owner for bounded
+repair; use `pause` for unresolved failures or authority refusal. Use `amend`
+to change scope/risk and invalidate old evidence; explicitly `resume` only
+when clear and eligible. Governed escalation refuses local execution and
+requires human authority plus applicable lifecycle gates and packets.
+Never create a second product queue, relabel an admitted item, or claim
+release readiness, product acceptance or activation from lane completion.
 
 Run dependency-ordered loop: implement → test → quality assessment per epic.
 Retain one owner through local repairs and optional child sequencing. Apply
