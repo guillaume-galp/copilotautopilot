@@ -254,10 +254,14 @@ When delivery work needs Gitflow, use the `gitflow-operator` command surface
 instead of hand-writing ad hoc Git instructions:
 
 ```bash
-bin/gitflow-operator --repo <repo> --item-id <epic-id> status
-bin/gitflow-operator --repo <repo> --item-id <epic-id> branch-from-develop --branch feature/<slug>
-bin/gitflow-operator --repo <repo> --item-id <epic-id> prepare-release-notes --summary "<summary>"
+"$GITFLOW_OPERATOR" --repo <repo> --item-id <epic-id> status
+"$GITFLOW_OPERATOR" --repo <repo> --item-id <epic-id> branch-from-develop --branch feature/<slug>
+"$GITFLOW_OPERATOR" --repo <repo> --item-id <epic-id> prepare-release-notes --summary "<summary>"
 ```
+
+Resolve `GITFLOW_OPERATOR` as defined in the `gitflow-operator` skill: prefer
+the target repository's executable `bin/gitflow-operator`, then use
+`command -v gitflow-operator` from `PATH`. Stop if neither path resolves.
 
 If Gitflow is not applicable, record a not-applicable rationale.
 

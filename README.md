@@ -169,6 +169,29 @@ Retain the returned `authorization_hash` outside the packet and use it with
 The implementation checkout and authoritative planning repository must be
 disjoint.
 
+## Framework Distribution
+
+`VERSION` identifies the release version. Build a deterministic package only
+from a clean commit tagged `v<VERSION>`; a dirty or untagged checkout requires
+`--development` and is labelled with its source commit. The package manifest
+records resource hashes, runtime compatibility, and the credential-preflight
+overlay policy without embedding user-level overlay content.
+
+```bash
+python3 scripts/method_distribution.py check \
+  --workspace-root /path/to/workspace \
+  --skills-root /path/to/user/skills \
+  --runtime-root /path/to/copilotautopilot/v0.11.0
+python3 scripts/method_distribution.py package \
+  --output /tmp/copilotautopilot.zip --development
+```
+
+The checker is read-only. Packaging creates only the requested archive; it
+does not install, copy, or synchronize user or workspace files. Legacy slash
+commands are retained as aliases that invoke the current `kickstart`, `plan`,
+and `autopilot` skills rather than defining a parallel lifecycle. Omit
+`--development` only for a clean commit tagged `v<VERSION>`.
+
 ## Using as a Template
 
 ### From GitHub (recommended)
