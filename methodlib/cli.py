@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence, TextIO
@@ -16,6 +17,8 @@ from methodlib import (
     doctor,
     exits,
     gates,
+    lane_cli,
+    lanes,
     lock,
     migrate,
     packet,
@@ -34,7 +37,7 @@ VALIDATE_CHECKS = (
     "dod",
 )
 RESERVED_COMMANDS = ("tx", "usage", "budget", "report")
-VALID_COMMANDS = ("validate", "doctor", "packet", *RESERVED_COMMANDS, "migrate")
+VALID_COMMANDS = ("validate", "doctor", "packet", *RESERVED_COMMANDS, "migrate", "lane")
 PACKET_ACTIONS = ("project", "build", "verify", "preflight", "reconcile")
 
 
@@ -483,6 +486,31 @@ def _migrate_command(
     )
 
 
+def _lane_command(
+    arguments: argparse.Namespace,
+    probe_directory: Path | None,
+) -> CommandResult:
+    root = arguments.lane_repo or probe_directory or Path.cwd()
+    try:
+        payload, refused = lane_cli.invoke(arguments, root)
+    except (lanes.LaneFailure, OSError, json.JSONDecodeError, UnicodeError, backlog.yaml.YAMLError,
+            subprocess.SubprocessError, KeyError) as error:
+        message = str(error)
+        return CommandResult(
+            exits.VALIDATION_FAILURE,
+            {"command": "lane", "action": arguments.lane_action, "status": "refused",
+             "execution": "closed", "findings": [message],
+             "remediation": "Preserve evidence, correct input or obtain explicit human disposition; never downgrade a gate."},
+            (f"method lane {arguments.lane_action}: {message}",),
+        )
+    payload.update(command="lane", action=arguments.lane_action)
+    diagnostics = (
+        (f"method lane {arguments.lane_action}: {payload.get('next_action', payload.get('blockers'))}",)
+        if refused else ()
+    )
+    return CommandResult(exits.VALIDATION_FAILURE if refused else exits.SUCCESS, payload, diagnostics)
+
+
 def build_parser() -> MethodArgumentParser:
     parser = MethodArgumentParser(
         prog="method",
@@ -528,6 +556,8 @@ def build_parser() -> MethodArgumentParser:
         help="probe local runtime and filesystem capabilities",
     )
     doctor_parser.set_defaults(handler=_doctor_command)
+
+    lane_cli.configure(subcommands, MethodArgumentParser, _lane_command)
 
     packet_parser = subcommands.add_parser(
         "packet",

@@ -9,6 +9,12 @@ Use `the-copilot-build-method` as the canonical lifecycle, gate, authority, and
 split-lock contract; this skill defines review quality only and does not
 restate that contract.
 
+Assess the integrated lane assignment once. Direct/Managed review does not
+require synthetic lifecycle artefacts. Apply the canonical risk/profile
+review floor, retain real revision-bound attribution and report uncertainty.
+Governed new work needs independent approval; existing admitted/legacy
+review requirements remain unchanged.
+
 ## Review Checklist
 
 ### 1) Correctness

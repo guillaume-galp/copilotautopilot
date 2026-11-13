@@ -29,6 +29,16 @@ skill; this table is a reader-oriented summary.
 
 ## Quick Start
 
+For maintenance and established-design work, select a **Direct**, **Managed**
+or **Governed** delivery lane first. Direct fixes/docs/refactors need no new
+Vision, Discovery, PRD, theme, epic or mission packet. Managed work retains
+one owner and compact resumable evidence. Consequential authority/integrity,
+migration, production and enforcement work remains Governed.
+See the [lane usage guide](.github/skills/the-copilot-build-method/delivery-lanes.md)
+for `method lane` examples, verification, escalation and compatibility.
+The product lifecycle below applies when actual product/design decisions
+require it; it is not mandatory paperwork for routine maintenance.
+
 1. **Sketch the product vision with `kickstart`**
    - Run the `kickstart` skill in Copilot Chat
    - Brainstorm freely — capture ideas in `docs/vision_of_product/VP1-mvp/`

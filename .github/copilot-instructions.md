@@ -4,7 +4,10 @@
 
 Template repo for autonomous product development. The authoritative stage
 order, entrypoints, artefacts, gates, authorities, and split lock scope are
-defined only by the `the-copilot-build-method` skill. The method has six
+defined only by the `the-copilot-build-method` skill. Select its Direct,
+Managed or Governed delivery lane before invoking product lifecycle work.
+Direct/Managed assignments do not require a synthetic planning hierarchy or
+mission packet. The method has six
 stages exposed through five entrypoints; use that skill's canonical map rather
 than restating the stage sequence here. Legacy prompt names are deprecated;
 use the entrypoints named by the canonical skill.
@@ -14,13 +17,16 @@ use the entrypoints named by the canonical skill.
 - `docs/plan/backlog.yaml` — runtime source of truth for status/dependencies
 - `docs/plan/backlog-archive/TH<n>.yaml` — completed theme snapshots (referenced by backlog.yaml)
 - `docs/plan/session-log.md` — recent resumability log (supplementary)
+- `docs/plan/runtime/lanes/` — compact Direct/Managed working evidence;
+  never a product queue, backlog authority or acceptance record
 
 ## Agent Roles
 
 - `product-owner`: creates themes, executable epic specifications, optional stories, and backlog
 - `architect`: defines architecture + ADRs
 - `orchestrator`: runs implement → test → review loop
-- `developer`: owns one bounded epic through implementation, testing, and repair
+- `developer`: retains one bounded lane assignment (an epic for admitted work)
+  through implementation, testing, and repair
 - `reviewer`: reviews correctness/security/conventions
 - `troubleshooter`: diagnoses epic failures after bounded owner repair
 
@@ -44,10 +50,15 @@ Graphify over grep-style search.
 
 ## Hard Rules
 
-- Always read/write state from `docs/plan/backlog.yaml` (never memory-only state).
-- One developer assignment = one bounded epic; optional stories are not separate jobs.
+- Product orchestration state belongs to `docs/plan/backlog.yaml`; Direct/Managed
+  resume from lane evidence and never mirror or complete backlog items.
+- One retained owner per bounded assignment; admitted work remains one epic
+  (legacy story packets stay story-scoped). Optional stories are not separate jobs.
+- Apply the canonical lane's selection, preflight, escalation and completion
+  controls. No lane downgrade after refusal, unauthorized external mutation,
+  invented approval, skipped verification or implicit production activation.
 - Apply the canonical bounded-repair and escalation rules, not automatic handoffs on failed tests.
-- Assess quality once at the epic boundary, using the canonical risk-based review policy.
+- Assess quality once at the assignment boundary, using the canonical risk-based review policy.
 - At theme boundary, move old templates from `.github/ISSUE_TEMPLATE/TH<n>-*.md` to `.github/ISSUE_TEMPLATE/archive/`.
 - Apply the split lock and ADR supersession rules from
   `the-copilot-build-method`; do not infer VP-level lock from one theme alone.

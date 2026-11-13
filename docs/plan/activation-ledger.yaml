@@ -14,8 +14,8 @@ controls:
     proposed-by: product-owner
     promoted-by:
       actor: "Human: designer"
-      timestamp: "2026-09-07T03:06:55+01:00"
-      record: docs/plan/control-promotions/TH3.E4.US5.md
+      timestamp: "2026-11-13T11:59:51Z"
+      record: docs/plan/control-promotions/delivery-delivery-lanes.md
   - id: CTL-002
     name: Discovery dossier and PRD record schema
     requirements: [PR-003, PR-004, PR-008, PR-009]
@@ -31,8 +31,8 @@ controls:
     proposed-by: product-owner
     promoted-by:
       actor: "Human: designer"
-      timestamp: "2026-09-07T03:06:55+01:00"
-      record: docs/plan/control-promotions/TH3.E4.US5.md
+      timestamp: "2026-11-13T11:59:51Z"
+      record: docs/plan/control-promotions/delivery-delivery-lanes.md
   - id: CTL-003
     name: Lock scope and consequential traceability
     requirements: [PR-011, PR-012]
@@ -49,8 +49,8 @@ controls:
     proposed-by: product-owner
     promoted-by:
       actor: "Human: designer"
-      timestamp: "2026-09-07T03:06:55+01:00"
-      record: docs/plan/control-promotions/TH3.E4.US5.md
+      timestamp: "2026-11-13T11:59:51Z"
+      record: docs/plan/control-promotions/delivery-delivery-lanes.md
   - id: CTL-004
     name: Control activation ledger
     requirements: [PR-013]
@@ -186,5 +186,5 @@ controls:
     proposed-by: product-owner
     promoted-by:
       actor: "Human: designer"
-      timestamp: "2026-09-07T03:06:55+01:00"
-      record: docs/plan/control-promotions/TH3.E4.US5.md
+      timestamp: "2026-11-13T11:59:51Z"
+      record: docs/plan/control-promotions/delivery-delivery-lanes.md
