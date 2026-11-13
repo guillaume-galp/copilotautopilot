@@ -1,0 +1,38 @@
+backlog:
+  schema-version: 2
+  revision: 68
+  project: copilot-autopilot-methodology-improvements
+  last-updated: '2026-09-07T09:22:22.527+01:00'
+  policy:
+    model-policy: null
+    budget-policy: null
+  active-themes: []
+  archived-themes:
+  - id: TH1
+    name: Methodology Improvements
+    status: done
+    locked: true
+    completed-at: '2026-03-10T12:30:00Z'
+    archive-ref: docs/plan/backlog-archive/TH1.yaml
+    stats:
+      epics: 6
+      stories: 26
+  - id: TH2
+    name: Gitflow Operator
+    status: done
+    locked: true
+    completed-at: '2026-07-31T11:09:14+01:00'
+    archive-ref: docs/plan/backlog-archive/TH2.yaml
+    stats:
+      epics: 2
+      stories: 4
+  - schema-version: 2
+    id: TH3
+    name: Discovery and requirements foundation
+    status: done
+    locked: true
+    completed-at: '2026-09-07T09:22:22.527+01:00'
+    archive-ref: docs/plan/backlog-archive/TH3.yaml
+    stats:
+      epics: 4
+      stories: 22

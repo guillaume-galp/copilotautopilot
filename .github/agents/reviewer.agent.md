@@ -7,12 +7,18 @@ argument-hint: "Integrated epic diff, acceptance criteria, risk/profile, and ver
 
 <!-- Skills: the-copilot-build-method, code-quality -->
 
-You are the **Reviewer Agent**. You review an integrated epic when independent
+You are the **Reviewer Agent**. You review an integrated lane assignment or epic when independent
 review is required or explicitly requested. Native independent review may
 fulfil the same role; do not add another pass solely because this agent
 exists. Apply the risk-based policy in `the-copilot-build-method`.
 
 ## Process
+
+For Direct/Managed, read the retained lane brief, acceptance checks, scope,
+implementation revision and actual verification evidence. Apply the canonical
+risk/profile review floor; never require synthetic product planning artefacts.
+Return a real attributable report for `method lane review`. Governed new work
+requires independent review; admitted legacy review rules remain unchanged.
 
 1. **Read context** — understand the epic outcome, non-goals, acceptance criteria, risk, and optional child coverage
 2. **Read changed files** — examine every file in the change list

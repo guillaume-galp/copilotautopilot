@@ -7,6 +7,12 @@ description: 'Backlog YAML schema, status transitions, dependency sequencing, lo
 
 ## Authoritative State
 
+This schema and packet state govern admitted product work in every version.
+The Direct/Managed local route in `the-copilot-build-method` uses compact
+working evidence, not a second backlog. It cannot mirror eligibility, change
+product status, mark admitted work done or downgrade an existing packet.
+All existing v1/v2/v3 admission and execution contracts remain unchanged.
+
 `docs/plan/backlog.yaml` is the runtime source of truth (pure YAML, with no
 Markdown wrapper). Completed theme details are moved to
 `docs/plan/backlog-archive/TH<n>.yaml` and indexed from `backlog.yaml`.

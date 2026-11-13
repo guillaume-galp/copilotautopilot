@@ -1,9 +1,164 @@
 ---
 name: the-copilot-build-method
-description: 'Canonical six-stage lifecycle, gates, authority, DoD, naming, ceremonies, and split lock rules.'
+description: 'Canonical Direct, Managed and Governed delivery lanes, lifecycle gates, authority, DoD and split locks.'
 ---
 
 # The Copilot Build Method
+
+## Risk-Scaled Delivery Lanes
+
+Select a delivery lane **before** selecting lifecycle work. This section is
+the canonical authority for lane selection, execution and completion. The
+six-stage lifecycle below remains the product/design lifecycle, not a
+mandatory prerequisite for every maintenance assignment. `autopilot` is also
+the delivery entrypoint for Direct and Managed work; do not send such work
+through `kickstart` or `plan` merely to make it executable.
+
+| Lane | Eligibility | Required controls | Unnecessary new artefacts |
+|---|---|---|---|
+| Direct | Bounded, well-understood fixes, documentation or behavior-preserving refactors within existing intent; R0/R1, clear scope and no consequential trigger | One owner, outcome/scope/acceptance checks, targeted verification, self-assessment and concise report | Vision, Discovery, PRD, theme, epic, mission packet |
+| Managed | Substantial features or multi-session bounded work within an established design, with no Governed trigger | Retained owner, concise outcome/non-goals/acceptance brief, durable progress/next action, targeted and relevant integration checks, risk-scaled review | Complete greenfield lifecycle and new planning hierarchy for unchanged decisions |
+| Governed | Consequential authority, integrity, sensitive operations, migrations, production/delivery operations, complex cross-service contracts or changes to this method's enforcement | Explicit human authority/scope, formal acceptance/verification/review evidence, recovery/rollback assessment where applicable, mission packets and applicable lifecycle gates | Re-creating or re-accepting unchanged, valid upstream evidence |
+
+### Selection and Confirmation
+
+The implementation owner assesses explicit facts and proposes the lowest
+eligible lane. Size is not file count, duration or a license to ignore risk.
+An R2 assessment requires at least Managed; R3 requires Governed. A new or
+changed product/design decision requires the applicable human product/design
+gates; it is not ordinary maintenance. Unknown design or risk facts and
+uncertain scope pause execution for clarification, not optimistic defaults.
+Human confirmation is required before consequential decisions/operations,
+including this method's approval or execution semantics. Existing accepted
+specifications remain binding in every lane.
+
+The following executable classification vocabulary is owned here. The local
+CLI reads this block from its packaged canonical skill, never from a target
+project's potentially stale copy.
+
+<!-- delivery-lanes-contract:start -->
+```json
+{
+  "lanes": ["Direct", "Managed", "Governed"],
+  "maintenance": ["fix", "docs", "refactor"],
+  "kinds": ["fix", "docs", "refactor", "feature"],
+  "designs": ["existing", "new", "unknown"],
+  "certainty": ["clear", "uncertain", "unknown"],
+  "risks": ["R0", "R1", "R2", "R3"],
+  "profiles": ["standard", "adversarial", "critical"],
+  "governed-triggers": [
+    "authorization", "data-integrity", "sensitive-operation", "migration",
+    "production", "deployment", "release", "cross-service", "method-enforcement"
+  ],
+  "governed-paths": [
+    "docs/vision_of_product", "docs/discovery", "docs/requirements",
+    "docs/architecture", "docs/ADRs", "docs/themes", "docs/plan/backlog.yaml",
+    "docs/plan/backlog-archive"
+  ],
+  "enforcement-paths": [
+    "methodlib", "bin/method", ".github/copilot-instructions.md",
+    ".github/skills", ".github/agents", ".github/hooks", ".github/prompts"
+  ]
+}
+```
+<!-- delivery-lanes-contract:end -->
+
+Triggers refer to **semantics**, not keywords: access-control decisions and
+grants; integrity-critical writes; sensitive operational handling; schema/data
+migrations; production actions; deployment/release; complex cross-service
+contract changes; lifecycle/approval/verification enforcement. A purely local
+capability implementation may still be Governed; it never grants activation.
+Declared scope touching formal product/planning/architecture artefacts routes
+to their existing contracts conservatively. Fixing an ordinary README typo
+does not require new product decisions.
+Enforcement code/instruction paths also route conservatively, without relying
+on a declared trigger. A repository with unfinished product backlog work cannot
+prove a new lighter assignment unrelated from implementation paths alone;
+the local route refuses and retains the existing packet contract. Finish or
+obtain disposition of that admitted work rather than omit its identity.
+
+### Execution and Resumption
+
+Use `method lane assess` before new unadmitted work; `method lane start`
+records the selected lane. Direct can supply the brief as CLI arguments; no
+handwritten planning file is required. Managed uses the same compact brief
+with non-goals, existing design evidence and integration checks. The generated
+record in `docs/plan/runtime/lanes/` is **working evidence**, not another
+backlog, dispatch queue, product acceptance or mission packet. Retain its
+returned `revision` outside the record and pass `--expected-revision` to every
+subsequent command. Record hashes detect staleness/tampering; they are not
+authentication signatures.
+
+`method lane preflight` checks the retained owner, scope and unchanged
+out-of-scope files before implementation/resumption. `method lane check`
+runs only an explicitly supplied verification command (never commands read
+from a brief), retaining real exit status, covered criteria and content
+revision. `method lane review` binds an attributable actual review report to
+that revision. R0/R1 standard permits self-review; R2/R3 or
+adversarial/critical requires independent approval. Governed new work always
+requires independent review; legacy admitted review rules stay unchanged.
+`method lane complete` checks fresh, passing targeted/integration evidence,
+complete acceptance coverage, review and an explicit Gitflow evidence or
+not-applicable rationale. It reports **implementation completion only**.
+Read the record on resume; continue its next action with the same owner.
+
+Change the brief only with `method lane amend`. Outcome, scope, criteria,
+checks, design, uncertainty or risk changes pause work and invalidate affected
+verification/review (the compact route conservatively invalidates all).
+Lane floors never decrease; previously declared consequential triggers
+cannot be removed. `resume` is an explicit owner disposition for clear,
+eligible lighter work, not automatic recovery. Governed escalation refuses
+lighter execution and routes to human authority plus the packet/admission
+contracts; migrate evidence by reference, never by pretending the record is a
+packet. Increased risk, ambiguity, undeclared file changes or required review
+refusal blocks execution/completion. `pause` records unresolved failures,
+missing authority or refusal; an authority refusal cannot be cleared by
+`resume`, `amend`, lane downgrade or a new overlapping task. Obtain human
+disposition through the governed route instead.
+
+After two unsuccessful owner repair attempts, pause for specialist/human
+disposition; missing expertise/authority blocks immediately. Appropriate
+checks are selected by the owner, not inferred from command success alone.
+No tool proves the adequacy of a check, the truth of classification facts or
+the authenticity of human/independent attribution: retain the real source
+evidence and confirm consequential decisions with the human. The verification
+runner is not an OS sandbox; never supply mutation/deployment/release commands
+as checks or place secrets in command arguments.
+The bounded inventory includes ignored files outside scope. Declare optional
+`verification_outputs` (CLI `--verification-output`) for generated test/build
+outputs before starting; those explicit write grants are excluded from the
+implementation digest. They cannot overlap implementation, accepted evidence
+or control paths, and cannot be expanded during repair to hide a violation.
+
+### Invariants and Compatibility
+
+Control renewal for a bounded delivery task may use
+`docs/plan/control-promotions/delivery-<task>.md`, with the existing exact
+Actor/Timestamp/Record/Decision/Basis/Limit promotion table. Its title and
+Record identify the filename. Human authority, matching ledger decisions and
+fresh recovery evidence remain required. Legacy story-named promotion records
+remain valid and immutable; no synthetic story is required for renewal.
+
+- No fabricated tests, approvals or completion. Failures, missing evidence
+  and uncertainty are explicit blockers, never success-shaped fallbacks.
+- No unauthorized external mutation, access grant, deployment, merge or
+  release. Gitflow describes delivery procedure, not authorization to perform
+  it. No lane choice grants human authority or waives a gate.
+- Preserve accepted specifications, split locks and frozen history. The
+  lighter route never writes product backlog, gates or accepted artefacts.
+- Separate implementation completion, release readiness, product acceptance
+  and production activation; none implies any of the others.
+- Existing admitted v1/v2/v3 work continues its current packet, gate, review,
+  verification and completion contracts. `--admitted-item` routes to packets;
+  omission is not permission to relabel admitted work. No automatic conversion,
+  history migration, widening of legacy story scope or gate downgrade.
+- `method packet` and explicit product lifecycle entrypoints retain their
+  existing defaults. The lane route cannot complete a backlog item, grant a
+  worker a packet or accept a product. Governed work must use the applicable
+  validated lifecycle admission and packet machinery. Valid existing product
+  and architecture evidence may be reused; new decisions use their gates.
+
+See [the delivery lane guide](delivery-lanes.md) for executable examples.
 
 ## Canonical Lifecycle Contract
 
@@ -131,9 +286,10 @@ At the applicable gate, the block is removed or `Status` is changed to
 
 ## Core Principles
 
-- Follow the canonical lifecycle and validate its gates before stage work.
-- `docs/plan/backlog.yaml` is authoritative orchestration state.
-- One bounded epic per developer assignment; retain the same owner through
+- Select the canonical delivery lane; validate applicable gates before stage work.
+- `docs/plan/backlog.yaml` is authoritative product orchestration state;
+  lighter working records never compete with it.
+- For admitted packet work, one bounded epic per developer assignment; retain the same owner through
   implementation, testing, and local repair. Resume from durable evidence
   rather than treating one context window as a delivery boundary.
 - Stories are optional acceptance subdivisions, not separate agent jobs.

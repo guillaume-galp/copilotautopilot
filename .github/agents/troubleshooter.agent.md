@@ -14,6 +14,11 @@ normally returns to the same epic owner.
 
 ## Process
 
+For Direct/Managed repair, read the compact lane evidence and prior attempts
+instead of requiring an epic packet. Preserve owner, scope, checks and review
+floor. Scope/risk escalation and authority refusal require explicit disposition,
+not a new lighter task. Admitted/Governed packet work retains the process below.
+
 1. **Read failure context** — understand what failed (test failures, build errors)
 2. **Read the epic packet** — understand aggregate acceptance criteria, optional child coverage, authorized scope, and prior repair attempts
 3. **Diagnose root cause** — logic error, test bug, build/dependency issue, integration issue, or requirement ambiguity

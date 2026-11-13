@@ -35,7 +35,7 @@ METHOD = ROOT / "bin/method"
 EVIDENCE_RUNNER = ROOT / recovery.RUNNER_PATH
 FIXTURES = ROOT / "tests/fixtures/method_validate_all"
 VERIFICATION_REPORT = ROOT / self_hosted.REPORT_PATH
-PROMOTION_RECORD = ROOT / "docs/plan/control-promotions/TH3.E4.US5.md"
+PROMOTION_RECORD = ROOT / "docs/plan/control-promotions/delivery-delivery-lanes.md"
 LOCKED_STORY = (
     "docs/themes/TH2-gitflow-operator/E1-gitflow-operator/"
     "stories/US1-develop-branch-workflow.md"
@@ -862,7 +862,7 @@ def test_retained_promotion_is_later_and_covers_all_recovery_controls():
     )
     expected = {
         "actor": "Human: designer",
-        "record": "docs/plan/control-promotions/TH3.E4.US5.md",
+        "record": "docs/plan/control-promotions/delivery-delivery-lanes.md",
     }
     for identifier in ("CTL-001", "CTL-002", "CTL-003", "CTL-014"):
         promoted = control(ledger, identifier)["promoted-by"]
@@ -871,7 +871,7 @@ def test_retained_promotion_is_later_and_covers_all_recovery_controls():
 
     promotion = PROMOTION_RECORD.read_text(encoding="utf-8")
     assert "| Actor | Human: designer |" in promotion
-    assert "| Record | TH3.E4.US5 |" in promotion
+    assert f"| Record | {PROMOTION_RECORD.stem} |" in promotion
     assert (
         "| Decision | Promote CTL-001, CTL-002, CTL-003, and CTL-014 "
         "to ENFORCED. |"

@@ -179,7 +179,8 @@ STORY_PATTERN = re.compile(r"TH[1-9][0-9]*\.E[1-9][0-9]*\.US[1-9][0-9]*")
 HUMAN_ACTOR_PATTERN = re.compile(r"Human:\s+\S.*")
 PROMOTION_PATH_PATTERN = re.compile(
     r"docs/plan/control-promotions/"
-    r"(?P<record>TH[1-9][0-9]*\.E[1-9][0-9]*\.US[1-9][0-9]*)\.md"
+    r"(?P<record>TH[1-9][0-9]*\.E[1-9][0-9]*\.US[1-9][0-9]*"
+    r"|delivery-[a-z0-9]+(?:-[a-z0-9]+)*)\.md"
 )
 PROMOTION_FIELDS = ("Actor", "Timestamp", "Record", "Decision", "Basis", "Limit")
 TEST_REFERENCE_PATTERN = re.compile(

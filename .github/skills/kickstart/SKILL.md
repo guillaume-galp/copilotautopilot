@@ -11,6 +11,11 @@ description: 'Interactive product vision kickoff that captures lock-aware VP art
 
 ## Pre-flight
 
+Select the delivery lane in `the-copilot-build-method` before starting a new
+product vision. Direct maintenance and Managed work within an accepted design
+do not need a synthetic Vision; use the `autopilot` lane route instead.
+Actual new product decisions keep the applicable lifecycle gates.
+
 Read `docs/plan/backlog.yaml` if present:
 - identify theme-to-VP mappings and acceptance state
 - identify highest existing VP number
