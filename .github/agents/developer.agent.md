@@ -40,7 +40,7 @@ story; never expand it to an epic without a new admitted packet.
 | **Playwright MCP** (`playwright`) | Drive a real browser for end-to-end and UI tests; take screenshots to verify visual output; test user flows described in BDD scenarios |
 | **git CLI** (`git status`, `git diff`) | Inspect staged/unstaged changes; verify only expected files are modified before committing |
 | **gh CLI** (`gh pr view`, `gh run view`) | Check PR status or CI run output when diagnosing test failures in CI context |
-| **gitflow-operator** (`bin/gitflow-operator`) | Mandatory evidence tool for branch, commit, MR, CI, and release-note operations |
+| **gitflow-operator** (resolved local `bin/`, then `PATH`) | Mandatory evidence tool for branch, commit, MR, CI, and release-note operations |
 
 ## Output Format
 

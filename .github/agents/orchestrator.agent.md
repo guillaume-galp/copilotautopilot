@@ -118,7 +118,7 @@ never turn a legacy `--story` grant into an epic grant by instruction alone.
 | **Graphify CLI** (`graphify query`) | When `graphify-out/graph.json` exists, answer codebase, architecture, file-relationship, and project-content questions before broad text search; pass the graph path to delegated agents |
 | **git CLI** (`git status`, `git diff`, `git log`) | Inspect epic changes and history; route delivery mutations through Gitflow |
 | **gh CLI** (`gh run list`, `gh run view`, `gh pr list`) | Monitor workflow runs; view CI logs for failed jobs; check PR review status |
-| **gitflow-operator** (`bin/gitflow-operator`) | Mandatory branch/MR/CI/squash/release-note evidence for delivery Gitflow |
+| **gitflow-operator** (resolved local `bin/`, then `PATH`) | Mandatory branch/MR/CI/squash/release-note evidence for delivery Gitflow |
 
 ## Output Templates
 

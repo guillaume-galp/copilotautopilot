@@ -20,14 +20,29 @@ state, or cockpit-specific clearance gates.
 
 ## Command Surface
 
+Resolve the executable for the repository being changed before using this
+surface. Prefer `<repo>/bin/gitflow-operator` when it is executable; otherwise
+resolve `gitflow-operator` with `command -v` from `PATH`. Use the resolved
+path for every operation. If neither exists, stop and report the missing
+command; do not silently substitute raw Git commands or another CLI.
+
 ```bash
-bin/gitflow-operator --repo <repo> --item-id <id> branch-from-develop --branch feature/<slug>
-bin/gitflow-operator --repo <repo> --item-id <id> status
-bin/gitflow-operator --repo <repo> --item-id <id> commit --message "feat(<id>): <summary>" .
-bin/gitflow-operator --repo <repo> --item-id <id> create-merge-request --title "<title>" --body "<release notes>"
-bin/gitflow-operator --repo <repo> --item-id <id> watch-ci
-bin/gitflow-operator --repo <repo> --item-id <id> prepare-release-notes --summary "<summary>" --tests "<tests>"
-bin/gitflow-operator --repo <repo> --item-id <id> squash-merge-to-develop
+if test -x "$REPO/bin/gitflow-operator"; then
+  GITFLOW_OPERATOR="$REPO/bin/gitflow-operator"
+else
+  GITFLOW_OPERATOR="$(command -v gitflow-operator)" || {
+    printf '%s\n' "gitflow-operator not found in repository bin/ or PATH" >&2
+    exit 127
+  }
+fi
+
+"$GITFLOW_OPERATOR" --repo <repo> --item-id <id> branch-from-develop --branch feature/<slug>
+"$GITFLOW_OPERATOR" --repo <repo> --item-id <id> status
+"$GITFLOW_OPERATOR" --repo <repo> --item-id <id> commit --message "feat(<id>): <summary>" .
+"$GITFLOW_OPERATOR" --repo <repo> --item-id <id> create-merge-request --title "<title>" --body "<release notes>"
+"$GITFLOW_OPERATOR" --repo <repo> --item-id <id> watch-ci
+"$GITFLOW_OPERATOR" --repo <repo> --item-id <id> prepare-release-notes --summary "<summary>" --tests "<tests>"
+"$GITFLOW_OPERATOR" --repo <repo> --item-id <id> squash-merge-to-develop
 ```
 
 ## Rules
