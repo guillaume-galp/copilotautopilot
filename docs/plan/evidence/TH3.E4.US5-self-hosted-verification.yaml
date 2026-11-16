@@ -1,7 +1,7 @@
 report-version: 2
 story: TH3.E4.US5
 theme: TH3
-generated-at: '2026-11-13T12:11:20.830068+00:00'
+generated-at: '2026-11-16T12:29:25.413743+00:00'
 theme-status: done
 theme-accepted: true
 theme-locked: true
@@ -29,7 +29,7 @@ generator:
 source-snapshot:
   semantics: freshness boundary for implementation, tests, fixtures, recovery outputs,
     ledger, promotion, and story
-  aggregate-sha256: 0f0aa70dc6b0799f65d52c8a58b1e7cca8a971f0e956d634fccb28fa4bbab768
+  aggregate-sha256: 9327e20161afbe84cb7082edb373e2f24cab8ec5a7bb9f81dcde74e50dc505a7
   files:
   - path: bin/method
     sha256: fd0708f028b800234dfe74cf580dbdd5b099beaeff916fb40842a0f7a862e280
@@ -152,7 +152,7 @@ source-snapshot:
   - path: tests/test_epic_trace.py
     sha256: 3847199714af5f6f41f6bbcdc94d9805f2741228b0d8b04ebf0a21acbb885bbc
   - path: tests/test_gitflow_operator.py
-    sha256: bc90b61110740c4f67ba5b11407a2b6267f4656702a6430c88120c07ccb5b2d5
+    sha256: d09c25ce0849c68cfb3363429baaf7570d3aa15c1d909c6f1c44c22f307b2f98
   - path: tests/test_investigator_agent_contract.py
     sha256: 8704ba74d67f5fdf5fee982f01b57b26a0e76a280f064ea34560be1ce2cb3a7a
   - path: tests/test_lifecycle_contract.py
@@ -212,11 +212,11 @@ protected-snapshot:
   file-count: 79
   aggregate-sha256: 9da8ae6697f017221dc4250f26681688fb9385fd1ce5cfe7884856f1f27cbd02
   verified-by: protected-lock
-  verified-at: '2026-11-13T12:06:00.633442+00:00'
+  verified-at: '2026-11-16T12:23:16.290096+00:00'
 bounded-snapshots:
   backlog:
     artifact: backlog-snapshot
-    observed-at: '2026-11-13T12:06:00.633442+00:00'
+    observed-at: '2026-11-16T12:23:16.290096+00:00'
     semantics: point-in-time copy used by this run; not an immutable baseline and
       not compared with later orchestrator state
   session-log:
@@ -225,23 +225,23 @@ artifacts:
 - id: protected-lock
   kind: command-output
   path: docs/plan/evidence/self-hosted-run/protected-lock.json
-  sha256: 64e1324d6e4144bff7854469c3707f66add858160aff436f2b6453b2e1d3e72b
+  sha256: d621fb4a1b760788d4e247bf0a4abb95e7881058e417c13d781d5f2675fd5e86
 - id: self-hosted
   kind: command-output
   path: docs/plan/evidence/self-hosted-run/self-hosted.json
-  sha256: c5110655f80a1a416368bd7a2e1442d685212aac9156791fb2ec4b209b173db5
+  sha256: 0acdcb993b3ebbd3db2f72a797397f179a8d92c9d690c835e02f09e999042d06
 - id: loaded-validation
   kind: command-output
   path: docs/plan/evidence/self-hosted-run/loaded-validation.json
-  sha256: b3d75c3d9f645b955ad2909914c938c03ad7bf5ff7927ee8fbf7465f83e00815
+  sha256: 19457c243bb0a9c04759d19b5226dde5d412b516506b1e1f5c3ec5cc495bc79d
 - id: network-namespace
   kind: network-proof
   path: docs/plan/evidence/self-hosted-run/network-namespace.json
-  sha256: 1cf8ddaab7343bd66caa53b40c1d9de0f8b70064d2d9c7682fa10632375db34f
+  sha256: d51a8584653f5f341cf21dbfeb70008bcb94679221d50a5d2cd238401b24047d
 - id: full-pytest
   kind: test-output
   path: docs/plan/evidence/self-hosted-run/full-pytest.json
-  sha256: d946b208c214a77745581d997762b95a81dc516348c0cd3efc169621a26dd73c
+  sha256: 6d1440afab845b744412cf49fc7c1de5467348fbb7f22d05e2159fdc246193b8
 - id: backlog-snapshot
   kind: bounded-snapshot
   path: docs/plan/evidence/self-hosted-run/backlog-at-validation.yaml
