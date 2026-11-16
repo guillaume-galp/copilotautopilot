@@ -1,43 +1,40 @@
 ---
 name: gitflow-operator
-description: "Mandatory Gitflow tool contract for autopilot skills: branch from develop, status, commit, create merge request, watch CI, squash-merge to develop, and prepare release notes."
+description: Provider-neutral Gitflow operations and evidence for GitHub and GitLab repositories.
 ---
 
-# Gitflow Operator Skill
+# Gitflow Operator
 
-Use `the-copilot-build-method` as the canonical lifecycle, gate, authority, and
-split-lock contract; this skill defines delivery Gitflow only and does not
-restate that contract.
+Within Copilot Autopilot, use `the-copilot-build-method` for lifecycle and
+authority; this skill owns Gitflow operations only.
 
-## Scope
+Use the standalone `gitflow-operator` command for branch, status, commit,
+merge-request, CI, squash-merge, and release-note operations. This skill owns
+Gitflow behavior only; consumers retain their own lifecycle, approval, and
+work-dispatch authority.
 
-Use this skill whenever an autopilot delivery needs Git operations: branch,
-status, commit, merge request, CI watching, squash merge, or release-note
-preparation.
+## Resolve the command
 
-This skill does not own cockpit runtime orchestration, worker dispatch, queue
-state, or cockpit-specific clearance gates.
-
-## Command Surface
-
-Resolve the executable for the repository being changed before using this
-surface. Prefer `<repo>/bin/gitflow-operator` when it is executable; otherwise
-resolve `gitflow-operator` with `command -v` from `PATH`. Use the resolved
-path for every operation. If neither exists, stop and report the missing
-command; do not silently substitute raw Git commands or another CLI.
+Prefer the repository compatibility launcher if present; otherwise resolve the
+standalone installation from `PATH`. If neither exists, stop and report the
+missing command; do not silently substitute raw Git commands or another CLI.
 
 ```bash
 if test -x "$REPO/bin/gitflow-operator"; then
   GITFLOW_OPERATOR="$REPO/bin/gitflow-operator"
 else
   GITFLOW_OPERATOR="$(command -v gitflow-operator)" || {
-    printf '%s\n' "gitflow-operator not found in repository bin/ or PATH" >&2
+    printf '%s\n' "gitflow-operator not found" >&2
     exit 127
   }
 fi
+```
 
-"$GITFLOW_OPERATOR" --repo <repo> --item-id <id> branch-from-develop --branch feature/<slug>
+## Use
+
+```bash
 "$GITFLOW_OPERATOR" --repo <repo> --item-id <id> status
+"$GITFLOW_OPERATOR" --repo <repo> --item-id <id> branch-from-develop --branch feature/<slug>
 "$GITFLOW_OPERATOR" --repo <repo> --item-id <id> commit --message "feat(<id>): <summary>" .
 "$GITFLOW_OPERATOR" --repo <repo> --item-id <id> create-merge-request --title "<title>" --body "<release notes>"
 "$GITFLOW_OPERATOR" --repo <repo> --item-id <id> watch-ci
@@ -45,10 +42,25 @@ fi
 "$GITFLOW_OPERATOR" --repo <repo> --item-id <id> squash-merge-to-develop
 ```
 
-## Rules
+Provider selection comes from the repository's HTTPS or SSH `origin` remote.
+SCM1 uses `GITLAB_LGC_TOKEN`; configured self-managed GitLab uses `GITLAB_TOKEN`
+and the `GITFLOW_GITLAB_HOSTS` allowlist. GitHub uses the authenticated `gh`
+CLI. Never pass tokens in command arguments or repository URLs.
 
-- Branches start from `develop`; missing `develop` is a blocked state, not a
-  silent fallback to `main` or `master`.
-- Every command emits JSON evidence.
-- Completion requires Gitflow evidence or an explicit not-applicable rationale.
-- Multi-repo delivery items collect one evidence report per affected repo.
+Every operation emits JSON evidence. A failed gate is nonzero and remains
+failed; do not treat a JSON response alone as success. Before squash merge the
+operator verifies the current source SHA, target, request state, CI,
+discussions, approvals, and protected-branch settings. It never uses an
+administrative or gate-bypassing merge option.
+
+Consumers compose this skill with their own delivery process. A Gitflow result
+does not grant product acceptance, deployment, release, or production
+authorization.
+
+## Credential preflight
+
+Before requesting GitLab authentication, check `~/.secrets/ulysses.env` for the
+relevant credential name without displaying its value. Load only the required
+credential into the invoking process. Never print tokens, enable shell tracing
+around them, place them in arguments or remotes, or store them in evidence.
+Credentials do not authorize bypassing server-enforced branch rules.

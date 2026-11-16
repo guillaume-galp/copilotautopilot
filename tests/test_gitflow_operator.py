@@ -8,85 +8,50 @@ ROOT = Path(__file__).resolve().parents[1]
 GITFLOW = ROOT / "bin" / "gitflow-operator"
 
 
-def run(cmd, cwd=None, check=True, env=None):
+def run(cmd, env):
     return subprocess.run(
         cmd,
-        cwd=cwd,
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        check=check,
+        check=False,
         env=env,
     )
 
 
-def init_repo(path: Path) -> None:
-    path.mkdir()
-    run(["git", "init"], cwd=path)
-    run(["git", "config", "user.email", "test@example.com"], cwd=path)
-    run(["git", "config", "user.name", "Test User"], cwd=path)
-    (path / "README.md").write_text("hello\n")
-    run(["git", "add", "README.md"], cwd=path)
-    run(["git", "commit", "-m", "initial"], cwd=path)
-
-
-def test_branch_from_develop_blocks_when_develop_missing(tmp_path):
-    repo = tmp_path / "repo"
-    init_repo(repo)
-    result = run([str(GITFLOW), "--repo", str(repo), "--item-id", "TH2.E1.US1", "branch-from-develop", "--branch", "feature/x"])
-    data = json.loads(result.stdout)
-    assert data["operation"] == "branch-from-develop"
-    assert data["status"] == "blocked"
-    assert "develop branch missing" in data["reason"]
-
-
-def test_branch_from_develop_creates_branch(tmp_path):
-    repo = tmp_path / "repo"
-    init_repo(repo)
-    run(["git", "checkout", "-b", "develop"], cwd=repo)
-    result = run([str(GITFLOW), "--repo", str(repo), "--item-id", "TH2.E1.US1", "branch-from-develop", "--branch", "feature/x"])
-    data = json.loads(result.stdout)
-    assert data["status"] == "created"
-    assert data["branch"] == "feature/x"
-    assert data["target_branch"] == "feature/x"
-
-
-def test_prepare_release_notes_outputs_evidence(tmp_path):
-    repo = tmp_path / "repo"
-    init_repo(repo)
-    result = run([str(GITFLOW), "--repo", str(repo), "--item-id", "TH2.E1.US2", "prepare-release-notes", "--summary", "Ship gitflow", "--tests", "pytest"])
-    data = json.loads(result.stdout)
-    assert data["operation"] == "prepare-release-notes"
-    assert data["status"] == "prepared"
-    assert "Ship gitflow" in data["release_notes"]
-    assert "pytest" in data["release_notes"]
-
-
-def test_squash_merge_uses_current_pull_request_without_unsupported_base(tmp_path):
-    repo = tmp_path / "repo"
-    init_repo(repo)
-    fake_bin = tmp_path / "bin"
-    fake_bin.mkdir()
-    args_file = tmp_path / "gh-args"
-    gh = fake_bin / "gh"
-    gh.write_text('#!/bin/sh\nprintf "%s\\n" "$@" > "$GH_ARGS_FILE"\necho merged\n')
-    gh.chmod(0o755)
+def test_repository_launcher_delegates_to_standalone_command(tmp_path):
+    provider_bin = tmp_path / "provider"
+    provider_bin.mkdir()
+    args_file = tmp_path / "args.json"
+    provider = provider_bin / "gitflow-operator"
+    provider.write_text(
+        '#!/bin/sh\nprintf \'%s\\n\' "$@" > "$GITFLOW_TEST_ARGS"\nprintf \'{"status":"delegated"}\\n\'\n',
+        encoding="utf-8",
+    )
+    provider.chmod(0o755)
     env = os.environ.copy()
-    env["PATH"] = f"{fake_bin}:{env['PATH']}"
-    env["GH_ARGS_FILE"] = str(args_file)
+    env["PATH"] = f"{provider_bin}:/usr/bin:/bin"
+    env["GITFLOW_TEST_ARGS"] = str(args_file)
 
     result = run(
-        [
-            str(GITFLOW),
-            "--repo",
-            str(repo),
-            "--item-id",
-            "TH3",
-            "squash-merge-to-develop",
-        ],
-        env=env,
+        [str(GITFLOW), "--repo", "/tmp/repo", "status"],
+        env,
     )
 
-    data = json.loads(result.stdout)
-    assert data["status"] == "merged"
-    assert args_file.read_text().splitlines() == ["pr", "merge", "--squash"]
+    assert result.returncode == 0
+    assert json.loads(result.stdout) == {"status": "delegated"}
+    assert args_file.read_text().splitlines() == ["--repo", "/tmp/repo", "status"]
+
+
+def test_repository_launcher_fails_explicitly_without_standalone_command(tmp_path):
+    env = os.environ.copy()
+    env["PATH"] = f"{tmp_path}:/usr/bin:/bin"
+    env.pop("GITFLOW_OPERATOR_EXECUTABLE", None)
+
+    result = run([str(GITFLOW), "status"], env)
+
+    assert result.returncode == 127
+    evidence = json.loads(result.stdout)
+    assert evidence["operation"] == "dispatch"
+    assert evidence["status"] == "blocked"
+    assert "not found" in evidence["reason"]

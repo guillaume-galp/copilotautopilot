@@ -418,6 +418,7 @@ instead of hand-writing ad hoc Git instructions:
 Resolve `GITFLOW_OPERATOR` as defined in the `gitflow-operator` skill: prefer
 the target repository's executable `bin/gitflow-operator`, then use
 `command -v gitflow-operator` from `PATH`. Stop if neither path resolves.
+The repository-local executable is a compatibility launcher; the standalone Gitflow Operator project owns provider-specific implementation and tests.
 
 If Gitflow is not applicable, record a not-applicable rationale.
 
