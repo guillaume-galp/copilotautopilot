@@ -1,5 +1,24 @@
 # Delivery lanes: local usage
 
+## Choose whether the runtime is needed
+
+Repository-native delivery is the default described in the
+[canonical method](SKILL.md). For "fix this bug in this existing repository",
+inspect the code, implement, run relevant checks and report. No `docs/`,
+backlog, packet, admission, method package or lane record is required.
+Use existing issues/PRs/session state rather than bootstrap new paperwork.
+Unrelated backlog work does not itself block that request; do not relabel an
+actual admitted assignment or disregard a real refusal.
+
+The commands in the rest of this guide are the **opt-in formal runtime**.
+Select them when explicitly requested or required by the repository/task.
+Their strict inventory, retained-revision and evidence rules are deliberate;
+they are not prerequisites for all code changes everywhere.
+Consequential native operations still require real authority and appropriate
+verification/review, not an invented lifecycle.
+
+## Formal runtime examples
+
 The [canonical method](SKILL.md) owns classification and authority. Use the
 source checkout's `bin/method` from the project checkout being changed, or
 pass `lane --repo /target/checkout` before its action (the

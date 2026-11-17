@@ -15,6 +15,11 @@ review floor, retain real revision-bound attribution and report uncertainty.
 Governed new work needs independent approval; existing admitted/legacy
 review requirements remain unchanged.
 
+For repository-native work, use the request, actual diff, existing conventions
+and check results. No formal brief, packet, lane record or standard docs
+layout is required. The canonical method's native/formal distinction applies;
+retain truthful review evidence without bootstrapping lifecycle adoption.
+
 ## Review Checklist
 
 ### 1) Correctness
