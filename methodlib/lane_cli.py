@@ -14,7 +14,10 @@ def configure(
     parser_class: type[argparse.ArgumentParser],
     handler: Callable,
 ) -> None:
-    parser = subcommands.add_parser("lane", help="assess, execute and resume risk-scaled delivery")
+    parser = subcommands.add_parser(
+        "lane", help="opt-in formal delivery tracking (not required for repository-native work)",
+        description="Strict, opt-in delivery evidence runtime. Ordinary repository-native work does not require lane records or lifecycle admission.",
+    )
     parser.add_argument("--repo", dest="lane_repo", type=Path, help="target Git checkout; defaults to current directory")
     actions = parser.add_subparsers(dest="lane_action", required=True, parser_class=parser_class)
     for action in ("assess", "start", "preflight", "amend", "resume", "check", "review", "pause", "complete"):

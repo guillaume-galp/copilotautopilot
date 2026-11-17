@@ -14,6 +14,10 @@ normally returns to the same epic owner.
 
 ## Process
 
+For repository-native repair, use the request, failing commands and source;
+missing packets, lane records or a standard docs layout are not blockers.
+The formal instructions below apply only to work tracked by that runtime.
+
 For Direct/Managed repair, read the compact lane evidence and prior attempts
 instead of requiring an epic packet. Preserve owner, scope, checks and review
 floor. Scope/risk escalation and authority refusal require explicit disposition,

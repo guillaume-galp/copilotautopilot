@@ -9,9 +9,9 @@ test-reference: tests/test_e4_self_hosted_validation.py::test_recovery_runner_ou
 test-sha256: b586f295055cb648aeb1672b0fac76fe6ca2c463bce2ebfdc2502c77df047678
 runner-path: bin/run-th3-e4-us5-evidence
 runner-sha256: 749669834d3cb5dcfaa7dc964e57828096a78ddf386590b8db8966d3565ac4fb
-source-input-sha256: f7ff738a37097ff80c038629e14cfe938b606756576fda0fdee97133dc385e4b
-executed-input-sha256: f7ff738a37097ff80c038629e14cfe938b606756576fda0fdee97133dc385e4b
+source-input-sha256: 39d60822bdec82cd9cd3cbf691c6ee0cf72b09dfed9e34a3c358e215620c195a
+executed-input-sha256: 39d60822bdec82cd9cd3cbf691c6ee0cf72b09dfed9e34a3c358e215620c195a
 run-output: docs/plan/evidence/control-activation/runs/CTL-014-docs-restore-and-pass.json
-run-output-sha256: e1c8f348968db7efe36f425cde949c971aeef378337aa76785d16a9e1194972d
+run-output-sha256: 256f04944905a9b9ab10c51d6c8874347cad7da36dc7a78fdfe74409b2c9c6f2
 observed-exit: 0
-observed-at: '2026-11-13T12:06:00.116257+00:00'
+observed-at: '2026-11-17T02:25:39.083888+00:00'

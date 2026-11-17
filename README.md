@@ -29,6 +29,16 @@ skill; this table is a reader-oriented summary.
 
 ## Quick Start
 
+**Already have a repository and a concrete request? Just work in it.**
+Repository-native delivery is the default: read its conventions, implement,
+run relevant checks, review and report. Installing the method does not enrol
+every project in its formal lifecycle. Missing backlog, standard `docs/`,
+admission, packet or method package is not a reason to refuse ordinary coding.
+Use formal runtime when the user/repository requires it or when executing
+an existing admitted item; those contracts and real refusals remain binding.
+Gitflow Operator v0.2.0 follows configured/detected branches, including
+`development`, `master` and custom names; it does not require renaming them.
+
 For maintenance and established-design work, select a **Direct**, **Managed**
 or **Governed** delivery lane first. Direct fixes/docs/refactors need no new
 Vision, Discovery, PRD, theme, epic or mission packet. Managed work retains

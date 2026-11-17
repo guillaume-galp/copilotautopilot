@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.14.0 — 2026-11-17
+
+- Default to repository-native engineering without synthetic backlog, admission,
+  packet, standard docs layout or mandatory lane-runtime installation.
+- Scope formal lifecycle/runtime gates to adopted work, preserve real refusals
+  and accepted contracts, and recognize authority already in the user's request.
+- Align active workers, Gitflow fallback/branch guidance and runtime help;
+  leave repositories without a product backlog untouched by session hooks.
+- Pair with Gitflow Operator v0.2.0 for configured/detected branches, including
+  `development`, `master` and custom integration names.
+
 ## v0.13.0 — 2026-11-16
 
 - Compose the standalone Gitflow Operator as the owner of provider-specific

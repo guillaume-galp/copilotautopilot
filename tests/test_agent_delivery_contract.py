@@ -70,3 +70,29 @@ def test_active_entrypoints_no_longer_mandate_story_sized_assignments():
         content = text(path)
         for phrase in obsolete:
             assert phrase not in content, (path, phrase)
+
+
+def test_native_delivery_is_default_without_bootstrapping_formal_adoption():
+    method = text(".github/skills/the-copilot-build-method/SKILL.md")
+    assert "**Repository-native delivery is the default.**" in method
+    assert "Installing this skill does not enrol every repository" in method
+    assert "No particular file layout, formal brief, evidence hash, packet or `method lane` command is required" in method
+    assert "A backlog's existence does not make every change an admitted epic" in method
+    assert "Do not silently convert such an assignment to native work after a real refusal" in method
+    assert "do not ask for the same approval again in a template" in method
+    assert "Local Git inspection, branching and requested commits are not deployment or release gates" in method
+
+
+def test_native_route_is_wired_into_entrypoints_and_workers():
+    paths = [
+        ".github/copilot-instructions.md",
+        ".github/skills/autopilot/SKILL.md",
+        ".github/agents/developer.agent.md",
+        ".github/agents/orchestrator.agent.md",
+        ".github/agents/reviewer.agent.md",
+        ".github/agents/troubleshooter.agent.md",
+    ]
+    for path in paths:
+        content = text(path).lower()
+        assert "repository-native" in content, path
+        assert "formal" in content, path

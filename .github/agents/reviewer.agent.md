@@ -14,7 +14,10 @@ exists. Apply the risk-based policy in `the-copilot-build-method`.
 
 ## Process
 
-For Direct/Managed, read the retained lane brief, acceptance checks, scope,
+For repository-native work, review the request, actual change and available
+verification. Do not require a packet, lane record, architecture folder or
+formal acceptance that the repository/task never adopted.
+For formally tracked Direct/Managed, read the retained lane brief, acceptance checks, scope,
 implementation revision and actual verification evidence. Apply the canonical
 risk/profile review floor; never require synthetic product planning artefacts.
 Return a real attributable report for `method lane review`. Governed new work

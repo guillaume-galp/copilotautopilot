@@ -9,9 +9,9 @@ test-reference: tests/test_e4_self_hosted_validation.py::test_recovery_runner_ou
 test-sha256: b586f295055cb648aeb1672b0fac76fe6ca2c463bce2ebfdc2502c77df047678
 runner-path: bin/run-th3-e4-us5-evidence
 runner-sha256: 749669834d3cb5dcfaa7dc964e57828096a78ddf386590b8db8966d3565ac4fb
-source-input-sha256: f7ff738a37097ff80c038629e14cfe938b606756576fda0fdee97133dc385e4b
-executed-input-sha256: 34f8cb7f0088d7c4b1826a613787207389d647fb5e5b8d885241689aceb93a66
+source-input-sha256: 39d60822bdec82cd9cd3cbf691c6ee0cf72b09dfed9e34a3c358e215620c195a
+executed-input-sha256: f91c3a59f6f5ea325ea4512b1871010ba3568c23f887907a0755a3c5f1b4dbe4
 run-output: docs/plan/evidence/control-activation/runs/CTL-014-docs-bypass-attempt.json
-run-output-sha256: 203160b579f8474337fc3388a245783c919e25325e0f294f7e97bf89bb68729e
+run-output-sha256: 3c6b40ffa82b3380a32f1a7b3bfcf9f63d49a65b944de2a1008632f8e7ce6741
 observed-exit: 2
-observed-at: '2026-11-13T12:05:59.690713+00:00'
+observed-at: '2026-11-17T02:25:38.557096+00:00'
