@@ -268,14 +268,16 @@ def test_legacy_prompt_names_only_delegate_to_current_skills():
         assert "compatibility alias" in prompt
 
 
-def test_gitflow_command_resolution_is_local_then_path_and_fails_closed():
+def test_gitflow_resolution_prefers_operator_and_allows_explicit_safe_native_fallback():
     skill = (ROOT / ".github/skills/gitflow-operator/SKILL.md").read_text()
 
     assert '"$REPO/bin/gitflow-operator"' in skill
     assert "compatibility launcher" in skill
     assert "command -v" in skill
-    assert "If neither exists, stop" in skill
-    assert "do not silently substitute raw Git commands" in skill
+    assert "If neither exists" in skill
+    assert "use native Git/provider tooling for authorized work" in skill
+    assert "unless\nrepository instructions explicitly require this operator" in skill
+    assert "Never use fallback to evade failed CI" in skill
     method_skill = (ROOT / ".github/skills/the-copilot-build-method/SKILL.md").read_text()
     assert "compatibility launcher" in method_skill
     assert "standalone Gitflow Operator project owns provider-specific implementation" in method_skill

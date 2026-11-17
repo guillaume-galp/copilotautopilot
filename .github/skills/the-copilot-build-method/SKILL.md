@@ -5,8 +5,72 @@ description: 'Canonical Direct, Managed and Governed delivery lanes, lifecycle g
 
 # The Copilot Build Method
 
+## Start With the Repository, Not the Ceremony
+
+**Repository-native delivery is the default.** Installing this skill does not
+enrol every repository in the formal product lifecycle or the `method` runtime.
+Read the repository's actual instructions, conventions, code and available
+tests first. Missing `docs/`, backlog, architecture documents, admission,
+mission packet, method installation or release package is not a blocker to
+ordinary requested engineering. Do not create these just to obtain permission
+to work.
+
+Choose the applicable execution contract before using the lane labels below:
+
+- **Repository-native:** implement the user's bounded request using the
+  repository's existing workflow. Capture scope and acceptance in the
+  conversation, issue or PR; run appropriate checks, review proportionately
+  and report actual results. For multi-session work, retain a short next action
+  in an existing project facility or session state. No particular file layout,
+  formal brief, evidence hash, packet or `method lane` command is required.
+- **Formal runtime:** use it when the user explicitly requests it, repository
+  instructions require it for this work, or the assignment executes/resumes an
+  admitted backlog item or an existing runtime record. Its commands, gates,
+  retained revisions and accepted artefacts remain binding. Do not silently
+  convert such an assignment to native work after a real refusal.
+
+A backlog's existence does not make every change an admitted epic. Check the
+request and the relevant item scope; unrelated maintenance may remain native
+without changing backlog state. If the assignment plausibly overlaps admitted
+or refused work, resolve that specific relationship, not an imaginary missing
+greenfield lifecycle. A `docs/` or `.github/` path alone does not establish
+formal adoption or a consequential semantic change.
+
+### Practical Native Workflow
+
+1. Establish the requested outcome, bounded scope and observable acceptance.
+   Use the user's request as authority for the operations it actually asks
+   for; do not ask for the same approval again in a template.
+2. Inspect existing behavior and conventions; implement the smallest complete
+   change. Routine reversible technical choices are the owner's job. State
+   reasonable low-risk assumptions and continue; ask only about material
+   ambiguity, consequential choices or missing authority.
+3. Run relevant tests/build/lint and perform risk-scaled review. Retain honest
+   command results or inspection findings in the report/PR; do not invent
+   passing checks or independent review. Missing optional tooling warrants an
+   explicit alternative, not a lifecycle bootstrap.
+4. Report what changed, verification, limitations and any next action. Stop
+   only the blocked operation where possible; continue independent authorized
+   implementation or investigation.
+
+Risk still matters in native delivery: access-control decisions, destructive
+data changes, sensitive operations, production activation and changes to
+approval enforcement need clear human authority, relevant verification,
+review and recovery planning. Use the repository's real controls. Where it
+has not adopted formal lifecycle machinery, clear human direction plus
+proportionate evidence is sufficient; do not demand synthetic planning
+admission or mission packets. An explicit request can supply that authority;
+it never authorizes extra operations, bypassing server rules or fabricated
+evidence. Implementing a capability does not authorize activating it.
+Local Git inspection, branching and requested commits are not deployment or
+release gates. Push, merge, deployment and release need authority for those
+operations, which may already be present in the user's request.
+
 ## Risk-Scaled Delivery Lanes
 
+Use these lanes to scale care, not to impose formal adoption. In native work,
+apply their intent using the practical workflow above; the executable contract
+and command protocol below describe the **opt-in formal runtime only**.
 Select a delivery lane **before** selecting lifecycle work. This section is
 the canonical authority for lane selection, execution and completion. The
 six-stage lifecycle below remains the product/design lifecycle, not a
@@ -18,11 +82,11 @@ through `kickstart` or `plan` merely to make it executable.
 |---|---|---|---|
 | Direct | Bounded, well-understood fixes, documentation or behavior-preserving refactors within existing intent; R0/R1, clear scope and no consequential trigger | One owner, outcome/scope/acceptance checks, targeted verification, self-assessment and concise report | Vision, Discovery, PRD, theme, epic, mission packet |
 | Managed | Substantial features or multi-session bounded work within an established design, with no Governed trigger | Retained owner, concise outcome/non-goals/acceptance brief, durable progress/next action, targeted and relevant integration checks, risk-scaled review | Complete greenfield lifecycle and new planning hierarchy for unchanged decisions |
-| Governed | Consequential authority, integrity, sensitive operations, migrations, production/delivery operations, complex cross-service contracts or changes to this method's enforcement | Explicit human authority/scope, formal acceptance/verification/review evidence, recovery/rollback assessment where applicable, mission packets and applicable lifecycle gates | Re-creating or re-accepting unchanged, valid upstream evidence |
+| Governed | Consequential authority, integrity, sensitive operations, migrations, production/delivery operations, complex cross-service contracts or changes to this method's enforcement | Explicit human authority/scope, acceptance/verification/review evidence and recovery/rollback assessment; mission packets and lifecycle gates where the formal contract applies | Inventing lifecycle adoption or re-accepting unchanged, valid evidence |
 
 ### Selection and Confirmation
 
-The implementation owner assesses explicit facts and proposes the lowest
+For formal runtime selection, the implementation owner assesses explicit facts and proposes the lowest
 eligible lane. Size is not file count, duration or a license to ignore risk.
 An R2 assessment requires at least Managed; R3 requires Governed. A new or
 changed product/design decision requires the applicable human product/design
@@ -72,14 +136,16 @@ Declared scope touching formal product/planning/architecture artefacts routes
 to their existing contracts conservatively. Fixing an ordinary README typo
 does not require new product decisions.
 Enforcement code/instruction paths also route conservatively, without relying
-on a declared trigger. A repository with unfinished product backlog work cannot
+on a declared trigger. The strict `method lane` runtime in a repository with unfinished product backlog work cannot
 prove a new lighter assignment unrelated from implementation paths alone;
 the local route refuses and retains the existing packet contract. Finish or
 obtain disposition of that admitted work rather than omit its identity.
+This conservative runtime limitation is not a ban on genuinely unrelated
+repository-native maintenance under the selection rules above.
 
 ### Execution and Resumption
 
-Use `method lane assess` before new unadmitted work; `method lane start`
+When the formal runtime is selected, use `method lane assess` before new unadmitted work; `method lane start`
 records the selected lane. Direct can supply the brief as CLI arguments; no
 handwritten planning file is required. Managed uses the same compact brief
 with non-goals, existing design evidence and integration checks. The generated
@@ -154,13 +220,16 @@ remain valid and immutable; no synthetic story is required for renewal.
   history migration, widening of legacy story scope or gate downgrade.
 - `method packet` and explicit product lifecycle entrypoints retain their
   existing defaults. The lane route cannot complete a backlog item, grant a
-  worker a packet or accept a product. Governed work must use the applicable
+  worker a packet or accept a product. Formally tracked Governed work must use the applicable
   validated lifecycle admission and packet machinery. Valid existing product
   and architecture evidence may be reused; new decisions use their gates.
 
 See [the delivery lane guide](delivery-lanes.md) for executable examples.
 
 ## Canonical Lifecycle Contract
+
+This contract governs explicitly selected product lifecycle stages and admitted
+delivery. It is not a universal entry gate for repository-native engineering.
 
 This skill is the single authoritative owner of the lifecycle stage list,
 ordering, entrypoints, owning artefacts, gates, and authorities. Other active
@@ -286,7 +355,8 @@ At the applicable gate, the block is removed or `Status` is changed to
 
 ## Core Principles
 
-- Select the canonical delivery lane; validate applicable gates before stage work.
+- Select the repository-native or formal execution contract first, then scale
+  care by lane; validate applicable gates before formal stage work.
 - `docs/plan/backlog.yaml` is authoritative product orchestration state;
   lighter working records never compete with it.
 - For admitted packet work, one bounded epic per developer assignment; retain the same owner through
@@ -296,8 +366,9 @@ At the applicable gate, the block is removed or `Status` is changed to
 - Escalate unresolved failures to the troubleshooter after bounded local
   repair, not on every failed test.
 - Ceremonies happen at epic/theme boundaries.
-- Current autopilot skills MUST use `gitflow-operator` for branch, commit,
-  merge-request, CI, squash-merge, and release-note operations.
+- Autopilot skills use `gitflow-operator` for supported delivery operations,
+  with the explicit native fallback defined by that skill when unavailable.
+  An actual failed gate is never a fallback condition.
 
 ## VP ↔ TH Mapping
 
@@ -305,6 +376,10 @@ At the applicable gate, the block is removed or `Status` is changed to
 - Theme numbering is sequential and independent of VP numbering.
 
 ## Definition of Done
+
+The epic/theme rules below apply to formally admitted work. Native assignments
+complete against their requested outcome and appropriate actual verification,
+without synthetic epics, theme acceptance or release ceremonies.
 
 ### Atomic Work Unit
 
@@ -406,21 +481,28 @@ historical evidence and are not active instructions.
 
 ## Gitflow Operator
 
-When delivery work needs Gitflow, use the `gitflow-operator` command surface
-instead of hand-writing ad hoc Git instructions:
+Prefer the `gitflow-operator` command surface when it supports the repository.
+It does not require method adoption, an item ID, backlog or admission:
 
 ```bash
-"$GITFLOW_OPERATOR" --repo <repo> --item-id <epic-id> status
-"$GITFLOW_OPERATOR" --repo <repo> --item-id <epic-id> branch-from-develop --branch feature/<slug>
-"$GITFLOW_OPERATOR" --repo <repo> --item-id <epic-id> prepare-release-notes --summary "<summary>"
+"$GITFLOW_OPERATOR" --repo <repo> status
+"$GITFLOW_OPERATOR" --repo <repo> branch --branch feature/<slug>
+"$GITFLOW_OPERATOR" --repo <repo> prepare-release-notes --summary "<summary>"
 ```
 
 Resolve `GITFLOW_OPERATOR` as defined in the `gitflow-operator` skill: prefer
 the target repository's executable `bin/gitflow-operator`, then use
-`command -v gitflow-operator` from `PATH`. Stop if neither path resolves.
+`command -v gitflow-operator` from `PATH`. If unavailable or unsupported, say
+so and use native Git/provider tooling for authorized operations unless the
+repository explicitly requires the operator. Preserve equivalent applicable
+checks; never use fallback to evade a failed CI, approval or protection gate.
 The repository-local executable is a compatibility launcher; the standalone Gitflow Operator project owns provider-specific implementation and tests.
 
-If Gitflow is not applicable, record a not-applicable rationale.
+Follow configured/detected integration and default branches; `master` and
+`development` are valid conventions, not reasons to rename branches. Use an
+explicit `--base`/`--target` when genuinely ambiguous. In formal evidence,
+record a not-applicable rationale when Gitflow is not applicable; native work
+needs only an honest report, not a new evidence file.
 
 ## Code Intelligence Defaults
 

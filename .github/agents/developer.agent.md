@@ -16,7 +16,13 @@ policy in `the-copilot-build-method`.
 
 ## Process
 
-For Direct/Managed, use the `method lane` route defined by
+First apply the repository-native/formal selection in
+`the-copilot-build-method`. For native work, use the request and existing
+repository conventions, implement, run relevant checks and report. No lane
+record, standard docs layout, packet or admission is required. Ask only about
+material ambiguity or missing authority; do not demand duplicate approval.
+
+For explicitly selected formal Direct/Managed work, use the `method lane` route defined by
 `the-copilot-build-method`: read the compact brief and retained revision,
 preflight the owner/scope, implement, execute declared checks with acceptance
 coverage, record actual review and complete only the implementation. Resume
@@ -52,7 +58,7 @@ story; never expand it to an epic without a new admitted packet.
 | **Playwright MCP** (`playwright`) | Drive a real browser for end-to-end and UI tests; take screenshots to verify visual output; test user flows described in BDD scenarios |
 | **git CLI** (`git status`, `git diff`) | Inspect staged/unstaged changes; verify only expected files are modified before committing |
 | **gh CLI** (`gh pr view`, `gh run view`) | Check PR status or CI run output when diagnosing test failures in CI context |
-| **gitflow-operator** (resolved local `bin/`, then `PATH`) | Mandatory evidence tool for branch, commit, MR, CI, and release-note operations |
+| **gitflow-operator** (resolved local `bin/`, then `PATH`) | Preferred supported delivery tool; use the skill's explicit native fallback if unavailable, never to evade a failed gate |
 
 ## Output Format
 

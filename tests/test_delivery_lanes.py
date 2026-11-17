@@ -384,3 +384,13 @@ def test_existing_cli_commands_do_not_need_the_new_lane_contract(monkeypatch, tm
     result = cli.dispatch(["doctor"], probe_directory=tmp_path)
     assert result.exit_code == 0
     assert result.payload["command"] == "doctor"
+
+
+def test_lane_help_explains_that_formal_tracking_is_opt_in():
+    result = subprocess.run(
+        [str(ROOT / "bin/method"), "lane", "--help"],
+        capture_output=True, text=True,
+    )
+    assert result.returncode == 0
+    assert "opt-in" in result.stderr
+    assert "repository-native work does not require" in " ".join(result.stderr.split())

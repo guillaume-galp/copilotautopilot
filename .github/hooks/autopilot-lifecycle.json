@@ -10,7 +10,7 @@
     "SubagentStop": [
       {
         "type": "command",
-        "command": "echo \"$(date -u +%Y-%m-%dT%H:%M:%SZ) | Subagent completed\" >> docs/plan/session-log.md 2>/dev/null || true",
+        "command": "if [ -f docs/plan/backlog.yaml ]; then printf '%s | Subagent completed\\n' \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\" >> docs/plan/session-log.md; fi",
         "timeout": 5
       }
     ],

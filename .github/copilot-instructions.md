@@ -6,6 +6,12 @@ Template repo for autonomous product development. The authoritative stage
 order, entrypoints, artefacts, gates, authorities, and split lock scope are
 defined only by the `the-copilot-build-method` skill. Select its Direct,
 Managed or Governed delivery lane before invoking product lifecycle work.
+Repository-native delivery is the default unless this repository/task
+explicitly requires formal runtime or executes/resumes admitted work.
+Global skill installation is not adoption. Missing backlog, standard `docs/`,
+admission, mission packet or method package does not block ordinary requested
+engineering; inspect, implement, verify and report using existing conventions.
+An unrelated backlog item does not make every request an admitted epic.
 Direct/Managed assignments do not require a synthetic planning hierarchy or
 mission packet. The method has six
 stages exposed through five entrypoints; use that skill's canonical map rather
@@ -54,7 +60,7 @@ Graphify over grep-style search.
   resume from lane evidence and never mirror or complete backlog items.
 - One retained owner per bounded assignment; admitted work remains one epic
   (legacy story packets stay story-scoped). Optional stories are not separate jobs.
-- Apply the canonical lane's selection, preflight, escalation and completion
+- For formally tracked work, apply the canonical lane's selection, preflight, escalation and completion
   controls. No lane downgrade after refusal, unauthorized external mutation,
   invented approval, skipped verification or implicit production activation.
 - Apply the canonical bounded-repair and escalation rules, not automatic handoffs on failed tests.

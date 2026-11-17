@@ -1,9 +1,23 @@
 ---
 name: autopilot
-description: 'Run orchestrator to execute backlog in dependency order with recovery and progress reporting.'
+description: 'Execute repository-native engineering or admitted backlog work with risk-scaled controls.'
 ---
 
 # Autopilot Skill
+
+## Select the Execution Contract First
+
+Follow `the-copilot-build-method`'s repository-native default. This skill being
+installed or invoked does not require a repository to adopt a backlog,
+standard `docs/` layout, admission, packets or the `method lane` runtime.
+For ordinary requested work, inspect, implement, test, review proportionately
+and report using the repository's existing conventions. Do not bootstrap
+product planning or require a package install just to begin coding.
+
+The formal lane and packet instructions below apply only when the user or
+repository requires that runtime, or this assignment executes/resumes its
+existing admitted item/record. Unrelated backlog items do not enrol a native
+assignment. Preserve actual admitted scope, refusals, authority and verification.
 
 ## Agents & Skills
 
@@ -15,7 +29,7 @@ description: 'Run orchestrator to execute backlog in dependency order with recov
 
 ## Pre-flight
 
-First select the delivery lane from `the-copilot-build-method`. For new
+For formal runtime work, first select the delivery lane from `the-copilot-build-method`. For new
 unadmitted Direct/Managed work, use `method lane assess` and `start`, retain
 the returned revision, then `preflight` before implementation/resumption.
 Use one owner with the compact scope/acceptance/check brief; do not invoke
@@ -82,6 +96,7 @@ the canonical risk/profile policy for self-review or native independent
 review; no mandatory per-story handoffs or duplicate epic review passes.
 Escalate only after bounded repair or when missing expertise/authority blocks
 the owner.
-Use `gitflow-operator` for branch, commit, merge-request, CI, squash-merge, and
-release-note operations at epic scope; do not hand-write ad hoc Gitflow steps.
+Use `gitflow-operator` for supported delivery operations at epic scope;
+apply its explicit native-tool fallback when unavailable/unsupported, never
+to bypass a real failed gate. Follow repository branch conventions.
 Report progress after each completed epic and persist resumable blockers.
